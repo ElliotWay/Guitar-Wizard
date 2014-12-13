@@ -15,14 +15,14 @@ package
 		private var _letter:int;
 		private var _time:Number;
 		private var _isHold:Boolean;
-		private var _duration:Number;
+		private var _endtime:Number;
 		
-		public function Note(letter:int, time:Number, isHold:Boolean = false, duration:Number = 0.0)
+		public function Note(letter:int, time:Number, isHold:Boolean = false, endtime:Number = 0.0)
 		{
 			_letter = letter;
 			_time = time;
 			_isHold = isHold;
-			_duration = duration;
+			_endtime = endtime;
 		}
 		
 		public function get letter():int 
@@ -40,9 +40,9 @@ package
 			return _isHold;
 		}
 		
-		public function get duration():Number 
+		public function get endtime():Number 
 		{
-			return _duration;
+			return _endtime;
 		}
 	
 	}

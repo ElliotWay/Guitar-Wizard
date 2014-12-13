@@ -25,6 +25,12 @@ package
 			var gameUI:GameUI = new GameUI();
 			this.addChild(gameUI);
 			gameUI.visible = true;
+			
+			var song:Song = new Song();
+			song.hardcode();
+			
+			gameUI.loadSong(song);
+			gameUI.go();
 		}
 		
 	}

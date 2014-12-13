@@ -20,6 +20,14 @@ package  {
 			musicArea.x = 0; musicArea.y = 0;
 		}
 		
+		public function loadSong(song:Song):void {
+			musicArea.loadNotes(song);
+		}
+		
+		public function go():void {
+			musicArea.go();
+		}
+		
 	}
 
 }
