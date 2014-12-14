@@ -13,9 +13,9 @@ package
 		public static const NOTE_F:int = 3;
 		
 		private var _letter:int;
-		private var _time:Number;
+		public var _time:Number;	//make these private again later
 		private var _isHold:Boolean;
-		private var _endtime:Number;
+		public var _endtime:Number;
 		
 		public function Note(letter:int, time:Number, isHold:Boolean = false, endtime:Number = 0.0)
 		{

@@ -135,6 +135,11 @@ package
 			_midPart.push(new Note(Note.NOTE_F, 46080));
 			_midPart.push(new Note(Note.NOTE_D, 46320));
 			_midPart.push(new Note(Note.NOTE_S, 46560, true, 47520));
+			
+			for each (var note:Note in _midPart) {
+				note._time *= (200 / 192);
+				note._endtime *= (200 / 192);
+			}
 		}
 		
 		public function get lowPart():Vector.<Note> 

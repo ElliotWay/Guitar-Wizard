@@ -2,6 +2,9 @@ package
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
+	import flash.media.Sound;
+	import flash.net.URLRequest;
 	import flash.text.TextField;
 	
 	/**
@@ -10,6 +13,7 @@ package
 	 */
 	public class Main extends Sprite 
 	{
+		private var gameUI:GameUI;
 		
 		public function Main():void 
 		{
@@ -22,7 +26,7 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
-			var gameUI:GameUI = new GameUI();
+			gameUI = new GameUI();
 			this.addChild(gameUI);
 			gameUI.visible = true;
 			
@@ -30,7 +34,22 @@ package
 			song.hardcode();
 			
 			gameUI.loadSong(song);
+			
+			var songSound:Sound = new Sound();
+			songSound.addEventListener(IOErrorEvent.IO_ERROR, songError);
+			songSound.addEventListener(Event.COMPLETE, songComplete);
+			
+			songSound.load(new URLRequest("../assets/Fur_Elise_Adapted_-_Baseline.mp3"));
+			//gameUI.go();
+		}
+		
+		public function songError(e:Event):void {
+			trace("load error");
+		}
+		public function songComplete(e:Event):void {
+			var song:Sound = (e.target as Sound);
 			gameUI.go();
+			song.play();
 		}
 		
 	}

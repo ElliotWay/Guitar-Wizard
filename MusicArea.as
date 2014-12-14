@@ -17,9 +17,15 @@ package
 		public static const HEIGHT:int = 250;
 		public static const WIDTH:int = 800;
 		
+		public static const HIT_LINE:int = 30
+		
 		public static const POSITION_SCALE:Number = 0.3; //position of letter in pixels per milliseconds of music
 		
 		public static const NOTE_SIZE:int = 20; //radius of the note circle. scales the size of the letter and the hold rectangle
+		public static const F_COLOR:uint = 0xFF0000;
+		public static const D_COLOR:uint = 0x0000FF;
+		public static const S_COLOR:uint = 0xFFFF00;
+		public static const A_COLOR:uint = 0x00FF00;
 		
 		private var highNotes:Sprite;
 		private var midNotes:Sprite;
@@ -36,7 +42,7 @@ package
 			//Change this if you change the stage background.
 			//Draw Background (there remains no "background" property so far as I'm aware)
 			graphics.lineStyle(0, 0, 0);
-			graphics.beginFill(0xBB9999);
+			graphics.beginFill(0xD17519);
 			graphics.drawRect(0, 0, WIDTH, HEIGHT);
 			graphics.endFill();
 			
@@ -50,7 +56,7 @@ package
 			//Draw "hit here" region
 			graphics.lineStyle(0, 0, 0.0);
 			graphics.beginFill(0xFFA319, 0.7);
-			graphics.drawRect(25, 0, 50, HEIGHT);
+			graphics.drawRect(HIT_LINE - 12, 0, HIT_LINE + 12, HEIGHT);
 			graphics.endFill();
 			
 		}
@@ -88,6 +94,7 @@ package
 			notesLayer.addChild(highNotes);
 			highNotes.visible = false;
 			
+			notesLayer.x = HIT_LINE + 400 * POSITION_SCALE;
 			this.addChild(notesLayer);
 		}
 		
@@ -96,14 +103,24 @@ package
 			
 			for each(var note:Note in notes) {
 				
+				var noteColor:uint = 0x0;
+				if (note.letter == Note.NOTE_F)
+					noteColor = F_COLOR;
+				if (note.letter == Note.NOTE_D)
+					noteColor = D_COLOR;
+				if (note.letter == Note.NOTE_S)
+					noteColor = S_COLOR;
+				if (note.letter == Note.NOTE_A)
+					noteColor = A_COLOR;
+				
 				//create the image for this note
 				var noteSprite:Sprite = new Sprite();
-				noteSprite.graphics.beginFill(0xFF0000);
+				noteSprite.graphics.beginFill(noteColor);
 				noteSprite.graphics.drawCircle(0, 0, NOTE_SIZE);
 				noteSprite.graphics.endFill();
 				//and the hold rectangle, if applicable
 				if (note.isHold) {
-					noteSprite.graphics.beginFill(0xFF0000);
+					noteSprite.graphics.beginFill(noteColor);
 					noteSprite.graphics.drawRect(0, -NOTE_SIZE * .25, (note.endtime - note.time) * POSITION_SCALE, NOTE_SIZE * .5);
 					noteSprite.graphics.endFill();
 				}
@@ -118,7 +135,7 @@ package
 					letter.text = "S";
 				if (note.letter == Note.NOTE_A)
 					letter.text = "A";
-				letter.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0x000000, true));
+				letter.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - noteColor, true));
 				noteSprite.addChild(letter);
 				letter.x = -NOTE_SIZE * .35;
 				letter.y = -NOTE_SIZE * .6;
