@@ -1,5 +1,7 @@
 package  
 {
+	import com.greensock.TweenLite;
+	import com.greensock.easing.Linear;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.text.TextField;
@@ -15,13 +17,14 @@ package
 		public static const HEIGHT:int = 250;
 		public static const WIDTH:int = 800;
 		
-		public static const POSITION_SCALE:Number = 0.25; //position of letter in pixels per milliseconds of music
+		public static const POSITION_SCALE:Number = 0.3; //position of letter in pixels per milliseconds of music
 		
 		public static const NOTE_SIZE:int = 20; //radius of the note circle. scales the size of the letter and the hold rectangle
 		
 		private var highNotes:Sprite;
 		private var midNotes:Sprite;
 		private var lowNotes:Sprite;
+		private var notesLayer:Sprite;
 		
 		public function MusicArea() 
 		{
@@ -31,11 +34,11 @@ package
 		private function init(e:Event):void {
 			
 			//Change this if you change the stage background.
-			/*//Draw Background (there remains no "background" property so far as I'm aware)
-			graphics.lineStyle(0);
-			graphics.beginFill(0xFFFFFF);
+			//Draw Background (there remains no "background" property so far as I'm aware)
+			graphics.lineStyle(0, 0, 0);
+			graphics.beginFill(0xBB9999);
 			graphics.drawRect(0, 0, WIDTH, HEIGHT);
-			graphics.endFill();*/
+			graphics.endFill();
 			
 			//Draw 4 lines.
 			graphics.lineStyle(3);
@@ -72,17 +75,20 @@ package
 		}
 		
 		public function loadNotes(song:Song):void {
+			notesLayer = new Sprite();
+			
 			lowNotes = createNotesImage(song.lowPart);
 			midNotes = createNotesImage(song.midPart);
 			highNotes = createNotesImage(song.highPart);
 			
-			this.addChild(lowNotes);
+			notesLayer.addChild(lowNotes);
 			lowNotes.visible = false;
-			this.addChild(midNotes);
+			notesLayer.addChild(midNotes);
 			midNotes.visible = true;
-			midNotes.x = -200; //Remove later
-			this.addChild(highNotes);
+			notesLayer.addChild(highNotes);
 			highNotes.visible = false;
+			
+			this.addChild(notesLayer);
 		}
 		
 		public static function createNotesImage(notes:Vector.<Note>):Sprite {
@@ -142,8 +148,9 @@ package
 		private var stopwatch:uint;
 		
 		public function go():void {
-			stopwatch = getTimer();
-			this.addEventListener(Event.ENTER_FRAME, scrollLeft);
+			TweenLite.to(notesLayer, (notesLayer.width * 2 / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2, ease: Linear.easeOut } );
+			//this.addEventListener(Event.ENTER_FRAME, scrollLeft);
+			//stopwatch = getTimer();
 		}
 		
 		public function stop():void {
