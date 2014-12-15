@@ -13,7 +13,13 @@ package
 	 */
 	public class Main extends Sprite 
 	{
-		private var gameUI:GameUI;
+		public static const HIGH:int = 0;
+		public static const MID:int = 1;
+		public static const LOW:int = 2;
+		
+		private static var gameUI:GameUI;
+		
+		private static var songLoader:SongLoader;
 		
 		public function Main():void 
 		{
@@ -26,6 +32,8 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
+			songLoader = new SongLoader();
+			
 			gameUI = new GameUI();
 			this.addChild(gameUI);
 			gameUI.visible = true;
@@ -35,22 +43,19 @@ package
 			
 			gameUI.loadSong(song);
 			
-			var songSound:Sound = new Sound();
-			songSound.addEventListener(IOErrorEvent.IO_ERROR, songError);
-			songSound.addEventListener(Event.COMPLETE, songComplete);
-			
-			songSound.load(new URLRequest("../assets/Fur_Elise_Adapted_-_Baseline.mp3"));
-			//gameUI.go();
+			this.addEventListener(GWEvent.SONGS_LOADED, go);
+			songLoader.load();
 		}
 		
-		public function songError(e:Event):void {
-			trace("load error");
-		}
-		public function songComplete(e:Event):void {
-			var song:Sound = (e.target as Sound);
+		public static function go():void {
 			gameUI.go();
-			song.play();
 		}
+		
+		public static function loadSong(song:Sound, url:String):void {
+			songLoader.addSong(song, url);
+		}
+		
+		
 		
 	}
 	

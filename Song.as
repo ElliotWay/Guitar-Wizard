@@ -1,5 +1,6 @@
 package  
 {
+	import flash.media.Sound;
 	/**
 	 * ...
 	 * @author Elliot Way
@@ -10,7 +11,11 @@ package
 		private var _lowPart:Vector.<Note>;
 		private var _midPart:Vector.<Note>;
 		private var _highPart:Vector.<Note>;
-		//private var lowMusic, midMusic, highMusic, baseMusic:musicType?;
+
+		private var _lowMusic:Sound;
+		private var _midMusic:Sound;
+		private var _highMusic:Sound;
+		private var _baseMusic:Sound;
 		
 		public function Song() 
 		{
@@ -18,6 +23,11 @@ package
 		}
 		
 		public function hardcode():void {
+			_midMusic = new Sound();
+			Main.loadSong(_midMusic, "../assets/Fur_Elise_Adapted_-_Mid.mp3");
+			_baseMusic = new Sound();
+			Main.loadSong(_baseMusic, "../assets/Fur_Elise_Adapted_-_Baseline.mp3");
+			
 			_lowPart = new Vector.<Note>();
 			_highPart = new Vector.<Note>();
 			
@@ -155,6 +165,26 @@ package
 		public function get highPart():Vector.<Note> 
 		{
 			return _highPart;
+		}
+		
+		public function get lowMusic():Sound 
+		{
+			return _lowMusic;
+		}
+		
+		public function get midMusic():Sound 
+		{
+			return _midMusic;
+		}
+		
+		public function get highMusic():Sound 
+		{
+			return _highMusic;
+		}
+		
+		public function get baseMusic():Sound 
+		{
+			return _baseMusic;
 		}
 		
 	}
