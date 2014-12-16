@@ -45,20 +45,27 @@ package
 		}
 		
 		public function stopTrack():void {
-			if (lowChannel != null)
+			if (lowChannel != null) {
 				lowChannel.stop();
-			if (midChannel != null)
+				lowChannel = null;
+			}
+			if (midChannel != null) {
 				midChannel.stop();
-			if (highChannel != null)
+				midChannel = null;
+			}
+			if (highChannel != null) {
 				highChannel.stop();
+				highChannel = null;
+			}
 		}
 		
 		public function resumeTrack():void {
-			if (currentTrack == Main.HIGH)
+			//Tracks are already going if not null.
+			if (currentTrack == Main.HIGH && highChannel == null)
 				highChannel = highMusic.play(baseChannel.position);
-			if (currentTrack == Main.MID)
+			if (currentTrack == Main.MID && midChannel == null)
 				midChannel = midMusic.play(baseChannel.position);
-			if (currentTrack == Main.LOW)
+			if (currentTrack == Main.LOW && lowChannel == null)
 				lowChannel = lowMusic.play(baseChannel.position);
 		}
 		
@@ -66,6 +73,17 @@ package
 			stopTrack();
 			if (baseChannel != null)
 				baseChannel.stop();
+		}
+		
+		public function playMissSound():void {
+			//TODO add this functionality
+		}
+		
+		public function getTime():Number {
+			if (baseChannel != null)
+				return baseChannel.position;
+			else
+				return -1;
 		}
 		
 	}

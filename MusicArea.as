@@ -17,8 +17,7 @@ package
 		public static const HEIGHT:int = 250;
 		public static const WIDTH:int = 800;
 		
-		public static const HIT_LINE:int = 30
-		public static const HIT_TOLERANCE:int = 15; //how far from the hit line a hit can be
+		public static const HIT_LINE:int = 75;
 		
 		public static const POSITION_SCALE:Number = 0.3; //position of letter in pixels per milliseconds of music
 
@@ -52,7 +51,8 @@ package
 			//Draw "hit here" region
 			graphics.lineStyle(0, 0, 0.0);
 			graphics.beginFill(0xFFA319, 0.7);
-			graphics.drawRect(HIT_LINE - 12, 0, HIT_LINE + 12, HEIGHT);
+			graphics.drawRect(HIT_LINE - GameUI.HIT_TOLERANCE * POSITION_SCALE, 0,
+								HIT_LINE + GameUI.HIT_TOLERANCE * POSITION_SCALE, HEIGHT);
 			graphics.endFill();
 			
 		}
@@ -90,7 +90,7 @@ package
 			notesLayer.addChild(highNotes);
 			highNotes.visible = false;
 			
-			notesLayer.x = HIT_LINE + 400 * POSITION_SCALE;
+			notesLayer.x = HIT_LINE + 100; //TODO figure this out
 			this.addChild(notesLayer);
 		}
 		
@@ -122,27 +122,8 @@ package
 			return notesImage;
 		}
 		
-		
-		private var stopwatch:uint;
-		
 		public function go():void {
 			TweenLite.to(notesLayer, (notesLayer.width * 2 / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2, ease: Linear.easeOut } );
-			//this.addEventListener(Event.ENTER_FRAME, scrollLeft);
-			//stopwatch = getTimer();
-		}
-		
-		public function stop():void {
-			this.removeEventListener(Event.ENTER_FRAME, scrollLeft);
-		}
-		
-		public function scrollLeft(e:Event):void {
-			var right_now:uint = getTimer();
-			
-			lowNotes.x -= (right_now - stopwatch) * POSITION_SCALE;
-			midNotes.x -= (right_now - stopwatch) * POSITION_SCALE;
-			highNotes.x -= (right_now - stopwatch) * POSITION_SCALE;
-			
-			stopwatch = right_now;
 		}
 	}
 

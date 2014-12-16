@@ -17,7 +17,8 @@ package
 		private var _isHold:Boolean;
 		public var _endtime:Number;
 		
-		private var associatedSprite:NoteSprite;
+		public var associatedSprite:NoteSprite;
+		public var _isHit:Boolean;
 		
 		public function Note(letter:int, time:Number, isHold:Boolean = false, endtime:Number = 0.0)
 		{
@@ -29,6 +30,8 @@ package
 		
 		public function setSprite(sprite:NoteSprite):void {
 			associatedSprite = sprite;
+			_isHit = false; //Wrong place to put this, but whenever the sprite is being set,
+							//that also means the note hasn't been hit yet.
 		}
 		
 		public function get letter():int 

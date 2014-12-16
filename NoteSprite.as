@@ -14,12 +14,14 @@ package
 		public static const F_COLOR:uint = 0xFF0000;
 		public static const D_COLOR:uint = 0x0000FF;
 		public static const S_COLOR:uint = 0xFFFF00;
-		public static const A_COLOR:uint = 0x00FF00;
+		public static const A_COLOR:uint = 0x00C000;
 		
 		private var associatedNote:Note;		
 		
 		public function NoteSprite(noteLetter:int, note:Note) 
 		{
+			note.setSprite(this);
+			
 			var noteColor:uint = 0x0;
 			if (note.letter == Note.NOTE_F)
 				noteColor = F_COLOR;
@@ -55,6 +57,15 @@ package
 			this.addChild(letter);
 			letter.x = -NOTE_SIZE * .35;
 			letter.y = -NOTE_SIZE * .6;
+		}
+		
+		public function hit():void {
+			this.graphics.lineStyle(4, 0x00FF00);
+			this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
+		}
+		
+		public function miss():void {
+			//TODO add this functionality
 		}
 		
 	}
