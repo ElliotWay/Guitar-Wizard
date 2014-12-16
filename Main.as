@@ -43,7 +43,6 @@ package
 			
 			gameUI.loadSong(song);
 			
-			this.addEventListener(GWEvent.SONGS_LOADED, go);
 			songLoader.load();
 		}
 		

@@ -17,12 +17,18 @@ package
 		private var _isHold:Boolean;
 		public var _endtime:Number;
 		
+		private var associatedSprite:NoteSprite;
+		
 		public function Note(letter:int, time:Number, isHold:Boolean = false, endtime:Number = 0.0)
 		{
 			_letter = letter;
 			_time = time;
 			_isHold = isHold;
 			_endtime = endtime;
+		}
+		
+		public function setSprite(sprite:NoteSprite):void {
+			associatedSprite = sprite;
 		}
 		
 		public function get letter():int 

@@ -46,11 +46,8 @@ package  {
 			switch (e.keyCode) {
 				//First the note keys.
 				case Keyboard.F:
-					break;
 				case Keyboard.D:
-					break;
 				case Keyboard.S:
-					break;
 				case Keyboard.A:
 					break;
 			}
