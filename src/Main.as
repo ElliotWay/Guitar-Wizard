@@ -13,6 +13,8 @@ package
 	 */
 	public class Main extends Sprite 
 	{
+		public static const VIDEO_LAG:int = 70; //milliseconds
+		
 		public static const HIGH:int = 0;
 		public static const MID:int = 1;
 		public static const LOW:int = 2;

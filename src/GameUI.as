@@ -1,4 +1,5 @@
 package  {
+	import adobe.utils.CustomActions;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
@@ -9,7 +10,7 @@ package  {
 	 */
 	public class GameUI extends Sprite
 	{	
-		public static const HIT_TOLERANCE:Number = 150; //how far from the actual note a hit can be
+		public static const HIT_TOLERANCE:Number = 100; //how far from the actual note a hit can be
 														//in milliseconds
 		
 		//GUI parts
@@ -48,7 +49,19 @@ package  {
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
 
 			musicArea.go();
-			musicPlayer.go()
+			musicPlayer.go();
+			
+			n = 0;
+			this.addEventListener(Event.ENTER_FRAME, compare);
+		}
+		
+		private var n:int;
+		public function compare(e:Event):void {
+			n++;
+			if (n == 10) {
+				trace(musicPlayer.getTime() + " " + musicArea.getNotesX());
+				n = 0;
+			}
 		}
 		
 		public function notePressHandler(noteLetter:int):void {

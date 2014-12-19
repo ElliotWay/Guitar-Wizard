@@ -20,7 +20,7 @@ package
 		public static const HIT_LINE:int = 75;
 		
 		public static const POSITION_SCALE:Number = 0.3; //position of letter in pixels per milliseconds of music
-
+		public static var position_offset:Number = 40;
 		
 		private var highNotes:Sprite;
 		private var midNotes:Sprite;
@@ -90,7 +90,7 @@ package
 			notesLayer.addChild(highNotes);
 			highNotes.visible = false;
 			
-			notesLayer.x = HIT_LINE + 100; //TODO figure this out
+			notesLayer.x = HIT_LINE + Main.VIDEO_LAG * POSITION_SCALE + positionOffset;
 			this.addChild(notesLayer);
 		}
 		
@@ -122,8 +122,12 @@ package
 			return notesImage;
 		}
 		
+		public function getNotesX():Number {
+			return (-notesLayer.x + HIT_LINE) / POSITION_SCALE;
+		}
+		
 		public function go():void {
-			TweenLite.to(notesLayer, (notesLayer.width * 2 / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2, ease: Linear.easeOut } );
+			TweenLite.to(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
 		}
 	}
 
