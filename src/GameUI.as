@@ -26,6 +26,9 @@ package  {
 		private var song:Song;
 		private var track:int;
 		
+		private var expectingHold:Vector.<Boolean>;
+		private var currentHolds:Vector.<Note>;
+		
 		public function GameUI() 
 		{
 			super();
@@ -36,6 +39,9 @@ package  {
 			
 			track = Main.MID;
 			musicPlayer = new MusicPlayer(Main.MID);
+			
+			expectingHold = new <Boolean>[false, false, false, false];
+			currentHolds = new <Note>[null, null, null, null];
 		}
 		
 		public function loadSong(song:Song):void {
@@ -47,6 +53,7 @@ package  {
 		public function go():void {
 			//Start listening to the keyboard
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
+			this.stage.addEventListener(KeyboardEvent.KEY_UP, keyReleaseHandler);
 
 			musicArea.go();
 			musicPlayer.go();
@@ -65,6 +72,10 @@ package  {
 		}
 		
 		public function notePressHandler(noteLetter:int):void {
+			//If we're currently in a hold, we can ignore these events.
+			if (expectingHold[noteLetter])
+				return;
+			
 			//TODO consider switching to binary search
 			var notesToSearch:Vector.<Note>;
 			if (track == Main.HIGH)
@@ -89,6 +100,27 @@ package  {
 			if (note == null || !note._isHit) {
 				musicPlayer.stopTrack();
 				musicPlayer.playMissSound();
+			} else {
+				if (note.isHold) {
+					expectingHold[note.letter] = true;
+					currentHolds[note.letter] = note;
+				} else {
+					expectingHold[note.letter] = false; //Shouldn't need this, but in case of unexpected behavior.
+				}
+			}
+		}
+		
+		
+		public function holdHandler(noteLetter:int):void {
+			if (expectingHold[noteLetter]) {
+				
+				//Check for missing the end of the hold.
+				if (Math.abs(currentHolds[noteLetter].endtime - musicPlayer.getTime()) > HIT_TOLERANCE) {
+					currentHolds[noteLetter].associatedSprite.stopHolding();
+				}
+				//If it ended well, it will terminate on it's own.
+				
+				expectingHold[noteLetter] = false;
 			}
 		}
 		
@@ -106,6 +138,24 @@ package  {
 					break;
 				case Keyboard.A:
 					notePressHandler(Note.NOTE_A);
+					break;
+			}
+		}
+		
+		public function keyReleaseHandler(e:KeyboardEvent):void {
+			switch (e.keyCode) {
+				//First the note keys.
+				case Keyboard.F:
+					holdHandler(Note.NOTE_F);
+					break;
+				case Keyboard.D:
+					holdHandler(Note.NOTE_D);
+					break;
+				case Keyboard.S:
+					holdHandler(Note.NOTE_S);
+					break;
+				case Keyboard.A:
+					holdHandler(Note.NOTE_A);
 					break;
 			}
 		}

@@ -4,6 +4,7 @@ package
 	import com.greensock.easing.Linear;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.geom.Point;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.getTimer;
@@ -34,7 +35,6 @@ package
 		
 		private function init(e:Event):void {
 			
-			//Change this if you change the stage background.
 			//Draw Background (there remains no "background" property so far as I'm aware)
 			graphics.lineStyle(0, 0, 0);
 			graphics.beginFill(0xD17519);
@@ -55,6 +55,7 @@ package
 								HIT_LINE + GameUI.HIT_TOLERANCE * POSITION_SCALE, HEIGHT);
 			graphics.endFill();
 			
+			NoteSprite.global_hit_line_position = this.localToGlobal(new Point(HIT_LINE, 0));
 		}
 		
 		
@@ -90,7 +91,7 @@ package
 			notesLayer.addChild(highNotes);
 			highNotes.visible = false;
 			
-			notesLayer.x = HIT_LINE + Main.VIDEO_LAG * POSITION_SCALE + positionOffset;
+			notesLayer.x = HIT_LINE + Main.VIDEO_LAG * POSITION_SCALE + position_offset;
 			this.addChild(notesLayer);
 		}
 		

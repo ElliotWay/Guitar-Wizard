@@ -1,6 +1,8 @@
 package  
 {
 	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.geom.Point;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	
@@ -16,11 +18,16 @@ package
 		public static const S_COLOR:uint = 0xFFFF00;
 		public static const A_COLOR:uint = 0x00C000;
 		
-		private var associatedNote:Note;		
+		public static var global_hit_line_position:Point = null;
+		
+		private var associatedNote:Note;
+		
+		private var holdEndPoint:Number;
 		
 		public function NoteSprite(noteLetter:int, note:Note) 
 		{
 			note.setSprite(this);
+			associatedNote = note;
 			
 			var noteColor:uint = 0x0;
 			if (note.letter == Note.NOTE_F)
@@ -39,7 +46,8 @@ package
 			//and the hold rectangle, if applicable
 			if (note.isHold) {
 				this.graphics.beginFill(noteColor);
-				this.graphics.drawRect(0, -NOTE_SIZE * .25, (note.endtime - note.time) * MusicArea.POSITION_SCALE, NOTE_SIZE * .5);
+				holdEndPoint = (note.endtime - note.time) * MusicArea.POSITION_SCALE;
+				this.graphics.drawRect(0, -NOTE_SIZE * .25, holdEndPoint, NOTE_SIZE * .5);
 				this.graphics.endFill();
 			}
 			//and the letter
@@ -62,6 +70,47 @@ package
 		public function hit():void {
 			this.graphics.lineStyle(4, 0x00FF00);
 			this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
+			
+			if (associatedNote.isHold) {
+				this.addEventListener(Event.ENTER_FRAME, continueHold);
+			}
+		}
+		
+		public function continueHold(e:Event):void {
+			this.graphics.lineStyle(4, 0x00FF00);
+			
+			trace(global_hit_line_position);
+			trace(this.globalToLocal(global_hit_line_position));
+			
+			var targetX:Number = this.globalToLocal(global_hit_line_position).x;
+			
+			//make sure we're passed the hit line
+			if (NOTE_SIZE < targetX) {
+				
+				//Check if we're at the end of the hold
+				if (targetX < holdEndPoint) {
+					this.graphics.moveTo(NOTE_SIZE, NOTE_SIZE * .25 + 1);
+					this.graphics.lineTo(targetX, NOTE_SIZE * .25 + 1);
+					
+					this.graphics.moveTo(NOTE_SIZE, -(NOTE_SIZE * .25 + 1));
+					this.graphics.lineTo(targetX, -(NOTE_SIZE * .25 + 1));
+				} else {
+					//close off the hold
+					this.graphics.moveTo(NOTE_SIZE, NOTE_SIZE * .25 + 1);
+					this.graphics.lineTo(holdEndPoint, NOTE_SIZE * .25 + 1);
+					this.graphics.lineTo(holdEndPoint, -(NOTE_SIZE * .25 + 1));
+					this.graphics.lineTo(NOTE_SIZE, -(NOTE_SIZE * .25 + 1));
+					stopHolding();
+				}
+			} else if (targetX > holdEndPoint) {
+				//Weird hold, as it's smaller than the radius of the note.
+				//For robustness's sake, stop the animation here.
+				stopHolding();
+			}
+		}
+		
+		public function stopHolding():void {
+			this.removeEventListener(Event.ENTER_FRAME, continueHold);
 		}
 		
 		public function miss():void {
