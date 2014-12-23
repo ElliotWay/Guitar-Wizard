@@ -24,10 +24,17 @@ package  {
 		
 		
 		private var song:Song;
-		private var track:int;
+		private var currentTrack:int;
 		
 		private var expectingHold:Vector.<Boolean>;
 		private var currentHolds:Vector.<Note>;
+		
+		private var highNotesRemaining:Vector.<Note>;
+		private var nextHighNote:Note;
+		private var midNotesRemaining:Vector.<Note>;
+		private var nextMidNote:Note;
+		private var lowNotesRemaining:Vector.<Note>;
+		private var nextLowNote:Note;
 		
 		public function GameUI() 
 		{
@@ -37,7 +44,7 @@ package  {
 			this.addChild(musicArea);
 			musicArea.x = 0; musicArea.y = 0;
 			
-			track = Main.MID;
+			currentTrack = Main.MID;
 			musicPlayer = new MusicPlayer(Main.MID);
 			
 			expectingHold = new <Boolean>[false, false, false, false];
@@ -48,6 +55,13 @@ package  {
 			this.song = song;
 			musicArea.loadNotes(song);
 			musicPlayer.loadMusic(song);
+			
+			highNotesRemaining = (Vector.<Note>(song.highPart)).reverse();
+			nextHighNote = highNotesRemaining.pop();
+			midNotesRemaining = (Vector.<Note>(song.midPart)).reverse();
+			nextMidNote = midNotesRemaining.pop();
+			lowNotesRemaining = (Vector.<Note>(song.lowPart)).reverse();
+			nextLowNote = lowNotesRemaining.pop();
 		}
 		
 		public function go():void {
@@ -58,16 +72,34 @@ package  {
 			musicArea.go();
 			musicPlayer.go();
 			
-			n = 0;
-			this.addEventListener(Event.ENTER_FRAME, compare);
+			this.addEventListener(Event.ENTER_FRAME, missChecker);
 		}
 		
-		private var n:int;
-		public function compare(e:Event):void {
-			n++;
-			if (n == 10) {
-				trace(musicPlayer.getTime() + " " + musicArea.getNotesX());
-				n = 0;
+		/**
+		 * Check the list of notes to see if any have been missed.
+		 * Intended as an event listener to run every frame.
+		 * @param	e enter frame event
+		 */
+		public function missChecker(e:Event):void {
+			//TODO if slowdown occurs, make this function only every 5 or so frames
+			var cutOffTime:Number = musicPlayer.getTime() - HIT_TOLERANCE - 100;
+			
+			while (nextHighNote != null && nextHighNote.time < cutOffTime) {
+				if (currentTrack == Main.HIGH && !nextHighNote._isHit)
+					nextHighNote.associatedSprite.miss();
+				nextHighNote = (highNotesRemaining.length > 0) ? highNotesRemaining.pop() : null;
+			}
+			
+			while (nextMidNote != null && nextMidNote.time < cutOffTime) {
+				if (currentTrack == Main.MID && !nextMidNote._isHit)
+					nextMidNote.associatedSprite.miss();
+				nextMidNote = (midNotesRemaining.length > 0) ? midNotesRemaining.pop() : null;
+			}
+			
+			while (nextLowNote != null && nextLowNote.time < cutOffTime) {
+				if (currentTrack == Main.LOW && !nextLowNote._isHit)
+					nextLowNote.associatedSprite.miss();
+				nextLowNote = (lowNotesRemaining.length > 0) ? lowNotesRemaining.pop() : null;
 			}
 		}
 		
@@ -78,11 +110,11 @@ package  {
 			
 			//TODO consider switching to binary search
 			var notesToSearch:Vector.<Note>;
-			if (track == Main.HIGH)
+			if (currentTrack == Main.HIGH)
 				notesToSearch = song.highPart;
-			if (track == Main.MID)
+			if (currentTrack == Main.MID)
 				notesToSearch = song.midPart;
-			if (track == Main.LOW)
+			if (currentTrack == Main.LOW)
 				notesToSearch = song.lowPart;
 				
 			var rightNow:Number = musicPlayer.getTime();

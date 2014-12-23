@@ -13,7 +13,7 @@ package
 	public class NoteSprite extends Sprite 
 	{
 		public static const NOTE_SIZE:int = 20; //radius of the note circle. scales the size of the letter and the hold rectangle
-		public static const F_COLOR:uint = 0xFF0000;
+		public static const F_COLOR:uint = 0xC00000;
 		public static const D_COLOR:uint = 0x0000FF;
 		public static const S_COLOR:uint = 0xFFFF00;
 		public static const A_COLOR:uint = 0x00C000;
@@ -24,7 +24,13 @@ package
 		
 		private var holdEndPoint:Number;
 		
-		public function NoteSprite(noteLetter:int, note:Note) 
+		/**
+		 * Construct the sprite for this note. Creates an image for this
+		 * note with the associated letter and a bar extending to the right
+		 * if it's a hold. Also associates the note with this sprite.
+		 * @param	note the associated note object
+		 */
+		public function NoteSprite(note:Note) 
 		{
 			note.setSprite(this);
 			associatedNote = note;
@@ -67,6 +73,11 @@ package
 			letter.y = -NOTE_SIZE * .6;
 		}
 		
+		/**
+		 * Changes the sprite to indicate that it was hit. Also starts
+		 * doing the same with the hold: this will end on its own, but
+		 * call stopHolding() to end prematurely.
+		 */
 		public function hit():void {
 			this.graphics.lineStyle(4, 0x00FF00);
 			this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
@@ -76,12 +87,13 @@ package
 			}
 		}
 		
-		public function continueHold(e:Event):void {
+		/**
+		 * Enter frame event listener for updating the successful hold image.
+		 * @param	e enter frame event
+		 */
+		private function continueHold(e:Event):void {
 			this.graphics.lineStyle(4, 0x00FF00);
-			
-			trace(global_hit_line_position);
-			trace(this.globalToLocal(global_hit_line_position));
-			
+						
 			var targetX:Number = this.globalToLocal(global_hit_line_position).x;
 			
 			//make sure we're passed the hit line
@@ -105,16 +117,25 @@ package
 			} else if (targetX > holdEndPoint) {
 				//Weird hold, as it's smaller than the radius of the note.
 				//For robustness's sake, stop the animation here.
+				trace("Unusually small hold.");
 				stopHolding();
 			}
 		}
 		
+		/**
+		 * Ceases the animation displaying a successful hold.
+		 */
 		public function stopHolding():void {
 			this.removeEventListener(Event.ENTER_FRAME, continueHold);
 		}
 		
+		/**
+		 * Changes the sprite to indicate the note was missed. Does nothing
+		 * different even if the note is a hold.
+		 */
 		public function miss():void {
-			//TODO add this functionality
+			this.graphics.lineStyle(4, 0xFF0000);
+			this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
 		}
 		
 	}

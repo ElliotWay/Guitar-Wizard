@@ -101,7 +101,7 @@ package
 			for each(var note:Note in notes) {
 				
 				//Create note image
-				var noteSprite:NoteSprite = new NoteSprite(note.letter, note);
+				var noteSprite:NoteSprite = new NoteSprite(note);
 				
 				//Choose which line
 				var yPosition:int = 0;
