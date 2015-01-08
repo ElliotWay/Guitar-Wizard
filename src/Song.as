@@ -1,4 +1,4 @@
-package  
+package  src
 {
 	import flash.media.Sound;
 	/**

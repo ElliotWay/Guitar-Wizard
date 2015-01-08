@@ -1,4 +1,4 @@
-package  
+package  src
 {
 	import com.greensock.TweenLite;
 	import com.greensock.easing.Linear;

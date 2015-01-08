@@ -1,4 +1,4 @@
-package  {
+package src {
 	import adobe.utils.CustomActions;
 	import flash.display.Sprite;
 	import flash.events.Event;
