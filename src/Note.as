@@ -1,4 +1,4 @@
-package
+package src
 {
 	
 	/**
@@ -18,7 +18,7 @@ package
 		public var _endtime:Number;
 		
 		public var associatedSprite:NoteSprite;
-		public var _isHit:Boolean;
+		public var _isHit:Boolean; //TODO consider removing _isHit later. Remove this reference, then check for errors.
 		
 		public function Note(letter:int, time:Number, isHold:Boolean = false, endtime:Number = 0.0)
 		{
