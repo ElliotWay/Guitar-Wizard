@@ -13,7 +13,7 @@ package
 		public static const NOTE_F:int = 3;
 		
 		private var _letter:int;
-		public var _time:Number;	//make these private again later
+		public var _time:Number;	//TODO make these private again later
 		private var _isHold:Boolean;
 		public var _endtime:Number;
 		

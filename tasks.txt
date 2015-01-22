@@ -1,0 +1,6 @@
+- add basic miss detection
+- add miss detection for holds
+- add synchronize function
+- create main game screen
+- lay out the rest of the screen
+- start making tests at some point?
