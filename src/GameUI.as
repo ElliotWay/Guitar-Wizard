@@ -54,6 +54,7 @@ package src {
 		public function loadSong(song:Song):void {
 			this.song = song;
 			musicArea.loadNotes(song);
+			musicArea.setMidNotes();
 			musicPlayer.loadMusic(song);
 			
 			highNotesRemaining = (Vector.<Note>(song.highPart)).reverse();

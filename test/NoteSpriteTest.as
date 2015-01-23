@@ -34,8 +34,13 @@ package test
 		public function setUp():void {
 			
 			//Note is sufficiently simple that I'm not bothering to mock it (or test it).	
+			var hold:Note = new Note();
+			hold.letter = Note.NOTE_A;
+			hold.time = 0;
+			hold.isHold = true;
+			hold.endtime == 100;
 			
-			holdSprite = new NoteSprite(new Note(Note.NOTE_A, 0, true, 100));
+			holdSprite = new NoteSprite(hold);
 			NoteSprite.global_hit_line_position = new Point(50, 0);
 			
 			dispatcher = new EventDispatcher();
@@ -43,7 +48,11 @@ package test
 		
 		[Test]
 		public function canLoadANote():void {
-			var noteSprite:NoteSprite = new NoteSprite(new Note(Note.NOTE_A, 0));
+			var note:Note = new Note();
+			note.letter = Note.NOTE_A;
+			note.time = 0;
+			
+			var noteSprite:NoteSprite = new NoteSprite(note);
 		}
 		
 		[Test]

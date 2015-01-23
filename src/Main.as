@@ -15,7 +15,7 @@ package src
 	 */
 	public class Main extends Sprite 
 	{
-		public static const DO_TEST:Boolean = true;
+		public static const DO_TEST:Boolean = false;
 		
 		public static const VIDEO_LAG:int = 70; //milliseconds
 		
@@ -24,6 +24,8 @@ package src
 		public static const LOW:int = 2;
 		
 		private static var gameUI:GameUI;
+		
+		private static var song:Song;
 		
 		private static var songLoader:SongLoader;
 		
@@ -51,9 +53,11 @@ package src
 			this.addChild(gameUI);
 			gameUI.visible = true;
 			
-			var song:Song = new Song();
-			song.hardcode();
-			
+			song = new Song();
+			song.loadFile("../assets/FurElise.gws");
+		}
+		
+		public static function fileLoaded():void {
 			gameUI.loadSong(song);
 			
 			songLoader.load();
@@ -63,11 +67,30 @@ package src
 			gameUI.go();
 		}
 		
+		/**
+		 * Passes the parameters to the song loader to load.
+		 * @param	song song to load the music into
+		 * @param	url url of the mp3 file
+		 */
 		public static function loadSong(song:Sound, url:String):void {
 			songLoader.addSong(song, url);
 		}
 		
-		
+		public static function showError(errorMessage:String):void {
+			var errorSprite:Sprite = new Sprite();
+			
+			errorSprite.graphics.beginFill(0xFF0000);
+			errorSprite.graphics.drawRect(0, 0, gameUI.width, gameUI.height);
+			errorSprite.graphics.endFill();
+			
+			var error:TextField = new TextField();
+			error.width = gameUI.width;
+			error.text = errorMessage;
+			
+			errorSprite.addChild(error);
+			
+			gameUI.addChild(errorSprite);
+		}
 		
 	}
 	
