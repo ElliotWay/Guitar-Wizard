@@ -1,5 +1,4 @@
-package src 
-{
+package src {
 	import flash.display.Sprite;
 	
 	/**

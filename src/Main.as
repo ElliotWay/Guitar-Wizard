@@ -1,13 +1,13 @@
 package src
 {
-	import asunit.textui.TestRunner;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.media.Sound;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
-	import test.AllTests;
+	import org.flexunit.runner.FlexUnitCore;
+	import test.TestRunner;
 	
 	/**
 	 * ...
@@ -15,7 +15,7 @@ package src
 	 */
 	public class Main extends Sprite 
 	{
-		public static const DO_TEST:Boolean = false;
+		public static const DO_TEST:Boolean = true;
 		
 		public static const VIDEO_LAG:int = 70; //milliseconds
 		
@@ -29,19 +29,18 @@ package src
 		
 		public function Main():void 
 		{
+			//If testing mode is on, run the tests, then stop.
+			if (DO_TEST) {
+				TestRunner.runTests();
+				return;
+			}
+			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
 		private function init(e:Event = null):void 
 		{
-			//If testing mode is on, run the tests, then stop.
-			if (DO_TEST) {
-				var tests:TestRunner = new TestRunner();
-				stage.addChild(tests);
-				tests.start(AllTests, null, TestRunner.SHOW_TRACE);
-				return;
-			}
 			
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
