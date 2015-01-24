@@ -1,44 +1,60 @@
 package src 
 {
 	import com.greensock.TweenLite;
+	import flash.display.Sprite;
 	/**
 	 * ...
 	 * @author Elliot Way
 	 */
 	public class Actor 
 	{
-		private var sprite : ActorSprite;
+		protected var _sprite : ActorSprite;
 		
-		private var status : int;
-		private var position : Number
-		private var hitpoints : int;
+		protected var status : int;
+		protected var position : Number
+		protected var hitpoints : int;
 		
-		private var isPlayerPiece : Boolean;
+		protected var isPlayerPiece : Boolean;
 		
-		private var speed : Number; // pxl/s
+		protected var speed : Number; // pxl/s
 		
-		private var movement : TweenLite;
+		protected var movement : TweenLite;
 		
 		public function Actor() 
 		{
+			//Defaults
+			this.sprite = null;
 			
+			this.status = 0;
+			this.hitpoints = 10;
+			this.isPlayerPiece = false;
+			this.speed = 10;
 		}
 		
-		public function act(others : Vector.<Actor>) {
-			for each (var other : Actor in others) {
-				reactToTarget(other);
-			}
+		public function get sprite() : Sprite {
+			return _sprite;
 		}
 		
 		/**
-		 * extend this method
-		 * @param	other target actor
+		 * Override this method.
+		 * @param	others target actor
 		 */
-		public function reactToTarget(other : Actor) {
+		public function reactToTargets(others : Vector.<Actor>) {
 			
 		}
 		
-		public function go() {
+		/**
+		 * Override this method.
+		 */
+		public function get isDead() : Boolean {
+			return (hitpoints <= 0);
+		}
+		
+		public function getPosition() : Number {
+			return sprite.x;
+		}
+		
+		public function go() : void {
 			if (isPlayerPiece) {
 				var distance : Number = sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : 0 } );
@@ -48,6 +64,9 @@ package src
 			}
 		}
 		
+		public function halt() : void {
+			movement.kill();
+		}
 	}
 
 }

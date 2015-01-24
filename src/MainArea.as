@@ -27,6 +27,9 @@ package src
 			
 			arena = new Sprite();
 			this.addChild(arena);
+			
+			//TODO remove these later.
+			
 		}
 		
 		public function setPlayerHP(hp : int) {
@@ -34,7 +37,7 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor) {
-			//TODO add to arena
+			var position : Number = Math.random() * 100;
 			playerActors.push(actor);
 		}
 		
@@ -44,16 +47,21 @@ package src
 		
 		public function step() {
 			for each (var actor : Actor in playerActors) {
-				for each (var other : Actor in opponentActors) {
-					actor.reactToTarget(other);
-				}
+				actor.reactToTargets(opponentActors);
 			}
 			
 			for each (var actor : Actor in oppenentActors) {
-				for each (var other : Actor in playerActors) {
-					actor.reactToTarget(other);
-				}
+				actor.reactToTargets(playerActors);
 			}
+			
+			//Collect the dead.
+			playerActors.filter(checkDead, this);
+			
+			opponentActors.filter(checkDead, this);
+		}
+		
+		private function checkDead(actor : Actor , index : int, vector : Vector.<Actor>) : Boolean {
+			return actor.isDead;
 		}
 		
 	}

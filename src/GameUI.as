@@ -15,7 +15,7 @@ package src {
 		
 		//GUI parts
 		private var musicArea:MusicArea;
-		//private var mainArea:MainArea;
+		private var mainArea:MainArea;
 		//private var minimapArea:MiniMapArea;
 		//private var controlArea:ControlArea;
 		
