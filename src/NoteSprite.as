@@ -18,6 +18,11 @@ package  src
 		public static const S_COLOR:uint = 0xFFFF00;
 		public static const A_COLOR:uint = 0x00C000;
 		
+		/**
+		 * Tells NoteSprite where the hit line is. Affects hold behavior,
+		 * so this should be set before doing anything with holds, or preferably
+		 * before doing anything with NoteSprites. The constructor does not require it, though.
+		 */
 		public static var global_hit_line_position:Point = null;
 		
 		private var associatedNote:Note;
@@ -28,6 +33,8 @@ package  src
 		 * Construct the sprite for this note. Creates an image for this
 		 * note with the associated letter and a bar extending to the right
 		 * if it's a hold. Also associates the note with this sprite.
+		 * 
+		 * Remember to set global_hit_line_position at some point.
 		 * @param	note the associated note object
 		 */
 		public function NoteSprite(note:Note) 
@@ -77,6 +84,8 @@ package  src
 		 * Changes the sprite to indicate that it was hit. Also starts
 		 * doing the same with the hold: this will end on its own, but
 		 * call stopHolding() to end prematurely.
+		 * The public static field "global_hit_line_position" should be set
+		 * before calling this method.
 		 */
 		public function hit():void {
 			this.graphics.lineStyle(4, 0x00FF00);
@@ -89,6 +98,7 @@ package  src
 		
 		/**
 		 * Enter frame event listener for updating the successful hold image.
+		 * Finishes the hold if we're the hold is entirely through the hit line.
 		 * @param	e enter frame event
 		 */
 		private function continueHold(e:Event):void {

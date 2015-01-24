@@ -13,19 +13,19 @@ package src
 		public static const NOTE_F:int = 3;
 		
 		private var _letter:int;
-		public var _time:Number;	//make these private again later
+		private var _time:Number;	//TODO make these private again later
 		private var _isHold:Boolean;
-		public var _endtime:Number;
+		private var _endtime:Number;
 		
 		public var associatedSprite:NoteSprite;
 		public var _isHit:Boolean; //TODO consider removing _isHit later. Remove this reference, then check for errors.
 		
-		public function Note(letter:int, time:Number, isHold:Boolean = false, endtime:Number = 0.0)
-		{
-			_letter = letter;
-			_time = time;
-			_isHold = isHold;
-			_endtime = endtime;
+		
+		public function Note() {
+			letter = -1;
+			time = 0.0;
+			isHold = false;
+			endtime = 0.0;
 		}
 		
 		public function setSprite(sprite:NoteSprite):void {
@@ -52,6 +52,26 @@ package src
 		public function get endtime():Number 
 		{
 			return _endtime;
+		}
+		
+		public function set endtime(value:Number):void 
+		{
+			_endtime = value;
+		}
+		
+		public function set isHold(value:Boolean):void 
+		{
+			_isHold = value;
+		}
+		
+		public function set time(value:Number):void 
+		{
+			_time = value;
+		}
+		
+		public function set letter(value:int):void 
+		{
+			_letter = value;
 		}
 	
 	}

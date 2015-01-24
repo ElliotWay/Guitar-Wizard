@@ -1,0 +1,8 @@
+- add synchronize function
+
+- create main game screen
+- lay out the rest of the screen
+
+- fix miss/hit detection, possibly related to lag
+
+- create script to run tests instead of using the DO_TEST flag

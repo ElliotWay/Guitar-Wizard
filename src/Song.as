@@ -1,6 +1,10 @@
 package  src
 {
+	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.media.Sound;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	/**
 	 * ...
 	 * @author Elliot Way
@@ -17,13 +21,143 @@ package  src
 		private var _highMusic:Sound;
 		private var _baseMusic:Sound;
 		
+		private var loader:URLLoader;
+		
 		public function Song() 
 		{
 			
 		}
 		
-		public function hardcode():void {
+		/**
+		 * Load a gsw file, that is a Guitar Wizard Song file.
+		 * @param	fileName the url of the file
+		 */
+		public function loadFile(fileName:String):void {
+			loader = new URLLoader(new URLRequest(fileName));
+			
+			loader.addEventListener(Event.COMPLETE, interpretFile);
+			loader.addEventListener(IOErrorEvent.IO_ERROR, fileError);
+		}
+		
+		private function fileError(e:Event):void {
+			Main.showError("Error loading file");
+		}
+		
+		private function interpretFile(e:Event):void {
+			var lines:Array = String(loader.data).split("\n");
+			
+			if (lines.length < 7)
+				Main.showError("Error: Corrupt GSW file: missing lines");
+			
+			var baseName:String = lines[0];
+			var highName:String = lines[1];
+			var midName:String = lines[2];
+			var lowName:String = lines[3];
+			
+			_baseMusic = new Sound();
+			_highMusic = new Sound();
 			_midMusic = new Sound();
+			_lowMusic = new Sound();
+			
+			//TODO definitely change this later.
+			Main.loadSong(baseMusic, baseName);
+			//Main.loadSong(highMusic, highName);
+			Main.loadSong(midMusic, midName);
+			//Main.loadSong(lowMusic, lowName);
+			
+			var highNoteString:String = lines[4];
+			var midNoteString:String = lines[5];
+			var lowNoteString:String = lines[6];
+			
+			_highPart = new Vector.<Note>();
+			_midPart = new Vector.<Note>();
+			_lowPart = new Vector.<Note>();
+			
+			parseNotes(_highPart, highNoteString);
+			parseNotes(_midPart, midNoteString);
+			parseNotes(_lowPart, lowNoteString);
+			
+			Main.fileLoaded();
+		}
+		
+		public static function parseNotes(noteList:Vector.<Note>, str:String):void {
+			
+			if (str == "")
+				return;
+			
+			var tokens:Array = str.split(/\s+/);
+			
+			var note:Note;
+			
+			var index:int = 0;
+			while (index < tokens.length) {
+				var letter:String = tokens[index];
+				
+				if (letter.length > 1) {
+					trace("Long letter: " + letter);
+					Main.showError("Error: Corrupt GWS File: long letter");
+				} else if (letter.length == 0) {
+					index++;
+					continue;
+				}
+				
+				switch(letter) {
+					case "F":
+					case "f":
+						note = new Note();
+						note.letter = Note.NOTE_F;
+						break;
+					case "D":
+					case "d":
+						note = new Note();
+						note.letter = Note.NOTE_D;
+						break;
+					case "S":
+					case "s":
+						note = new Note();
+						note.letter = Note.NOTE_S;
+						break;
+					case "A":
+					case "a":
+						note = new Note();
+						note.letter = Note.NOTE_A;
+						break;
+					case "H":
+					case "h":
+						note.isHold = true;
+						break;
+					default:
+						trace("Token # " + index + " Invalid letter: " + letter);
+						Main.showError("Error: Corrupt GWS File: invalid letter");
+						return;
+				}
+				
+				index++;
+				if (index >= tokens.length) {
+					trace("No corresponding timestamp to token # " + index + " " + letter);
+					Main.showError("Error: Corrupt GWS File: missing token");
+					return;
+				}
+				
+				var time:Number = parseInt(String(tokens[index]));
+				
+				//!time checks for NaN
+				if ((!time && time != 0) || time < 0) {
+					trace("Token # " + index + " Funny timestamp: " + String(tokens[index]));
+					Main.showError("Error: Corrupt GWS File: bad timestamp");
+				}
+				else if (note.isHold)
+					note.endtime = time;
+				else
+					note.time = time;
+				
+				noteList.push(note);
+				index++;
+			}
+		}
+		
+		public function hardcode():void {
+			/*_midMusic = new Sound();
 			Main.loadSong(_midMusic, "../assets/Fur_Elise_Adapted_-_Mid.mp3");
 			_baseMusic = new Sound();
 			Main.loadSong(_baseMusic, "../assets/Fur_Elise_Adapted_-_Baseline.mp3");
@@ -149,7 +283,7 @@ package  src
 			for each (var note:Note in _midPart) {
 				note._time *= (200 / 192);
 				note._endtime *= (200 / 192);
-			}
+			}*/
 		}
 		
 		public function get lowPart():Vector.<Note> 
