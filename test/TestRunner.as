@@ -21,8 +21,10 @@ package test
 			testCore.addListener(new TraceListener());
 			
 			testCore.run(TestTest);
+			testCore.run(SongLoaderTest);
 			testCore.run(MusicPlayerTest);
 			testCore.run(NoteSpriteTest);
+			
 		}
 	}
 

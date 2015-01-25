@@ -9,8 +9,6 @@ package test
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
 	import org.hamcrest.assertThat;
-	import org.hamcrest.object.isFalse;
-	import org.hamcrest.object.isTrue;
 	import src.Note;
 	import src.NoteSprite;
 	
@@ -59,7 +57,7 @@ package test
 		public function willStartHold():void {
 			holdSprite.hit();
 			//It needs to do _something_ regularly when a hold is hit.
-			assertThat(holdSprite.hasEventListener(Event.ENTER_FRAME), isTrue());			
+			assertThat(holdSprite.hasEventListener(Event.ENTER_FRAME));			
 		}
 		
 		[Test]
@@ -79,7 +77,7 @@ package test
 			holdSprite.dispatchEvent(new Event(Event.ENTER_FRAME));
 			
 			//The enter frame handler should now be gone.
-			assertThat(holdSprite.hasEventListener(Event.ENTER_FRAME), isFalse());
+			assertThat(!holdSprite.hasEventListener(Event.ENTER_FRAME));
 		}
 	
 		//Nothing to do After.

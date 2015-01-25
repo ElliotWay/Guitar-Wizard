@@ -31,7 +31,8 @@ package test
 		public var song:Song;
 		
 		[Mock]
-		public var baseMusic:Sound, highMusic:Sound, midMusic:Sound, lowMusic:Sound;
+		public var baseMusic:SoundExtension, highMusic:SoundExtension,
+			midMusic:SoundExtension, lowMusic:SoundExtension;
 
 		private var channel:SoundChannel;
 		
