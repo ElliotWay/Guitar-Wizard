@@ -1,17 +1,20 @@
 package src {
 	import com.greensock.TweenLite;
 	import flash.display.Sprite;
+	
 	/**
 	 * ...
 	 * @author Elliot Way
 	 */
 	public class Actor 
 	{
+		
+		public static const Y_POSITION:int = 200;
+		
 		protected var _sprite : ActorSprite;
 		
-		protected var status : int;
 		protected var position : Number
-		protected var hitpoints : int;
+		protected var _hitpoints : int;
 		
 		protected var isPlayerPiece : Boolean;
 		
@@ -22,12 +25,12 @@ package src {
 		public function Actor() 
 		{
 			//Defaults
-			this.sprite = null;
+			_sprite = null;
 			
-			this.status = 0;
-			this.hitpoints = 10;
-			this.isPlayerPiece = false;
-			this.speed = 10;
+			_hitpoints = 10;
+			isPlayerPiece = false;
+			speed = 30;
+			
 		}
 		
 		public function get sprite() : Sprite {
@@ -38,28 +41,51 @@ package src {
 		 * Override this method.
 		 * @param	others target actor
 		 */
-		public function reactToTargets(others : Vector.<Actor>) {
+		public function reactToTargets(others : Vector.<Actor>):void {
 			
 		}
 		
 		/**
-		 * Override this method.
+		 * Override this method if necessary.
 		 */
 		public function get isDead() : Boolean {
-			return (hitpoints <= 0);
+			return (_hitpoints <= 0);
+		}
+		
+		/**
+		 * And this one.
+		 */
+		public function isValidTarget() : Boolean {
+			return true;
+		}
+		
+		public function get hitpoints():int 
+		{
+			return _hitpoints;
+		}
+		
+		public function set hitpoints(value:int):void 
+		{
+			_hitpoints = value;
 		}
 		
 		public function getPosition() : Number {
-			return sprite.x;
+			return _sprite.x;
+		}
+		
+		public function setPosition(position:Number):void {
+			_sprite.y = Y_POSITION;
+			_sprite.x = position;
 		}
 		
 		public function go() : void {
+			var distance:Number;
 			if (isPlayerPiece) {
-				var distance : Number = sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x : 0 } );
-			} else {
-				var distance : Number = MainArea.ARENA_WIDTH - sprite.x;
+				distance = MainArea.ARENA_WIDTH - _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH } );
+			} else {
+				distance = _sprite.x;
+				movement = new TweenLite(sprite, distance / speed, { x : 0 } );
 			}
 		}
 		

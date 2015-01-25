@@ -38,8 +38,10 @@ package src {
 		
 		public function GameUI() 
 		{
-			super();
-			
+			this.addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+		
+		private function init(e:Event):void {
 			musicArea = new MusicArea();
 			this.addChild(musicArea);
 			musicArea.x = 0; musicArea.y = 0;
@@ -49,6 +51,10 @@ package src {
 			
 			expectingHold = new <Boolean>[false, false, false, false];
 			currentHolds = new <Note>[null, null, null, null];
+			
+			mainArea = new MainArea();
+			this.addChild(mainArea);
+			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
 		}
 		
 		public function loadSong(song:Song):void {
@@ -70,10 +76,12 @@ package src {
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
 			this.stage.addEventListener(KeyboardEvent.KEY_UP, keyReleaseHandler);
 
-			musicArea.go();
+			mainArea.hardCode();
+			
+			//musicArea.go();
 			musicPlayer.go();
 			
-			this.addEventListener(Event.ENTER_FRAME, missChecker);
+			//this.addEventListener(Event.ENTER_FRAME, missChecker);
 		}
 		
 		/**

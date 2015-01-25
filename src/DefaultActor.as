@@ -24,6 +24,7 @@ package src
 		public function DefaultActor(isPlayerPiece:Boolean) 
 		{
 			super();
+			
 			this.isPlayerPiece = isPlayerPiece;
 			
 			this._sprite = new ActorSprite((isPlayerPiece) ? (0xFF0000) : (0x0000FF));
@@ -33,16 +34,16 @@ package src
 			_isDead = false;
 		}
 		
-		public function reactToTargets(others:Vector.<Actor>) {
+		override public function reactToTargets(others:Vector.<Actor>):void {
 			//Check if we're dead.
 			if (status == DYING) {
 				if (dying.progress() == 1)
-					isDead = true;
+					_isDead = true;
 				return;
 			}
 			
 			//Check if we're dying.
-			if (this.hitpoints <= 0) {
+			if (this._hitpoints <= 0) {
 				status = DYING;
 				this.halt();
 				
@@ -53,20 +54,27 @@ package src
 			}
 			
 			//Do other stuff.
-			if (others.length < 0)
+			if (others.length == 0)
 				return;
 			
+			//TODO find first valid target.
 			var closest : Actor = others[0];
 			var closeDistance : Number = Math.abs(closest.getPosition() - this.getPosition());
 			var distance : Number;
 			
 			for each(var other:Actor in others) {
-				distance = Math.abs(other.getPosition() - this.getPosition());
-				if (distance < closeDistance) {
-					closest = other;
-					closeDistance = distance;
+				if (other.isValidTarget()) {
+					distance = Math.abs(other.getPosition() - this.getPosition());
+					trace("distance to target " + distance);
+					if (distance < closeDistance) {
+						closest = other;
+						closeDistance = distance;
+					}
 				}
 			}
+			trace("closest was " + closeDistance);
+			
+			trace("target = " + closest + " status = " + status);
 			
 			if (closeDistance < RANGE) {
 				if (status != FIGHTING)
@@ -82,10 +90,13 @@ package src
 			}
 		}
 		
-		public function get isDead() {
+		override public function get isDead():Boolean {
 			return _isDead;
 		}
 		
+		override public function isValidTarget():Boolean {
+			return status != DYING;
+		}
 	}
 
 }
