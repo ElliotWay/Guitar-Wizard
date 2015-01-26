@@ -13,28 +13,31 @@ package src {
 		public static const HIT_TOLERANCE:Number = 150; //how far from the actual note a hit can be
 														//in milliseconds
 		
+		//All the fields are protected to make testing easier,
+		//which is important because this is a complicated and fiddly class.
+		
 		//GUI parts
-		private var musicArea:MusicArea;
-		private var mainArea:MainArea;
-		//private var minimapArea:MiniMapArea;
-		//private var controlArea:ControlArea;
+		protected var musicArea:MusicArea;
+		protected var mainArea:MainArea;
+		//protected var minimapArea:MiniMapArea;
+		//protected var controlArea:ControlArea;
 		
 		//Other output parts
-		private var musicPlayer:MusicPlayer;
+		protected var musicPlayer:MusicPlayer;
 		
 		
-		private var song:Song;
-		private var currentTrack:int;
+		protected var song:Song;
+		protected var currentTrack:int;
 		
-		private var expectingHold:Vector.<Boolean>;
-		private var currentHolds:Vector.<Note>;
+		protected var expectingHold:Vector.<Boolean>;
+		protected var currentHolds:Vector.<Note>;
 		
-		private var highNotesRemaining:Vector.<Note>;
-		private var nextHighNote:Note;
-		private var midNotesRemaining:Vector.<Note>;
-		private var nextMidNote:Note;
-		private var lowNotesRemaining:Vector.<Note>;
-		private var nextLowNote:Note;
+		protected var highNotesRemaining:Vector.<Note>;
+		protected var nextHighNote:Note;
+		protected var midNotesRemaining:Vector.<Note>;
+		protected var nextMidNote:Note;
+		protected var lowNotesRemaining:Vector.<Note>;
+		protected var nextLowNote:Note;
 		
 		public function GameUI() 
 		{

@@ -58,25 +58,38 @@ package  src
 			NoteSprite.global_hit_line_position = this.localToGlobal(new Point(HIT_LINE, 0));
 		}
 		
-		
+		/**
+		 * Switches the visible note panel to the low notes.
+		 */
 		public function setLowNotes():void {
 			lowNotes.visible = true;
 			midNotes.visible = false;
 			highNotes.visible = false;
 		}
 		
+		/**
+		 * Switches the visible note panel to the mid notes.
+		 */
 		public function setMidNotes():void {
 			lowNotes.visible = false;
 			midNotes.visible = true;
 			highNotes.visible = false;
 		}
 		
+		/**
+		 * Switches the visible note panel to the high notes.
+		 */
 		public function setHighNotes():void {
 			lowNotes.visible = false;
 			midNotes.visible = false;
 			highNotes.visible = true;
 		}
 		
+		/**
+		 * Creates panels for the high, mid, and low notes
+		 * from a song.
+		 * @param	song the song containing the notes
+		 */
 		public function loadNotes(song:Song):void {
 			notesLayer = new Sprite();
 			
@@ -95,6 +108,11 @@ package  src
 			this.addChild(notesLayer);
 		}
 		
+		/**
+		 * Creates noteSprites arranged based on notes from a vector
+		 * @param	notes a vector of notes to convert to an image
+		 * @return the image of notes
+		 */
 		public static function createNotesImage(notes:Vector.<Note>):Sprite {
 			var notesImage:Sprite = new Sprite();
 			
@@ -123,10 +141,9 @@ package  src
 			return notesImage;
 		}
 		
-		public function getNotesX():Number {
-			return (-notesLayer.x + HIT_LINE) / POSITION_SCALE;
-		}
-		
+		/**
+		 * Starts scroll the notes leftwards.
+		 */
 		public function go():void {
 			TweenLite.to(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
 		}

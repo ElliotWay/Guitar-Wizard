@@ -20,11 +20,14 @@ package test
 			var testCore : FlexUnitCore = new FlexUnitCore();
 			testCore.addListener(new TraceListener());
 			
+			//The order of these tests is important (sadly).
+			
 			testCore.run(TestTest);
-			testCore.run(SongLoaderTest);
 			testCore.run(MusicPlayerTest);
+			testCore.run(SongLoaderTest);
 			testCore.run(NoteSpriteTest);
 			
+			//Number of Tests was 15.
 		}
 	}
 
