@@ -1,5 +1,6 @@
 package src
 {
+	import flash.display.Sprite;
 	
 	/**
 	 * ...
@@ -18,8 +19,6 @@ package src
 		private var _endtime:Number;
 		
 		public var associatedSprite:NoteSprite;
-		public var _isHit:Boolean; //TODO consider removing _isHit later. Remove this reference, then check for errors.
-		
 		
 		public function Note() {
 			letter = -1;
@@ -30,8 +29,6 @@ package src
 		
 		public function setSprite(sprite:NoteSprite):void {
 			associatedSprite = sprite;
-			_isHit = false; //Wrong place to put this, but whenever the sprite is being set,
-							//that also means the note hasn't been hit yet.
 		}
 		
 		public function get letter():int 
@@ -72,6 +69,45 @@ package src
 		public function set letter(value:int):void 
 		{
 			_letter = value;
+		}
+		
+		public function get sprite():NoteSprite {
+			return associatedSprite;
+		}
+		
+		//The following methods weren't originally intended to exist;
+		//the user was supposed to call sprite and use that,
+		//but, as a result of refactoring, these became more convenient.
+		
+		/**
+		 * Notes themselves aren't hit, but the sprites can be.
+		 * This forwards the method to the associated sprite,
+		 * or does nothing if this note has none.
+		 */
+		public function hit():void {
+			if (associatedSprite != null)
+				associatedSprite.hit();
+		}
+		
+		/**
+		 * Notes themselves aren't missed, but the sprites can be.
+		 * This forwards the method to the associated sprite,
+		 * or does nothing if this note has none.
+		 */
+		public function miss():void {
+			if (associatedSprite != null)
+				associatedSprite.miss();
+		}
+		
+		/**
+		 * Notes themselves aren't hit, but the sprites can be.
+		 * This checks whether the sprite associated with this note was hit,
+		 * or returns false if this note has no associate sprite.
+		 */
+		public function isHit():Boolean {
+			if (associatedSprite != null)
+				return associatedSprite.isHit();
+			return false;
 		}
 	
 	}

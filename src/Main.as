@@ -15,7 +15,7 @@ package src
 	 */
 	public class Main extends Sprite 
 	{
-		public static const DO_TEST:Boolean = false;
+		public static const DO_TEST:Boolean = true;
 		
 		public static const VIDEO_LAG:int = 70; //milliseconds
 		

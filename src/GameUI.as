@@ -60,6 +60,12 @@ package src {
 			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
 		}
 		
+		/**
+		 * Loads a song into the music area to create the note sprites,
+		 * loads the music into the music player,
+		 * and prepares a list of notes to move through as the player misses them.
+		 * @param	song the song to load
+		 */
 		public function loadSong(song:Song):void {
 			this.song = song;
 			musicArea.loadNotes(song);
@@ -97,23 +103,55 @@ package src {
 			//TODO if slowdown occurs, make this function only every 5 or so frames
 			var cutOffTime:Number = musicPlayer.getTime() - HIT_TOLERANCE - 200;
 			
-			while (nextHighNote != null && nextHighNote.time < cutOffTime) {
-				if (currentTrack == Main.HIGH && !nextHighNote._isHit)
-					nextHighNote.associatedSprite.miss();
-				nextHighNote = (highNotesRemaining.length > 0) ? highNotesRemaining.pop() : null;
+			if (currentTrack == Main.HIGH) {
+				missNotesUntil(highNotesRemaining, cutOffTime);
+				
+				clearNotesUntil(midNotesRemaining, cutOffTime);
+				clearNotesUntil(lowNotesRemaining, cutOffTime);
+			} else if (currentTrack == Main.MID) {
+				missNotesUntil(midNotesRemaining, cutOffTime);
+				
+				clearNotesUntil(highNotesRemaining, cutOffTime);
+				clearNotesUntil(lowNotesRemaining, cutOffTime);
+			} else {
+				missNotesUntil(lowNotesRemaining, cutOffTime);
+				
+				clearNotesUntil(highNotesRemaining, cutOffTime);
+				clearNotesUntil(midNotesRemaining, cutOffTime);
 			}
-			
-			while (nextMidNote != null && nextMidNote.time < cutOffTime) {
-				if (currentTrack == Main.MID && !nextMidNote._isHit)
-					nextMidNote.associatedSprite.miss();
-				trace("miss: ", musicPlayer.getTime(), " ", nextMidNote.letter);
-				nextMidNote = (midNotesRemaining.length > 0) ? midNotesRemaining.pop() : null;
+		}
+		
+		/**
+		 * Checks notes in the list, starting with the last, popping them off as we go
+		 * and missing each note until we reach a note past, or at, the cut off time.
+		 * Notes that have already been hit will not be missed.
+		 * The noteList <i>must</i> be sorted descending for this method to work.
+		 * @param	noteList vector of notes to parse through
+		 * @param	cutoffTime time after which to stop missing notes
+		 */
+		public static function missNotesUntil(noteList:Vector.<Note>, cutOff:Number):void {
+			//I wish there was a Vector.peek method. Indexing to length - 1 is ugly.
+			while (noteList.length > 0 &&
+					noteList[noteList.length - 1].time < cutOff) {
+				var nextNote:Note = noteList.pop();
+				
+				if (!nextNote.isHit())
+					nextNote.miss();
 			}
-			
-			while (nextLowNote != null && nextLowNote.time < cutOffTime) {
-				if (currentTrack == Main.LOW && !nextLowNote._isHit)
-					nextLowNote.associatedSprite.miss();
-				nextLowNote = (lowNotesRemaining.length > 0) ? lowNotesRemaining.pop() : null;
+		}
+		
+		/**
+		 * Removes notes from the list, starting with the last,
+		 * until we reach a note past, or at, the cut off time.
+		 * The noteList <i>must</i> be sorted descending for this method to work.
+		 * @param	noteList vector of notes to parse through
+		 * @param	cutoffTime time after which to stop removing notes
+		 */
+		public static function clearNotesUntil(noteList:Vector.<Note>, cutOff:Number):void {
+			//I wish there was a Vector.peek method. Indexing to length - 1 is ugly.
+			while (noteList.length > 0 &&
+					noteList[noteList.length - 1].time < cutOff) {
+				var nextNote:Note = noteList.pop();
 			}
 		}
 		
@@ -145,15 +183,14 @@ package src {
 			//Search the array from the back.
 			for (var i:int = notesToSearch.length - 1; i >= 0; i--) {
 				note = notesToSearch[i];
-				if (!note._isHit && note.letter == noteLetter && Math.abs(note.time - rightNow) < HIT_TOLERANCE) {
-					note._isHit = true;
-					note.associatedSprite.hit();
+				if (!note.isHit() && note.letter == noteLetter && Math.abs(note.time - rightNow) < HIT_TOLERANCE) {
+					note.hit();
 					musicPlayer.resumeTrack();
 					break;
 				}
 			}
 			
-			if (note == null || !note._isHit) {
+			if (note == null || !note.isHit()) {
 				musicPlayer.stopTrack();
 				musicPlayer.playMissSound();
 			} else {
@@ -172,7 +209,7 @@ package src {
 				
 				//Check for missing the end of the hold.
 				if (Math.abs(currentHolds[noteLetter].endtime - musicPlayer.getTime()) > HIT_TOLERANCE) {
-					currentHolds[noteLetter].associatedSprite.stopHolding();
+					currentHolds[noteLetter].sprite.stopHolding();
 				}
 				//If it ended well, it will terminate on it's own.
 				

@@ -4,7 +4,6 @@ package test
 	import com.greensock.plugins.GlowFilterPlugin;
 	import flash.display.Graphics;
 	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	import flash.geom.Point;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
@@ -26,8 +25,6 @@ package test
 		
 		private var holdSprite:NoteSprite;
 		
-		private var dispatcher:EventDispatcher;
-		
 		[Before]
 		public function setUp():void {
 			
@@ -40,8 +37,6 @@ package test
 			
 			holdSprite = new NoteSprite(hold);
 			NoteSprite.global_hit_line_position = new Point(50, 0);
-			
-			dispatcher = new EventDispatcher();
 		}
 		
 		[Test]
@@ -77,6 +72,23 @@ package test
 			holdSprite.dispatchEvent(new Event(Event.ENTER_FRAME));
 			
 			//The enter frame handler should now be gone.
+			assertThat(!holdSprite.hasEventListener(Event.ENTER_FRAME));
+		}
+		
+		[Test]
+		public function cannotRestartHold():void {
+			holdSprite.hit();
+			
+			holdSprite.x -= 200;
+			
+			holdSprite.dispatchEvent(new Event(Event.ENTER_FRAME));
+			
+			holdSprite.x = 0;
+			
+			holdSprite.hit(); //Attempt to hit a second time.
+			
+			
+			//The enter frame handler should still be gone.
 			assertThat(!holdSprite.hasEventListener(Event.ENTER_FRAME));
 		}
 	

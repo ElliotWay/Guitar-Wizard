@@ -30,6 +30,11 @@ package  src
 		private var holdEndPoint:Number;
 		
 		/**
+		 * 0 represents neither hit nor miss, 1 represents hit, -1 represents miss.
+		 */
+		private var _isHit:int;
+		
+		/**
 		 * Construct the sprite for this note. Creates an image for this
 		 * note with the associated letter and a bar extending to the right
 		 * if it's a hold. Also associates the note with this sprite.
@@ -78,6 +83,15 @@ package  src
 			this.addChild(letter);
 			letter.x = -NOTE_SIZE * .35;
 			letter.y = -NOTE_SIZE * .6;
+			
+			_isHit = 0;
+		}
+		
+		/**
+		 * Returns whether hit has been called.
+		 */
+		public function isHit():Boolean {
+			return (_isHit > 0);
 		}
 		
 		/**
@@ -86,13 +100,18 @@ package  src
 		 * call stopHolding() to end prematurely.
 		 * The public static field "global_hit_line_position" should be set
 		 * before calling this method.
+		 * Does nothing if this note has already been hit or missed.
 		 */
 		public function hit():void {
-			this.graphics.lineStyle(4, 0x00FF00);
-			this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
-			
-			if (associatedNote.isHold) {
-				this.addEventListener(Event.ENTER_FRAME, continueHold);
+			if (_isHit == 0) {
+				this.graphics.lineStyle(4, 0x00FF00);
+				this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
+				
+				if (associatedNote.isHold) {
+					this.addEventListener(Event.ENTER_FRAME, continueHold);
+				}
+				
+				_isHit = 1;
 			}
 		}
 		
@@ -141,11 +160,16 @@ package  src
 		
 		/**
 		 * Changes the sprite to indicate the note was missed. Does nothing
-		 * different even if the note is a hold.
+		 * different if the note is a hold.
+		 * Does nothing if this note has already been hit or missed.
 		 */
 		public function miss():void {
-			this.graphics.lineStyle(4, 0xFF0000);
-			this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
+			if (_isHit == 0) {
+				this.graphics.lineStyle(4, 0xFF0000);
+				this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
+				
+				_isHit = -1;
+			}
 		}
 		
 	}
