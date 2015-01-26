@@ -1,5 +1,7 @@
 package src 
 {
+	import com.greensock.TweenLite;
+	import com.greensock.easing.Linear;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	
@@ -14,6 +16,8 @@ package src
 		
 		public static const ARENA_WIDTH:int = 2000;
 		
+		public static const SCROLL_SPEED:Number = 300; //pixels per seconds
+		
 		private var playerActors : Vector.<Actor>;
 		private var opponentActors : Vector.<Actor>;
 
@@ -21,6 +25,7 @@ package src
 		private var opponentHP : int;
 		
 		private var arena : Sprite;
+		private var scroller:TweenLite;
 		
 		public function MainArea() 
 		{
@@ -36,7 +41,7 @@ package src
 			opponentActors = new Vector.<Actor>();
 			
 			arena = null;
-			
+			scroller = null;
 			
 			this.graphics.beginFill(0xD0D0FF);
 			this.graphics.drawRect(0, 0, WIDTH, HEIGHT);
@@ -58,9 +63,11 @@ package src
 			
 			playerHP = 100;
 			opponentHP = 100;
-			for (var i:int = 0; i < 3; i++) {
+			for (var i:int = 0; i < 4; i++) {
 				var playerActor:Actor = new DefaultActor(true);
 				playerSummon(playerActor);
+			}
+			for (var j:int = 0; j < 10; j++) {
 				var opponentActor:Actor = new DefaultActor(false);
 				opponentSummon(opponentActor);
 			}
@@ -73,7 +80,7 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor):void {
-			var position : Number = Math.random() * 300;
+			var position : Number = Math.random() * 500;
 			playerActors.push(actor);
 			arena.addChild(actor.sprite);
 			actor.setPosition(position);
@@ -81,7 +88,7 @@ package src
 		}
 		
 		public function opponentSummon(actor : Actor):void {
-			var position : Number = ARENA_WIDTH - Math.random() * 300;
+			var position : Number = ARENA_WIDTH - Math.random() * 500;
 			opponentActors.push(actor);
 			arena.addChild(actor.sprite);
 			actor.setPosition(position);
@@ -122,6 +129,25 @@ package src
 			return !actor.isDead;
 		}
 		
+		public function scroll(right:Boolean):void {
+			if (scroller == null) {
+				var distance:Number;
+				if (right) {
+					distance = arena.x - (-(ARENA_WIDTH - WIDTH));
+					scroller = new TweenLite(arena, distance / SCROLL_SPEED, { x : -(ARENA_WIDTH - WIDTH), ease:Linear.easeInOut, onComplete:stopScrolling } );
+				} else {
+					distance = -arena.x;
+					scroller = new TweenLite(arena, distance / SCROLL_SPEED, { x : 0, ease:Linear.easeInOut, onComplete:stopScrolling} );
+				}
+			}
+		}
+		
+		public function stopScrolling():void {
+			if (scroller != null) {
+				scroller.kill();
+				scroller = null;
+			}
+		}
 	}
 
 }

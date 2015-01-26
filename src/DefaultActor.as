@@ -54,33 +54,40 @@ package src
 			}
 			
 			//Do other stuff.
-			if (others.length == 0)
-				return;
 			
-			//TODO find first valid target.
-			var closest : Actor = others[0];
+			//Check whether any valid targest are available.
+			var validOthers:Vector.<Actor> = 
+				others.filter(function(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
+					return actor.isValidTarget();
+			});
+			if (validOthers.length == 0) {
+				if (status != MOVING)
+					this.go();
+				status = MOVING;
+				return;
+			}
+			
+			//Find the closest valid target.
+			var closest : Actor = validOthers[0];
 			var closeDistance : Number = Math.abs(closest.getPosition() - this.getPosition());
 			var distance : Number;
 			
-			for each(var other:Actor in others) {
+			for each(var other:Actor in validOthers) {
 				if (other.isValidTarget()) {
 					distance = Math.abs(other.getPosition() - this.getPosition());
-					trace("distance to target " + distance);
+					
 					if (distance < closeDistance) {
 						closest = other;
 						closeDistance = distance;
 					}
 				}
 			}
-			trace("closest was " + closeDistance);
-			
-			trace("target = " + closest + " status = " + status);
 			
 			if (closeDistance < RANGE) {
 				if (status != FIGHTING)
 					this.halt();
-				
-				other.hitpoints -= DAMAGE;
+					
+				closest.hitpoints -= DAMAGE;
 				status = FIGHTING;
 			} else {
 				if (status != MOVING)

@@ -1,0 +1,6 @@
+GreenSock's GSAP library, v12.1.5
+
+#Testing
+Flex Unit for AS3 v4.2.0
+Mockolate v0.12.4
+Hamcrest for AS3 v1.2.0 #Flex Unit doesn't include the whole thing, probably not the right version.

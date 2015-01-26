@@ -177,6 +177,16 @@ package src {
 			}
 		}
 		
+		public function scrollHandler(isRight:Boolean):void {
+			trace("scroll: right? : " + isRight);
+			mainArea.scroll(isRight);
+		}
+		
+		public function stopScrolling():void {
+			trace("stop scrolling");
+			mainArea.stopScrolling();
+		}
+		
 		public function keyboardHandler(e:KeyboardEvent):void {
 			switch (e.keyCode) {
 				//First the note keys.
@@ -191,6 +201,20 @@ package src {
 					break;
 				case Keyboard.A:
 					notePressHandler(Note.NOTE_A);
+					break;
+					
+				//Now the arrow keys.
+				case Keyboard.UP:
+					//TODO create up & down handler
+					break;
+				case Keyboard.DOWN:
+					//lkj
+					break;
+				case Keyboard.LEFT:
+					scrollHandler(false);
+					break;
+				case Keyboard.RIGHT:
+					scrollHandler(true);
 					break;
 			}
 		}
@@ -209,6 +233,20 @@ package src {
 					break;
 				case Keyboard.A:
 					holdHandler(Note.NOTE_A);
+					break;
+					
+				//Now the arrow keys.
+				case Keyboard.UP:
+					//TODO create up & down handler
+					break;
+				case Keyboard.DOWN:
+					//lkj
+					break;
+				case Keyboard.LEFT:
+					stopScrolling();
+					break;
+				case Keyboard.RIGHT:
+					stopScrolling();
 					break;
 			}
 		}

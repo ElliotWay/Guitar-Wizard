@@ -1,4 +1,5 @@
 package src {
+	import com.greensock.easing.Linear;
 	import com.greensock.TweenLite;
 	import flash.display.Sprite;
 	
@@ -82,10 +83,10 @@ package src {
 			var distance:Number;
 			if (isPlayerPiece) {
 				distance = MainArea.ARENA_WIDTH - _sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH } );
+				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
 			} else {
 				distance = _sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x : 0 } );
+				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
 			}
 		}
 		
