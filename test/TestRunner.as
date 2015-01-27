@@ -28,8 +28,9 @@ package test
 			testCore.run(NoteSpriteTest);
 			testCore.run(GameUI_MissUntilTest);
 			testCore.run(GameUI_FindHitTest);
+			testCore.run(NoteTest);
 
-			//Number of Tests was 29.
+			//Number of Tests was 32.
 		}
 	}
 

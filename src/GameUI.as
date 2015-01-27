@@ -227,15 +227,19 @@ package src {
 			return null;
 		}
 		
-		
+		/**
+		 * Handler for released note letters. If we're in the middle of a hold for
+		 * that letter, check to see if it was a clean ending.
+		 * @param	noteLetter
+		 */
 		public function holdHandler(noteLetter:int):void {
 			if (expectingHold[noteLetter]) {
 				
-				//Check for missing the end of the hold.
+				//Check if we've missed the end of the hold.
 				if (Math.abs(currentHolds[noteLetter].endtime - musicPlayer.getTime()) > HIT_TOLERANCE) {
 					currentHolds[noteLetter].sprite.stopHolding();
 				}
-				//If it ended well, it will terminate on it's own.
+				//If it ended well, the sprite will stop holding on its own.
 				
 				expectingHold[noteLetter] = false;
 			}
