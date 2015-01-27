@@ -67,7 +67,7 @@ package src
 				var playerActor:Actor = new DefaultActor(true);
 				playerSummon(playerActor);
 			}
-			for (var j:int = 0; j < 10; j++) {
+			for (var j:int = 0; j < 8; j++) {
 				var opponentActor:Actor = new DefaultActor(false);
 				opponentSummon(opponentActor);
 			}
@@ -99,6 +99,7 @@ package src
 		public function step(e:Event):void {
 			//TODO if slowdown occurs, limit to every n frames
 			var actor:Actor;
+			
 			for each (actor in playerActors) {
 				actor.reactToTargets(opponentActors);
 			}
@@ -109,16 +110,16 @@ package src
 			
 			//Collect the dead.
 			for each (actor in playerActors.filter(checkDead, this)) {
-				//this.removeChild(actor.sprite);
+				arena.removeChild(actor.sprite);
 			}
 			
 			playerActors = playerActors.filter(checkAlive, this);
 			
 			for each (actor in opponentActors.filter(checkDead, this)) {
-				//this.removeChild(actor.sprite);
+				arena.removeChild(actor.sprite);
 			}
 			
-			//playerActors = opponentActors.filter(checkAlive, this);
+			opponentActors = opponentActors.filter(checkAlive, this);
 		}
 		
 		private function checkDead(actor : Actor , index : int, vector : Vector.<Actor>) : Boolean {

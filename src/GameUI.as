@@ -218,12 +218,10 @@ package src {
 		}
 		
 		public function scrollHandler(isRight:Boolean):void {
-			trace("scroll: right? : " + isRight);
 			mainArea.scroll(isRight);
 		}
 		
 		public function stopScrolling():void {
-			trace("stop scrolling");
 			mainArea.stopScrolling();
 		}
 		
