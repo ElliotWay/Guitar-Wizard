@@ -26,9 +26,10 @@ package test
 			testCore.run(MusicPlayerTest);
 			testCore.run(SongLoaderTest);
 			testCore.run(NoteSpriteTest);
-			testCore.run(GameUITest);
-			
-			//Number of Tests was 15.
+			testCore.run(GameUI_MissUntilTest);
+			testCore.run(GameUI_FindHitTest);
+
+			//Number of Tests was 29.
 		}
 	}
 

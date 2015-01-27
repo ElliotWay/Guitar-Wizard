@@ -10,8 +10,10 @@ package src {
 	 */
 	public class GameUI extends Sprite
 	{	
-		public static const HIT_TOLERANCE:Number = 150; //how far from the actual note a hit can be
-														//in milliseconds
+		/**
+		 * In milliseconds, how far from an actual note a hit can be.
+		 */
+		public static const HIT_TOLERANCE:Number = 150;
 		
 		//All the fields are protected to make testing easier,
 		//which is important because this is a complicated and fiddly class.
@@ -26,18 +28,15 @@ package src {
 		protected var musicPlayer:MusicPlayer;
 		
 		
-		protected var song:Song;
-		protected var currentTrack:int;
+		private var song:Song;
+		private var currentTrack:int;
 		
-		protected var expectingHold:Vector.<Boolean>;
-		protected var currentHolds:Vector.<Note>;
+		private var expectingHold:Vector.<Boolean>;
+		private var currentHolds:Vector.<Note>;
 		
-		protected var highNotesRemaining:Vector.<Note>;
-		protected var nextHighNote:Note;
-		protected var midNotesRemaining:Vector.<Note>;
-		protected var nextMidNote:Note;
-		protected var lowNotesRemaining:Vector.<Note>;
-		protected var nextLowNote:Note;
+		private var highNotesRemaining:Vector.<Note>;
+		private var midNotesRemaining:Vector.<Note>;
+		private var lowNotesRemaining:Vector.<Note>;
 		
 		public function GameUI() 
 		{
@@ -73,11 +72,8 @@ package src {
 			musicPlayer.loadMusic(song);
 			
 			highNotesRemaining = (Vector.<Note>(song.highPart)).reverse();
-			nextHighNote = highNotesRemaining.pop();
 			midNotesRemaining = (Vector.<Note>(song.midPart)).reverse();
-			nextMidNote = midNotesRemaining.pop();
 			lowNotesRemaining = (Vector.<Note>(song.lowPart)).reverse();
-			nextLowNote = lowNotesRemaining.pop();
 		}
 		
 		public function go():void {
@@ -148,7 +144,6 @@ package src {
 		 * @param	cutoffTime time after which to stop removing notes
 		 */
 		public static function clearNotesUntil(noteList:Vector.<Note>, cutOff:Number):void {
-			//I wish there was a Vector.peek method. Indexing to length - 1 is ugly.
 			while (noteList.length > 0 &&
 					noteList[noteList.length - 1].time < cutOff) {
 				var nextNote:Note = noteList.pop();
@@ -168,7 +163,9 @@ package src {
 			if (expectingHold[noteLetter])
 				return;
 			trace("check hit", musicPlayer.getTime());
+			
 			var notesToSearch:Vector.<Note>;
+			
 			if (currentTrack == Main.HIGH)
 				notesToSearch = highNotesRemaining;
 			if (currentTrack == Main.MID)
@@ -179,28 +176,55 @@ package src {
 				
 			var rightNow:Number = musicPlayer.getTime();
 			
-			var note:Note = null;
-			//Search the array from the back.
-			for (var i:int = notesToSearch.length - 1; i >= 0; i--) {
-				note = notesToSearch[i];
-				if (!note.isHit() && note.letter == noteLetter && Math.abs(note.time - rightNow) < HIT_TOLERANCE) {
-					note.hit();
-					musicPlayer.resumeTrack();
-					break;
-				}
-			}
+			var note:Note = findFirstHit(notesToSearch, noteLetter, rightNow);
 			
-			if (note == null || !note.isHit()) {
-				musicPlayer.stopTrack();
-				musicPlayer.playMissSound();
-			} else {
+			if (note != null) {
+				note.hit();
+				
+				musicPlayer.resumeTrack();
+				
+				//If the note was a hold, we need to start hitting the hold.
 				if (note.isHold) {
 					expectingHold[note.letter] = true;
 					currentHolds[note.letter] = note;
-				} else {
-					expectingHold[note.letter] = false; //Shouldn't need this, but in case of unexpected behavior.
+				}
+				
+			} else {
+				
+				musicPlayer.stopTrack();
+				musicPlayer.playMissSound();
+			}
+		}
+		
+		/**
+		 * Searches the list from the end to find a note with the correct letter
+		 * and a time sufficiently close to the given time. Ignores notes
+		 * that have already been hit.
+		 * The vector <i>must</i> be sorted descending.
+		 * @param	noteList the list of notes to search
+		 * @param	noteLetter the letter constant of note to search for
+		 * @param	time the time to compare note times for
+		 * @return the first note, starting from the end of the list, that matches these parameters,
+		 * 	or null if none do.
+		 */
+		public static function findFirstHit(noteList:Vector.<Note>, noteLetter:int, time:Number):Note {
+			//Search from the end.
+			for (var i:int = noteList.length - 1; i >= 0; i--) {
+				var note:Note = noteList[i];
+				
+				if (note.letter == noteLetter && !note.isHit()
+						&& Math.abs(note.time - time) < HIT_TOLERANCE) {
+					
+					return note;
+					
+					//Skip the rest once we're clearly past where a hit might be.
+				} else if (note.time - time > HIT_TOLERANCE) {
+					return null;
 				}
 			}
+			
+			//There were not matches, so return null.
+			return null;
 		}
 		
 		

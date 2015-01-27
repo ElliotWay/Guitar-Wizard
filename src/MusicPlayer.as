@@ -5,6 +5,10 @@ package  src
 	/**
 	 * Controls music playback. Plays the base music at the same time as the track,
 	 * and allows for switching between tracks.
+	 * The "base" track is the underlying part which plays continuously throughout the song
+	 * until the song is over. The "track" part is the part played on top the reflects the playing
+	 * of the player; misses stop playing and hits continue it, and the player can switch between
+	 * tracks.
 	 * @author Elliot Way
 	 */
 	public class MusicPlayer 
