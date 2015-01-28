@@ -140,9 +140,8 @@ package  src
 				}
 				
 				var time:Number = parseInt(String(tokens[index]));
-				
-				//!time checks for NaN
-				if ((!time && time != 0) || time < 0) {
+
+				if (isNaN(time) || time < 0) {
 					trace("Token # " + index + " Funny timestamp: " + String(tokens[index]));
 					Main.showError("Error: Corrupt GWS File: bad timestamp");
 				}

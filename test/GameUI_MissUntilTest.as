@@ -13,12 +13,11 @@ package test
 	
 	MockolateRunner;
 	/**
-	 * This one's a subclass of GameUI to access it's protected fields, making things
-	 * a lot easier.
+	 * Tests the missNotesUntil and the clearNotesUntil methods.
 	 * @author Elliot Way
 	 */
 	[RunWith("mockolate.runner.MockolateRunner")]
-	public class GameUITest
+	public class GameUI_MissUntilTest
 	{
 		
 		[Mock]
@@ -38,7 +37,6 @@ package test
 			noteList = new <Note>[note40, note30A, note30B, note20, note10];
 		}
 		
-		//The following methods test GameUI.missNotesUntil and GameUI.clearNotesUntil.
 		
 		[Test]
 		public function noErrorsMissingEmptyVector():void {
