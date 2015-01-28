@@ -75,6 +75,27 @@ package src
 			return associatedSprite;
 		}
 		
+		public function toString():String {
+			
+			var out:String = "Note: ";
+			
+			if (_letter == NOTE_A)
+				out += "A";
+			else if (_letter == NOTE_D)
+				out += "D";
+			else if (_letter == NOTE_F)
+				out += "F";
+			else if (_letter == NOTE_S)
+				out += "S";
+				
+			out += " " + _time;
+			if (_isHold) {
+				out += " to " + _endtime;
+			}
+			
+			return out;
+		}
+		
 		//The following methods weren't originally intended to exist;
 		//the user was supposed to call sprite and use that,
 		//but, as a result of refactoring, these became more convenient.

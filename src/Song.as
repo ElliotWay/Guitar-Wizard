@@ -73,21 +73,54 @@ package  src
 			_midPart = new Vector.<Note>();
 			_lowPart = new Vector.<Note>();
 			
-			parseNotes(_highPart, highNoteString);
-			parseNotes(_midPart, midNoteString);
-			parseNotes(_lowPart, lowNoteString);
+			try {
+				parseNotes(_highPart, highNoteString);
+				parseNotes(_midPart, midNoteString);
+				parseNotes(_lowPart, lowNoteString);
+			} catch (error:Error) {
+				trace(error.message);
+				Main.showError(error.message);
+			}
+			
 			
 			Main.fileLoaded();
 		}
 		
+		/**
+		 * Parse the notes out of string into a vector.
+		 * 
+		 * The basic format of these strings is
+		 * 
+		 * L dddd L dddd L dddd
+		 * 
+		 * where L is some letter and dddd is a timestamp in milliseconds.
+		 * If L is A, S, D, or F, the following timestamp is the start time of a note
+		 * with the same letter.
+		 * If L is H, then the following timestamp is the end time of the note that should be
+		 * converted to a hold. An H should never follow another H.
+		 * Timestamps should be nonnegative and increasing, with an exception that notes may
+		 * be earlier than the end of an earlier hold.
+		 * 
+		 * A known issue with this function is that is doesn't detect certain bad timestamps;
+		 * parseInt isn't strict enough.
+		 * 
+		 * @param	noteList the list to add the notes to
+		 * @param	str the string out of which to parse the notes
+		 */
 		public static function parseNotes(noteList:Vector.<Note>, str:String):void {
+			
+			if (noteList == null) {
+				throw new GWError("Error: parse notes called with null vector");
+			}
 			
 			if (str == "")
 				return;
 			
 			var tokens:Array = str.split(/\s+/);
 			
-			var note:Note;
+			var note:Note = null;
+			var lastTime:Number = -1;
+			var lastLetter:String;
 			
 			var index:int = 0;
 			while (index < tokens.length) {
@@ -95,7 +128,8 @@ package  src
 				
 				if (letter.length > 1) {
 					trace("Long letter: " + letter);
-					Main.showError("Error: Corrupt GWS File: long letter");
+					throw new GWError("Error: Corrupt GWS File: long letter " +
+							"Token # " + index + " " + letter);
 				} else if (letter.length == 0) {
 					index++;
 					continue;
@@ -124,33 +158,50 @@ package  src
 						break;
 					case "H":
 					case "h":
+						//Check if we had an H last time, or if this is the first token.
+						if (note == null || note.isHold) {
+							throw new GWError("Error: Corrupt GSW File: hold with no corresponding note " +
+									"Token # " + index);
+						}
+						
 						note.isHold = true;
 						break;
 					default:
-						trace("Token # " + index + " Invalid letter: " + letter);
-						Main.showError("Error: Corrupt GWS File: invalid letter");
+						throw new GWError("Error: Corrupt GWS File: invalid letter " +
+								"Token # " + index + " " + letter);
 						return;
 				}
 				
 				index++;
 				if (index >= tokens.length) {
-					trace("No corresponding timestamp to token # " + index + " " + letter);
-					Main.showError("Error: Corrupt GWS File: missing token");
+					throw new GWError("Error: Corrupt GWS File: missing token " +
+							"Token # " + index + " " + letter + " ???");
 					return;
 				}
 				
 				var time:Number = parseInt(String(tokens[index]));
 
 				if (isNaN(time) || time < 0) {
-					trace("Token # " + index + " Funny timestamp: " + String(tokens[index]));
-					Main.showError("Error: Corrupt GWS File: bad timestamp");
+					throw new GWError("Error: Corrupt GWS File: bad timestamp " + 
+							"Token # " + index + " Funny timestamp: " + String(tokens[index]));
+				} else if (time < lastTime) {
+					throw new GWError("Error: Corrupt GWS File: timestamps out of order " +
+							"Token # " + index + " " + time + " < " + lastTime);
+				} else if (time == lastTime && letter == lastLetter) {
+					throw new GWError("Error: Corrupt GWS File: simultaneous note " + 
+							"Token # " + index + " " + letter + " " + time);
 				}
 				else if (note.isHold)
 					note.endtime = time;
-				else
+				else {
 					note.time = time;
+					lastTime = time;
+					
+					lastLetter = letter;
+					
+					noteList.push(note);
+				}
 				
-				noteList.push(note);
 				index++;
 			}
 		}
