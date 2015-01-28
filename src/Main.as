@@ -17,6 +17,9 @@ package src
 	{
 		public static const DO_TEST:Boolean = false;
 		
+		public static const WIDTH:int = 800;
+		public static const HEIGHT:int = 600;
+		
 		public static const VIDEO_LAG:int = 70; //milliseconds
 		
 		public static const HIGH:int = 0;

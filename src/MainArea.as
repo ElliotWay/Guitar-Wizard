@@ -12,9 +12,12 @@ package src
 	public class MainArea extends Sprite 
 	{
 		public static const WIDTH:int = 600;
-		public static const HEIGHT:int = 350;
+		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
 		public static const ARENA_WIDTH:int = 2000;
+		
+		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
+		public static const MINIMAP_HEIGHT:int = 50;
 		
 		public static const SCROLL_SPEED:Number = 300; //pixels per seconds
 		
@@ -26,6 +29,8 @@ package src
 		
 		private var arena : Sprite;
 		private var scroller:TweenLite;
+		
+		private var minimap:Sprite;
 		
 		public function MainArea() 
 		{
@@ -42,6 +47,7 @@ package src
 			
 			arena = null;
 			scroller = null;
+			minimap = null;
 			
 			this.graphics.beginFill(0xD0D0FF);
 			this.graphics.drawRect(0, 0, WIDTH, HEIGHT);
@@ -61,6 +67,18 @@ package src
 			arena.graphics.drawRect(0, 0, ARENA_WIDTH, HEIGHT);
 			arena.graphics.endFill();
 			
+			//minimap
+			minimap = new Sprite();
+			this.addChild(minimap);
+			
+			minimap.graphics.beginFill(0xFFFFB0);
+			minimap.graphics.drawRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+			minimap.graphics.endFill();
+			
+			minimap.x = WIDTH;
+			minimap.y = 0;
+			
+			//create stuff
 			playerHP = 100;
 			opponentHP = 100;
 			for (var i:int = 0; i < 4; i++) {
@@ -83,7 +101,10 @@ package src
 			var position : Number = Math.random() * 500;
 			playerActors.push(actor);
 			arena.addChild(actor.sprite);
-			actor.setPosition(position);
+			
+			minimap.addChild(actor.miniSprite);
+			
+			actor.setPosition(position); //Also updates the minimap.
 			actor.go();
 		}
 		
@@ -91,13 +112,19 @@ package src
 			var position : Number = ARENA_WIDTH - Math.random() * 500;
 			opponentActors.push(actor);
 			arena.addChild(actor.sprite);
-			actor.setPosition(position);
 			
+			minimap.addChild(actor.miniSprite);
+			
+			actor.setPosition(position);
 			actor.go();
 		}
 		
+		/**
+		 * Tell all the actors to act.
+		 * @param	e an enter frame event
+		 */
 		public function step(e:Event):void {
-			//TODO if slowdown occurs, limit to every n frames
+			//TODO if slowdown occurs, limit to every n frames OR maybe we can get some sort of prediction system going
 			var actor:Actor;
 			
 			for each (actor in playerActors) {
@@ -108,18 +135,43 @@ package src
 				actor.reactToTargets(playerActors);
 			}
 			
-			//Collect the dead.
-			for each (actor in playerActors.filter(checkDead, this)) {
-				arena.removeChild(actor.sprite);
-			}
+			updateMinimap();
 			
+			//Collect the dead.
+			filterDead(playerActors);
 			playerActors = playerActors.filter(checkAlive, this);
 			
-			for each (actor in opponentActors.filter(checkDead, this)) {
-				arena.removeChild(actor.sprite);
+			filterDead(opponentActors);
+			opponentActors = opponentActors.filter(checkAlive, this);
+		}
+		
+		private function updateMinimap():void {
+			var actor:Actor;
+			for each (actor in playerActors) {
+				actor.updateMiniMap();
 			}
 			
-			opponentActors = opponentActors.filter(checkAlive, this);
+			for each (actor in opponentActors) {
+				actor.updateMiniMap();
+			}
+		}
+		
+		/**
+		 * Finds the dead actors in the list, and removes them.
+		 * That consists of removing them from the arena, removing them
+		 * from the minimap, and stopping any ongoing animations.
+		 * Unfortunately, because I can't pass by reference, I can't
+		 * remove the dead from the list, so be sure to do that after
+		 * calling this method.
+		 * @param	actorList the list of actors to check
+		 */
+		private function filterDead(actorList:Vector.<Actor>):void {
+			
+			for each (var actor:Actor in actorList.filter(checkDead, this)) {
+				arena.removeChild(actor.sprite);
+				minimap.removeChild(actor.miniSprite);
+				actor.clean();
+			}
 		}
 		
 		private function checkDead(actor : Actor , index : int, vector : Vector.<Actor>) : Boolean {

@@ -27,7 +27,8 @@ package src
 			
 			this.isPlayerPiece = isPlayerPiece;
 			
-			this._sprite = new ActorSprite((isPlayerPiece) ? (0xFF0000) : (0x0000FF));
+			this._sprite = new ActorSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
+			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
 			
 			status = MOVING;
 			dying = null;
@@ -103,6 +104,13 @@ package src
 		
 		override public function isValidTarget():Boolean {
 			return status != DYING;
+		}
+		
+		override public function clean():void {
+			super.clean();
+			
+			if (dying != null)
+				dying.kill();
 		}
 	}
 

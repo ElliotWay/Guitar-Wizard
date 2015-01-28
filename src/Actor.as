@@ -12,7 +12,10 @@ package src {
 		
 		public static const Y_POSITION:int = 200;
 		
+		public static const MINI_Y_POSITION:int = 35;
+		
 		protected var _sprite : ActorSprite;
+		protected var _miniSprite : MiniSprite;
 		
 		protected var position : Number
 		protected var _hitpoints : int;
@@ -27,15 +30,20 @@ package src {
 		{
 			//Defaults
 			_sprite = null;
+			_miniSprite = null;
 			
 			_hitpoints = 10;
 			isPlayerPiece = false;
-			speed = 30;
+			speed = 50;
 			
 		}
 		
 		public function get sprite() : Sprite {
 			return _sprite;
+		}
+		
+		public function get miniSprite():Sprite {
+			return _miniSprite;
 		}
 		
 		/**
@@ -77,8 +85,19 @@ package src {
 		public function setPosition(position:Number):void {
 			_sprite.y = Y_POSITION;
 			_sprite.x = position;
+			
+			updateMiniMap();
 		}
 		
+		public function updateMiniMap():void {
+			//Convert the sprites position to a position on the minimap.
+			_miniSprite.y = MINI_Y_POSITION;
+			_miniSprite.x = (_sprite.x / MainArea.ARENA_WIDTH) * MainArea.MINIMAP_WIDTH;
+		}
+		
+		/**
+		 * Starts the sprite moving, direction depending on ownership.
+		 */
 		public function go() : void {
 			var distance:Number;
 			if (isPlayerPiece) {
@@ -90,8 +109,21 @@ package src {
 			}
 		}
 		
+		/**
+		 * Stop moving. Also clears the animation for GC.
+		 */
 		public function halt() : void {
-			movement.kill();
+			if (movement != null)
+				movement.kill();
+		}
+		
+		/**
+		 * Stops all animations, so they're not leaking memory somewhere.
+		 * Override this method if an actor has its own animations
+		 * (it probably does).
+		 */
+		public function clean():void {
+			halt();
 		}
 	}
 

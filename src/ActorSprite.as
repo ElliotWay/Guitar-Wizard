@@ -2,7 +2,7 @@ package src {
 	import flash.display.Sprite;
 	
 	/**
-	 * write this later
+	 * write this class later, probably give it animations
 	 * @author Elliot Way
 	 */
 	public class ActorSprite extends Sprite 
