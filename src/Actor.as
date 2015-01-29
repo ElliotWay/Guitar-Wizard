@@ -26,14 +26,14 @@ package src {
 		
 		protected var movement : TweenLite;
 		
-		public function Actor() 
+		public function Actor(playerPiece:Boolean) 
 		{
 			//Defaults
 			_sprite = null;
 			_miniSprite = null;
 			
 			_hitpoints = 10;
-			isPlayerPiece = false;
+			isPlayerPiece = playerPiece;
 			speed = 50;
 			
 		}

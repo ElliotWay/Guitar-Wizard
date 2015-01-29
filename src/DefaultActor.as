@@ -23,7 +23,7 @@ package src
 		
 		public function DefaultActor(isPlayerPiece:Boolean) 
 		{
-			super();
+			super(isPlayerPiece);
 			
 			this.isPlayerPiece = isPlayerPiece;
 			

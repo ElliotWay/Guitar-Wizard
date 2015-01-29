@@ -3,7 +3,9 @@ package src {
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
+	import flash.events.TimerEvent;
 	import flash.ui.Keyboard;
+	import flash.utils.Timer;
 	/**
 	 * ...
 	 * @author Elliot Way
@@ -21,7 +23,6 @@ package src {
 		//GUI parts
 		protected var musicArea:MusicArea;
 		protected var mainArea:MainArea;
-		//protected var minimapArea:MiniMapArea;
 		//protected var controlArea:ControlArea;
 		
 		//Other output parts
@@ -37,6 +38,13 @@ package src {
 		private var highNotesRemaining:Vector.<Note>;
 		private var midNotesRemaining:Vector.<Note>;
 		private var lowNotesRemaining:Vector.<Note>;
+		
+		private var highActorType:Class;
+		private var midActorType:Class;
+		private var lowActorType:Class;
+		
+		private var opponent:OpponentStrategy;
+		private var opponentTimer:Timer;
 		
 		public function GameUI() 
 		{
@@ -57,6 +65,12 @@ package src {
 			mainArea = new MainArea();
 			this.addChild(mainArea);
 			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
+			
+			highActorType = DefaultActor;
+			midActorType = DefaultActor;
+			lowActorType = DefaultActor;
+			
+			opponent = new DefaultOpponent();
 		}
 		
 		/**
@@ -83,11 +97,23 @@ package src {
 
 			mainArea.hardCode();
 			
-			//musicArea.go();
+			//Let the opponent start summoning.
+			opponentTimer = new Timer(opponent.timeToAct, 0); //0 repeates indefinitely.
+			opponentTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+				var opponentSummon:Vector.<Actor> = opponent.act();
+				for each(var actor:Actor in opponentSummon) {
+					mainArea.opponentSummon(actor);
+				}
+			});
+			opponentTimer.start();
+			
+			musicArea.go();
 			musicPlayer.go();
 			
-			//this.addEventListener(Event.ENTER_FRAME, missChecker);
+			this.addEventListener(Event.ENTER_FRAME, missChecker);
 		}
+		
+		private var frames:int = 0;
 		
 		/**
 		 * Check the list of notes to see if any have been missed.
@@ -96,6 +122,14 @@ package src {
 		 * @param	e enter frame event
 		 */
 		public function missChecker(e:Event):void {
+			frames++;
+			if (frames >= 250) {
+				frames = 0;
+				var time:Number = musicPlayer.getTime();
+				var position:Number = - musicArea.getPosition() / MusicArea.POSITION_SCALE;
+				trace("time = " + time + ", position/Scale = " + position
+						+ ", difference = " + (position - time));
+			}
 			//TODO if slowdown occurs, make this function only every 5 or so frames
 			var cutOffTime:Number = musicPlayer.getTime() - HIT_TOLERANCE - 200;
 			
@@ -162,7 +196,6 @@ package src {
 			//If we're currently in a hold, we can ignore these events.
 			if (expectingHold[noteLetter])
 				return;
-			trace("check hit", musicPlayer.getTime());
 			
 			var notesToSearch:Vector.<Note>;
 			
@@ -180,6 +213,8 @@ package src {
 			
 			if (note != null) {
 				note.hit();
+				
+				preparePlayerSummon();
 				
 				musicPlayer.resumeTrack();
 				
@@ -225,6 +260,22 @@ package src {
 			
 			//There were not matches, so return null.
 			return null;
+		}
+		
+		/**
+		 * Summon a new actor for the player.
+		 */
+		private function preparePlayerSummon():void {
+			var actor:Actor;
+			
+			if (currentTrack == Main.HIGH)
+				actor = new highActorType(true);
+			else if (currentTrack == Main.MID)
+				actor = new midActorType(true);
+			else
+				actor = new lowActorType(true);
+				
+			mainArea.playerSummon(actor);
 		}
 		
 		/**
