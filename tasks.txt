@@ -6,4 +6,6 @@
 
 - fix "first strike" problem where player actors have an advantage
 
+- set up summoning actors by way of hitting notes
+
 - create script to run tests instead of using the DO_TEST flag
