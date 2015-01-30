@@ -15,7 +15,7 @@ package src
 	 */
 	public class Main extends Sprite 
 	{
-		public static const DO_TEST:Boolean = true;
+		public static const DO_TEST:Boolean = false;
 		
 		public static const WIDTH:int = 800;
 		public static const HEIGHT:int = 600;
