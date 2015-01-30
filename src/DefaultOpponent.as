@@ -11,7 +11,7 @@ package src
 		
 		public function DefaultOpponent() 
 		{
-			_timeToAct = 450; //milliseconds
+			_timeToAct = 350; //milliseconds
 		}
 		
 		public function get timeToAct():Number 

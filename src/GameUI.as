@@ -214,14 +214,16 @@ package src {
 			if (note != null) {
 				note.hit();
 				
-				preparePlayerSummon();
-				
 				musicPlayer.resumeTrack();
 				
 				//If the note was a hold, we need to start hitting the hold.
 				if (note.isHold) {
 					expectingHold[note.letter] = true;
 					currentHolds[note.letter] = note;
+				} else {
+					//If it isn't a hold, we can summon now, otherwise
+					//wait until the hold is done.
+					preparePlayerSummon();
 				}
 				
 			} else {
@@ -286,11 +288,28 @@ package src {
 		public function holdHandler(noteLetter:int):void {
 			if (expectingHold[noteLetter]) {
 				
+				var goodEnd:Boolean = true;
+				
+				var currentHold:Note = currentHolds[noteLetter];
+				
+				var time:Number = musicPlayer.getTime();
+				
 				//Check if we've missed the end of the hold.
-				if (Math.abs(currentHolds[noteLetter].endtime - musicPlayer.getTime()) > HIT_TOLERANCE) {
-					currentHolds[noteLetter].sprite.stopHolding();
+				if (Math.abs(currentHold.endtime - time) > HIT_TOLERANCE) {
+					currentHold.sprite.stopHolding();
+					goodEnd = true;
 				}
 				//If it ended well, the sprite will stop holding on its own.
+				
+				var actor:DefaultScalableActor = new DefaultScalableActor(true);
+				
+				//			.6 for hitting the start
+				//					.6 for hitting the end
+				//									and .002 * duration of hold
+				actor.setScale(.6 + (goodEnd ? .6 : 0) +
+						.002 * ((Math.min(time, currentHold.endtime)) - currentHold.time));
+				
+				mainArea.playerSummon(actor);
 				
 				expectingHold[noteLetter] = false;
 			}

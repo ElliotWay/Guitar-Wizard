@@ -3,6 +3,7 @@ package src
 	import com.greensock.TweenLite;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.plugins.TintPlugin;
+	
 	/**
 	 * ...
 	 * @author Elliot Way
@@ -27,12 +28,15 @@ package src
 			
 			this.isPlayerPiece = isPlayerPiece;
 			
-			this._sprite = new ActorSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
-			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
 			
 			status = MOVING;
 			dying = null;
 			_isDead = false;
+		}
+		
+		override public function createSprites(isPlayerPiece:Boolean):void {
+			this._sprite = new ActorSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
+			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
 		}
 		
 		override public function reactToTargets(others:Vector.<Actor>):void {
