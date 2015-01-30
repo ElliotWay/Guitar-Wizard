@@ -81,11 +81,11 @@ package src
 			//create stuff
 			playerHP = 100;
 			opponentHP = 100;
-			for (var i:int = 0; i < 4; i++) {
+			for (var i:int = 0; i < 5; i++) {
 				var playerActor:Actor = new DefaultActor(true);
 				playerSummon(playerActor);
 			}
-			for (var j:int = 0; j < 8; j++) {
+			for (var j:int = 0; j < 5; j++) {
 				var opponentActor:Actor = new DefaultActor(false);
 				opponentSummon(opponentActor);
 			}

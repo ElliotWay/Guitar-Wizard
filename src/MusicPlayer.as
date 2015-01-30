@@ -133,6 +133,23 @@ package  src
 				return -1;
 		}
 		
+		/**
+		 * Returns the playhead of the currently playing track part,
+		 * or -1 if no track part is currently playing.
+		 * Used for checking if the base part is out of sync.
+		 * @return track playhead
+		 */
+		public function getTrackTime():Number {
+			if (currentTrack == Main.HIGH && highChannel != null)
+				return highChannel.position;
+			else if (currentTrack == Main.MID && midChannel != null)
+				return midChannel.position;
+			else if (currentTrack == Main.LOW && lowChannel != null)
+				return lowChannel.position;
+			else
+				return -1;
+		}
+		
 	}
 
 }

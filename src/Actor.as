@@ -7,7 +7,7 @@ package src {
 	 * ...
 	 * @author Elliot Way
 	 */
-	public class Actor 
+	public class Actor implements AbstractActor
 	{
 		
 		public static const Y_POSITION:int = 200;
@@ -26,16 +26,23 @@ package src {
 		
 		protected var movement : TweenLite;
 		
-		public function Actor() 
+		public function Actor(playerPiece:Boolean) 
 		{
-			//Defaults
-			_sprite = null;
-			_miniSprite = null;
+			createSprites(playerPiece);
 			
 			_hitpoints = 10;
-			isPlayerPiece = false;
+			isPlayerPiece = playerPiece;
 			speed = 50;
 			
+		}
+		
+		/**
+		 * Creates the sprite and the minisprite.
+		 * Override this function.
+		 * @param	isPlayerPiece
+		 */
+		public function createSprites(isPlayerPiece:Boolean):void {
+			throw new Error("Unimplemented abstract method");
 		}
 		
 		public function get sprite() : Sprite {
@@ -51,7 +58,8 @@ package src {
 		 * @param	others target actor
 		 */
 		public function reactToTargets(others : Vector.<Actor>):void {
-			
+			//TODO create new error class
+			throw new Error("Unimplemented abstract method.");
 		}
 		
 		/**

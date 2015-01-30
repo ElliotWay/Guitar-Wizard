@@ -3,6 +3,7 @@ package src
 	import com.greensock.TweenLite;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.plugins.TintPlugin;
+	
 	/**
 	 * ...
 	 * @author Elliot Way
@@ -10,7 +11,7 @@ package src
 	public class DefaultActor extends Actor 
 	{
 		private static const RANGE : int = 10;
-		private static const DAMAGE : int = 5;
+		private static const DAMAGE : int = 1;
 		
 		private var status : int = 0;
 		private static const MOVING : int = 0;
@@ -23,36 +24,29 @@ package src
 		
 		public function DefaultActor(isPlayerPiece:Boolean) 
 		{
-			super();
+			super(isPlayerPiece);
 			
 			this.isPlayerPiece = isPlayerPiece;
 			
-			this._sprite = new ActorSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
-			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
 			
 			status = MOVING;
 			dying = null;
 			_isDead = false;
 		}
 		
+		override public function createSprites(isPlayerPiece:Boolean):void {
+			this._sprite = new ActorSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
+			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
+		}
+		
 		override public function reactToTargets(others:Vector.<Actor>):void {
-			//Check if we're dead.
+			//Check if we're dead. If we're dead, we have to stop now.
 			if (status == DYING) {
 				if (dying.progress() == 1)
 					_isDead = true;
 				return;
 			}
 			
-			//Check if we're dying.
-			if (this._hitpoints <= 0) {
-				status = DYING;
-				this.halt();
-				
-				TweenPlugin.activate([TintPlugin]);
-				this.dying = new TweenLite(sprite, 3, { tint : 0x000000 } );
-				
-				return;
-			}
 			
 			//Do other stuff.
 			
@@ -95,6 +89,16 @@ package src
 					this.go();
 					
 				status = MOVING;
+			}
+			
+			//Check if we're dying. Actors can interact while dying, otherwise player actors
+			//would get an advantage.
+			if (this._hitpoints <= 0) {
+				status = DYING;
+				this.halt();
+				
+				TweenPlugin.activate([TintPlugin]);
+				this.dying = new TweenLite(sprite, 3, { tint : 0x000000 } );
 			}
 		}
 		

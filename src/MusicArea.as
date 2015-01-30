@@ -20,7 +20,10 @@ package  src
 		
 		public static const HIT_LINE:int = 75;
 		
-		public static const POSITION_SCALE:Number = 0.3; //position of letter in pixels per milliseconds of music
+		/**
+		 * Ratio between space on the screen and time, in pixels per millisecond.
+		 */
+		public static const POSITION_SCALE:Number = 0.3;
 		public static var position_offset:Number = 40;
 		
 		private var highNotes:Sprite;
@@ -142,10 +145,18 @@ package  src
 		}
 		
 		/**
-		 * Starts scroll the notes leftwards.
+		 * Starts scrolling the notes leftwards.
 		 */
 		public function go():void {
 			TweenLite.to(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
+		}
+		
+		/**
+		 * Gets the horizontal position of the notes layer.
+		 * @return the x position of the notes layer
+		 */
+		public function getPosition():Number {
+			return notesLayer.x;
 		}
 	}
 
