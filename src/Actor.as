@@ -86,12 +86,17 @@ package src {
 			_hitpoints = value;
 		}
 		
+		/**
+		 * Gets the x coordinate in the center of the actor.
+		 * @return the center of the actor
+		 */
 		public function getPosition() : Number {
-			return _sprite.x;
+			return _sprite.x + (_sprite.width / 2);
 		}
 		
 		public function setPosition(position:Number):void {
-			_sprite.y = Y_POSITION;
+			_sprite.y = (Y_POSITION - _sprite.height);
+			
 			_sprite.x = position;
 			
 			updateMiniMap();
@@ -99,7 +104,7 @@ package src {
 		
 		public function updateMiniMap():void {
 			//Convert the sprites position to a position on the minimap.
-			_miniSprite.y = MINI_Y_POSITION;
+			_miniSprite.y = (MINI_Y_POSITION - _miniSprite.height);
 			_miniSprite.x = (_sprite.x / MainArea.ARENA_WIDTH) * MainArea.MINIMAP_WIDTH;
 		}
 		

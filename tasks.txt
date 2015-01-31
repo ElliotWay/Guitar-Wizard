@@ -4,6 +4,4 @@
 
 - fix miss/hit detection, possibly related to lag
 
-- set up summoning actors by way of hitting notes
-
 - create script to run tests instead of using the DO_TEST flag

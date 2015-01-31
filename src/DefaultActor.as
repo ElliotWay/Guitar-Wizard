@@ -10,13 +10,14 @@ package src
 	 */
 	public class DefaultActor extends Actor 
 	{
-		private static const RANGE : int = 10;
-		private static const DAMAGE : int = 1;
 		
 		private var status : int = 0;
 		private static const MOVING : int = 0;
 		private static const FIGHTING : int = 1;
 		private static const DYING : int = 2;
+		
+		protected var range : int;
+		protected var damage : int;
 		
 		private var dying : TweenLite;
 		
@@ -26,12 +27,12 @@ package src
 		{
 			super(isPlayerPiece);
 			
-			this.isPlayerPiece = isPlayerPiece;
-			
-			
 			status = MOVING;
 			dying = null;
 			_isDead = false;
+			
+			range = 10;
+			damage = 1;
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
@@ -78,11 +79,11 @@ package src
 				}
 			}
 			
-			if (closeDistance < RANGE) {
+			if (closeDistance < range) {
 				if (status != FIGHTING)
 					this.halt();
 					
-				closest.hitpoints -= DAMAGE;
+				closest.hitpoints -= damage;
 				status = FIGHTING;
 			} else {
 				if (status != MOVING)

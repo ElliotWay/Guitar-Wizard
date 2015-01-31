@@ -11,7 +11,7 @@ package src
 		
 		public function DefaultOpponent() 
 		{
-			_timeToAct = 350; //milliseconds
+			_timeToAct = 400; //milliseconds
 		}
 		
 		public function get timeToAct():Number 
@@ -24,7 +24,15 @@ package src
 			//Basic strategy of summon one DefaultActor.
 			
 			var out:Vector.<Actor> = new Vector.<Actor>();
-			out[0] = new DefaultActor(false);
+			
+			if (Math.random() * 4 < 3)
+				out[0] = new DefaultActor(false);
+			else {
+				var newScale:Number = 1.2 + Math.random() * 2;
+				var actor:DefaultScalableActor = new DefaultScalableActor(false);
+				actor.setScale(newScale);
+				out[0] = actor;
+			}
 			
 			return out;
 		}
