@@ -14,7 +14,7 @@ package src
 		public static const WIDTH:int = 600;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
-		public static const ARENA_WIDTH:int = 2000;
+		public static const ARENA_WIDTH:int = 1500;
 		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
@@ -98,7 +98,7 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor):void {
-			var position : Number = Math.random() * 500;
+			var position : Number = Math.random() * 400;
 			playerActors.push(actor);
 			arena.addChild(actor.sprite);
 			
@@ -109,7 +109,7 @@ package src
 		}
 		
 		public function opponentSummon(actor : Actor):void {
-			var position : Number = ARENA_WIDTH - Math.random() * 500;
+			var position : Number = ARENA_WIDTH - Math.random() * 400;
 			opponentActors.push(actor);
 			arena.addChild(actor.sprite);
 			

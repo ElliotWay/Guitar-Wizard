@@ -10,7 +10,7 @@ package src
 		
 		public function DefaultScalableActor(isPlayerPiece:Boolean) 
 		{
-			super(isPlayerPiece);	
+			super(isPlayerPiece);
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
@@ -26,6 +26,8 @@ package src
 			
 			this._miniSprite.scaleX = scale;
 			this._miniSprite.scaleY = scale;
+			
+			this._hitpoints *= (1 + ((scale - 1) / 2));
 		}
 		
 	}
