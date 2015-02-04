@@ -14,7 +14,7 @@ package src
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
-			this._sprite = new ActorSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
+			this._sprite = new DefaultSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
 			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
 		}
 		

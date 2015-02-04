@@ -11,6 +11,8 @@ package src
 	 */
 	public class MainArea extends Sprite 
 	{
+		public static var mainArea:MainArea;
+		
 		public static const WIDTH:int = 600;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
@@ -21,8 +23,13 @@ package src
 		
 		public static const SCROLL_SPEED:Number = 300; //pixels per seconds
 		
+		public static const PLAYER_ACTORS:int = 1;
+		public static const OPPONENT_ACTORS:int = 2;
+		
 		private var playerActors : Vector.<Actor>;
 		private var opponentActors : Vector.<Actor>;
+		
+		private var projectiles:Vector.<Projectile>;
 
 		private var playerHP : int;
 		private var opponentHP : int;
@@ -34,6 +41,8 @@ package src
 		
 		public function MainArea() 
 		{
+			mainArea = this;
+			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
@@ -44,6 +53,8 @@ package src
 			
 			playerActors = new Vector.<Actor>();
 			opponentActors = new Vector.<Actor>();
+			
+			projectiles = new Vector.<Projectile>();
 			
 			arena = null;
 			scroller = null;
@@ -57,6 +68,17 @@ package src
 			
 		}
 		
+		public function addProjectile(projectile:Projectile):void {
+			
+			projectiles.push(projectile);
+						
+			projectile.addEventListener(Event.ADDED_TO_STAGE, function(e:Event):void {
+				projectile.go();
+			});
+			
+			arena.addChild(projectile);
+		}
+		
 		public function hardCode():void {
 			
 			//prep arena
@@ -66,6 +88,9 @@ package src
 			arena.graphics.beginFill(0xD0FFB0);
 			arena.graphics.drawRect(0, 0, ARENA_WIDTH, HEIGHT);
 			arena.graphics.endFill();
+			
+			arena.graphics.beginFill(0x909000);
+			arena.graphics.drawRect(0, Actor.Y_POSITION, ARENA_WIDTH, 3);
 			
 			//minimap
 			minimap = new Sprite();
@@ -81,11 +106,11 @@ package src
 			//create stuff
 			playerHP = 100;
 			opponentHP = 100;
-			for (var i:int = 0; i < 5; i++) {
-				var playerActor:Actor = new DefaultActor(true);
+			for (var i:int = 0; i < 1; i++) {
+				var playerActor:Actor = new Archer(true);
 				playerSummon(playerActor);
 			}
-			for (var j:int = 0; j < 5; j++) {
+			for (var j:int = 0; j < 1; j++) {
 				var opponentActor:Actor = new DefaultActor(false);
 				opponentSummon(opponentActor);
 			}
@@ -135,6 +160,7 @@ package src
 				actor.reactToTargets(playerActors);
 			}
 			
+			checkProjectiles();
 			updateMinimap();
 			
 			//Collect the dead.
@@ -154,6 +180,42 @@ package src
 			for each (actor in opponentActors) {
 				actor.updateMiniMap();
 			}
+		}
+		
+		/**
+		 * Checks if the projectiles have hit anything.
+		 */
+		private function checkProjectiles():void {
+			var projectile:Projectile;
+			var target:Actor;
+			
+			for each (projectile in projectiles) {
+				if ((projectile.targets & PLAYER_ACTORS) > 0) {
+					
+					for each (target in playerActors) {
+						if (projectile.hitTest(target)) {
+							projectile.collide(target);
+						}
+					}
+				}
+				
+				if ((projectile.targets & OPPONENT_ACTORS) > 0) {
+					
+					for each (target in opponentActors) {
+						if (projectile.hitTest(target)) {
+							projectile.collide(target);
+						}
+					}
+				}
+				
+				if (!projectile.finished) {
+					projectile.askIfFinished();
+				}
+			}
+			
+			projectiles = projectiles.filter(function(projectile:Projectile, index:int, vector:Vector.<Projectile>):Boolean {
+				return !projectile.finished;
+			});
 		}
 		
 		/**

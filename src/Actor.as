@@ -112,8 +112,26 @@ package src {
 		 * Starts the sprite moving, direction depending on ownership.
 		 */
 		public function go() : void {
+			halt();
+			
 			var distance:Number;
 			if (isPlayerPiece) {
+				distance = MainArea.ARENA_WIDTH - _sprite.x;
+				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
+			} else {
+				distance = _sprite.x;
+				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
+			}
+		}
+		
+		/**
+		 * Starts the sprite moving in the opposite direction.
+		 */
+		public function retreat():void {
+			halt();
+			
+			var distance:Number;
+			if (!isPlayerPiece) {
 				distance = MainArea.ARENA_WIDTH - _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
 			} else {

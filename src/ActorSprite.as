@@ -8,11 +8,9 @@ package src {
 	public class ActorSprite extends Sprite 
 	{
 		
-		public function ActorSprite(color:uint) 
+		public function ActorSprite() 
 		{
-			this.graphics.beginFill(color);
-			this.graphics.drawRect(0, 0, 20, 20);
-			this.graphics.endFill();
+			
 		}
 		
 	}
