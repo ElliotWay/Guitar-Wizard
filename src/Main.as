@@ -6,6 +6,7 @@ package src
 	import flash.media.Sound;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
+	import flash.utils.Dictionary;
 	import org.flexunit.runner.FlexUnitCore;
 	import test.TestRunner;
 	
@@ -32,6 +33,9 @@ package src
 		
 		private static var songLoader:SongLoader;
 		
+		
+		private static var everyFrameRun:Dictionary;
+		
 		public function Main():void 
 		{
 			//If testing mode is on, run the tests, then stop.
@@ -49,6 +53,9 @@ package src
 			
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
+			
+			everyFrameRun = new Dictionary();
+			this.addEventListener(Event.ENTER_FRAME, frameRunner);
 			
 			songLoader = new SongLoader();
 			
@@ -93,6 +100,30 @@ package src
 			errorSprite.addChild(error);
 			
 			gameUI.addChild(errorSprite);
+		}
+		
+		/**
+		 * Run a given function every frame. The function should take no arguments.
+		 * @param	func the function to run every frame
+		 */
+		public static function runEveryFrame(func:Function):void {
+			everyFrameRun[func] = func;
+			trace("added function: " + func);
+		}
+		
+		/**
+		 * Stop running the function every frame.
+		 * @param   func the function to stop running
+		 */
+		public static function stopRunningEveryFrame(func:Function):void {
+			delete everyFrameRun[func];
+		}
+		
+		private static function frameRunner(e:Event):void {
+			for (var func:Object in everyFrameRun) {
+				
+				(func as Function).call();
+			}
 		}
 		
 	}

@@ -19,7 +19,7 @@ package test
 	
 	/**
 	 * Test Class for MusicPlayer.
-	 * SoundChannel is a final class, so unfortuneately I can't mock it.
+	 * SoundChannel is a final class, so unfortunately I can't mock it.
 	 * As a result, I cannot test when stop calls are made.
 	 * @author Elliot Way
 	 */	

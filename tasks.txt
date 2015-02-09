@@ -1,6 +1,6 @@
 - add synchronize function
 
-- lay out the rest of the screen
+- lay out the rest of the screen - mostly done
 
 - fix miss/hit detection, possibly related to lag
 
