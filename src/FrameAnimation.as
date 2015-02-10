@@ -23,6 +23,8 @@ package src
 		private var frameCount:int;
 		private var runner:Function;
 		
+		private var onComplete:Function;
+		
 		public function FrameAnimation(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frameToFrameRatio:uint)
 		{
 			if (numFrames == 0)
@@ -61,6 +63,12 @@ package src
 			this.frameToFrameRatio = frameToFrameRatio;
 			
 			frames[0].visible = true;
+			
+			onComplete = null;
+		}
+		
+		public function setOnComplete(func:Function):void {
+			onComplete = func;
 		}
 		
 		public function go():void {
@@ -87,6 +95,9 @@ package src
 			
 			if (frameIndex >= frames.length) {
 				frameIndex = 0;
+				
+				if (onComplete != null)
+					onComplete.call();
 			}
 			
 			frames[frameIndex].visible = true;

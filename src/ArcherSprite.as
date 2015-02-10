@@ -26,7 +26,12 @@ package src
 		private static const SHOOTING_POSITION:int = FRAME_HEIGHT * 2;
 		private static const SHOOTING_FRAMES:int = 6;
 		
-		public function ArcherSprite(color:uint) 
+												//24FPS, 4th frame, 5 frames/frame
+		public static const TIME_UNTIL_FIRED:Number = 1000 * (1.0/24.0) * 5 * 4;
+		public static const TIME_TO_SHOOT:Number = 1000 * (1.0 / 24.0) * 5 * SHOOTING_FRAMES;
+		public static const ARROW_POSITION:Point = new Point(60, 25);
+		
+		public function ArcherSprite(color:uint, doneShooting:Function) 
 		{
 			super();
 			/*this.graphics.beginFill(color);
@@ -38,7 +43,7 @@ package src
 			var archerData:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
 			
 			moveAnimation = new FrameAnimation(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 10);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5);
 					
 			super.animations[Status.MOVING] = moveAnimation;
 			this.addChild(moveAnimation);
@@ -46,7 +51,7 @@ package src
 			
 			
 			var retreatingAnimation:FrameAnimation = new FrameAnimation(archerData,
-					new Point(0, RETREAT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, RETREAT_FRAMES, 10);
+					new Point(0, RETREAT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, RETREAT_FRAMES, 5);
 					
 			super.animations[Status.RETREATING] = retreatingAnimation;
 			this.addChild(retreatingAnimation);
@@ -59,6 +64,7 @@ package src
 			super.animations[Status.SHOOTING] = shootingAnimation;
 			this.addChild(shootingAnimation);
 			shootingAnimation.visible = false;
+			shootingAnimation.setOnComplete(doneShooting);
 			
 			
 			var standingAnimation:FrameAnimation = new FrameAnimation(archerData,

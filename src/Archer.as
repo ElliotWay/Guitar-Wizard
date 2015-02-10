@@ -39,7 +39,9 @@ package src
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
-			this._sprite = new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020));
+			this._sprite = new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020), function():void {
+				stand();
+			});
 			this._miniSprite = new SmallTriangleSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020));
 		}
 		
@@ -107,20 +109,24 @@ package src
 					
 					_sprite.animate(Status.SHOOTING);
 					
-					var arrow:Projectile = new Projectile(MainArea.OPPONENT_ACTORS, closest.getPosition());
+					var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
+					shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+																			//Ideally, "closest" here still refers
+																			//to the closest target, and we can use
+																			//it's current position, not the position
+																			//when we stopped to fire.
+						var arrow:Projectile = new Projectile(MainArea.OPPONENT_ACTORS, closest.getPosition());
 					
-					arrow.x = this.getPosition();
-					arrow.y = Actor.Y_POSITION - 10;
-					
-					MainArea.mainArea.addProjectile(arrow);
-					
-					//TODO Later, we'll replace this with an animation with
-					//an onComplete function.
-					var timer:Timer = new Timer(timeToShoot, 1);
-					timer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-						status = Status.STANDING;
+						arrow.x = _sprite.x + ArcherSprite.ARROW_POSITION.x;
+						arrow.y = _sprite.y + ArcherSprite.ARROW_POSITION.y;
+						
+						trace("arrow: " + arrow.x + ", " + arrow.y);
+						
+						MainArea.mainArea.addProjectile(arrow);
 					});
-					timer.start();
+					
+					
+					shotFiredTimer.start();
 				} else {
 					status = Status.MOVING;
 					if (isPlayerPiece)
@@ -132,7 +138,7 @@ package src
 				}
 			}
 			
-			//Check if we're dying. Actors can in their first frame while dying,
+			//Check if we're dying. Actors can act in their first frame while dying,
 			//otherwise player actors would get an advantage.
 			if (this._hitpoints <= 0) {
 				status = Status.DYING;
@@ -143,6 +149,10 @@ package src
 				TweenPlugin.activate([TintPlugin]);
 				this.dying = new TweenLite(sprite, 3, { tint : 0x000000 } );
 			}
+		}
+		
+		public function stand():void {
+			this.status = Status.STANDING;
 		}
 		
 		private function canRetreat():Boolean {
