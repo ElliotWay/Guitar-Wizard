@@ -123,9 +123,7 @@ package src {
 				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
 			}
 			
-			if (this is Archer) {
-				ArcherSprite(this._sprite).animateMoving();
-			}
+			this._sprite.animate(Status.MOVING); //TODO put this call elsewhere
 		}
 		
 		/**

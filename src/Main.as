@@ -108,7 +108,6 @@ package src
 		 */
 		public static function runEveryFrame(func:Function):void {
 			everyFrameRun[func] = func;
-			trace("added function: " + func);
 		}
 		
 		/**

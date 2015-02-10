@@ -18,10 +18,11 @@ package src
 		private static const FRAME_HEIGHT:int = 96;
 		
 		private static const MOVEMENT_POSITION:int = 0;
-		private static const MOVEMENT_FRAMES:int = 2;
+		private static const MOVEMENT_FRAMES:int = 4;
 		
 		public function ArcherSprite(color:uint) 
 		{
+			super();
 			/*this.graphics.beginFill(color);
 			this.graphics.moveTo(0, 20);
 			this.graphics.lineTo(10, 0);
@@ -31,7 +32,7 @@ package src
 			var archerData:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
 			
 			moveAnimation = new FrameAnimation(archerData,
-					new Point(MOVEMENT_POSITION, 0), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 20);
+					new Point(MOVEMENT_POSITION, 0), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 10);
 					
 			this.addChild(moveAnimation);
 			

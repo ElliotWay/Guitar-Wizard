@@ -74,7 +74,6 @@ package src
 				}
 			}
 			
-			trace("adding function");
 			Main.runEveryFrame(runner);
 		}
 		
