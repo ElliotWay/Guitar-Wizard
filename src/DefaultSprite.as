@@ -12,6 +12,8 @@ package src
 			this.graphics.beginFill(color);
 			this.graphics.drawRect(0, 0, 20, 20);
 			this.graphics.endFill();
+			
+			super.defaultAnimation = new EmptyAnimation();
 		}
 		
 	}

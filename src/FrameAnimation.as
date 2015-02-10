@@ -25,7 +25,9 @@ package src
 		
 		public function FrameAnimation(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frameToFrameRatio:uint)
 		{
-			trace("width = " + image.width + ", height = " + image.height);
+			if (numFrames == 0)
+				return;
+			
 			if (position.x + numFrames * frameWidth > image.width ||
 					position.y + frameHeight > image.height)
 				throw new Error("Bad bounds on image for frame animation.");

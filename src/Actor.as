@@ -122,8 +122,6 @@ package src {
 				distance = _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
 			}
-			
-			this._sprite.animate(Status.MOVING); //TODO put this call elsewhere
 		}
 		
 		/**

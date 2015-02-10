@@ -34,7 +34,7 @@ package src
 			
 			this.speed = 80;
 			
-			timeToShoot = 400;
+			timeToShoot = 24 * 5 * 6;//400;
 			range = 400;
 		}
 		
@@ -64,6 +64,12 @@ package src
 				if (status != Status.MOVING)
 					this.go();
 				status = Status.MOVING;
+				
+				if (isPlayerPiece)
+					_sprite.animate(Status.MOVING);
+				else
+					_sprite.animate(Status.RETREATING);
+					
 				return;
 			}
 			
@@ -88,11 +94,18 @@ package src
 					if (status != Status.RETREATING) {
 						status = Status.RETREATING;
 						
+						if (isPlayerPiece)
+							_sprite.animate(Status.RETREATING);
+						else
+							_sprite.animate(Status.MOVING);
+							
 						this.retreat();
 					}
 				} else if (closeDistance < range) {
 					halt();
 					status = Status.SHOOTING;
+					
+					_sprite.animate(Status.SHOOTING);
 					
 					var arrow:Projectile = new Projectile(MainArea.OPPONENT_ACTORS, closest.getPosition());
 					
@@ -110,6 +123,10 @@ package src
 					timer.start();
 				} else {
 					status = Status.MOVING;
+					if (isPlayerPiece)
+						_sprite.animate(Status.MOVING);
+					else
+						_sprite.animate(Status.RETREATING);
 					
 					go();
 				}
@@ -119,6 +136,8 @@ package src
 			//otherwise player actors would get an advantage.
 			if (this._hitpoints <= 0) {
 				status = Status.DYING;
+				_sprite.animate(Status.DYING);
+				
 				this.halt();
 				
 				TweenPlugin.activate([TintPlugin]);

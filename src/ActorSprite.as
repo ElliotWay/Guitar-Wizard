@@ -1,4 +1,5 @@
 package src {
+	import com.greensock.core.Animation;
 	import flash.display.Sprite;
 	
 	/**
@@ -22,10 +23,17 @@ package src {
 		
 		public function animate(status:int):void {
 			
-			var animation:FrameAnimation = (animations[status] as FrameAnimation);
+			var animation:FrameAnimation;
+			var value:* = animations[status];
+			
+			if (value == undefined) {
+				animation = null;
+			} else {
+				animation = value as FrameAnimation;
+			}
 			
 			//If we're already animating this status, just keep doing that.
-			if (animation == currentAnimation) {
+			if (animation == currentAnimation && currentAnimation != null) {
 				return;
 			}
 			
@@ -34,7 +42,7 @@ package src {
 				currentAnimation.visible = false;
 			}
 			
-			if (animation != undefined) {
+			if (animation != null) {
 				animation.go();
 				animation.visible = true;
 				currentAnimation = animation;
@@ -42,11 +50,11 @@ package src {
 			} else {
 				defaultAnimation.go();
 				defaultAnimation.visible = true;
-				currentAnimation = defaultAnimation
+				currentAnimation = defaultAnimation;
 			}
 		}
 		
-		public function defaultAnimation():void {
+		public function animateDefault():void {
 			if (currentAnimation != defaultAnimation && currentAnimation != null) {
 				currentAnimation.stop();
 				currentAnimation.visible = false;
