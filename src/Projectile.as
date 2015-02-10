@@ -6,6 +6,7 @@ package src
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TimelineLite;
 	import flash.display.Sprite;
+	import flash.geom.Point;
 	/**
 	 * ...
 	 * @author ...
@@ -29,7 +30,7 @@ package src
 		public static const ERROR:Number = .1; // radians
 		
 		
-		private var _targetPosition:Number;
+		private var _targetPosition:Point;
 		
 		private var _targets:int;
 		private var _finished:Boolean;
@@ -41,7 +42,7 @@ package src
 		 * @param	targets bit mask of possible targets
 		 * @param	targetPosition x position of intended target
 		 */
-		public function Projectile(targets:int, targetPosition:Number) 
+		public function Projectile(targets:int, targetPosition:Point) 
 		{
 			_targets = targets;
 			
@@ -99,33 +100,59 @@ package src
 		public function go():void {
 			
 			//Do some calcuations first.
-			var targetIsLeft:Boolean = (_targetPosition < this.x);
+			var targetIsLeft:Boolean = (_targetPosition.x < this.x);
 			
-			var targetDistance:Number = targetIsLeft ? (this.x - _targetPosition) : (_targetPosition - this.x);
+			var targetDistance:Number = targetIsLeft ? (this.x - _targetPosition.x) : (_targetPosition.x - this.x);
 			
-			var temp:Number = targetDistance / TRAJECTORY_CONSTANT;
+			var relativeTargetX:Number = _targetPosition.x - this.x;
+			var relativeTargetY:Number = - (_targetPosition.y - this.y);
+			
+			// Here we go, big formula that I haven't verified personally:
+			//                                           ___________________
+			//                                / 2  +    /  4       2      2  \
+			//  angle to target              | V   -  \/  V  - G(GX  + 2YV )  |
+			// (X, Y) from (0,0)    =  arctan| ______________________________ |
+			//  with gravity G               |           GX                   |
+			//  and intial velocity V         \                              /
+			//
+			//  We want the lower angle, so we'll be using the minus portion of the plus or minus.
+			
 			var idealAngle:Number;
-			if (Math.abs(temp) > 1) {
+			var radical:Number = VELOCITY * VELOCITY * VELOCITY * VELOCITY
+							- GRAVITY * (GRAVITY * relativeTargetX * relativeTargetX +
+													2 * relativeTargetY * VELOCITY * VELOCITY)
+			
+			if (radical < 0) {
 				idealAngle = Math.PI / 4;
 			} else {
-				idealAngle = (0.5) * Math.asin(temp);
+				idealAngle = Math.atan((VELOCITY * VELOCITY - Math.sqrt(radical)) / (GRAVITY * relativeTargetX));
 			}
 			
-			var actualAngle:Number = Math.max(.04, // around 2 degrees
+			var actualAngle:Number = Math.max(-1.5, // more -90 degrees
 					Math.min(1.5, // less than 90 degrees
 					Math.random() * 2 * ERROR - ERROR + idealAngle));
 					
 			var horizontalVelocity:Number = Math.cos(actualAngle) * VELOCITY;
 			var initialVerticalVelocity:Number = Math.sin(actualAngle) * VELOCITY;
-					
-			var actualDistance:Number = Math.sin(2 * actualAngle) * TRAJECTORY_CONSTANT;
 			
-			var peakTime:Number = initialVerticalVelocity / GRAVITY;
+			var peakTime:Number;
+			var peakHeight:Number
 			
-			var peakHeight:Number = this.y - (initialVerticalVelocity * initialVerticalVelocity)
-											/ (GRAVITY * 2);
-					
-			var actualTarget:Number = targetIsLeft ? (this.x - actualDistance) : (this.x + actualDistance);
+			//If we're pointed up, we need separate calulations for the path up.
+			if (actualAngle > 0) {
+				peakTime = initialVerticalVelocity / GRAVITY;
+				
+				peakHeight = this.y - (initialVerticalVelocity * initialVerticalVelocity)
+													/ (GRAVITY * 2);
+			} else {
+				peakTime = 0.0;
+				peakHeight = this.y;
+			}
+			
+			
+			var peakToGroundTime:Number = Math.sqrt(2 * (Actor.Y_POSITION - peakHeight) / GRAVITY);
+			
+			var fullTime:Number = peakTime + peakToGroundTime;
 			
 			
 			//Now create the animations.
@@ -145,18 +172,19 @@ package src
 			
 			//Add y movement and time labels
 			timeline.add("start", "+=0");
-			timeline.to(this, peakTime, { y:peakHeight, ease:Quad.easeOut } );
-			timeline.to(this, peakTime, { y:this.y, ease:Quad.easeIn } );
+			if (actualAngle > 0)
+				timeline.to(this, peakTime, { y:peakHeight, ease:Quad.easeOut } );
+			timeline.to(this, peakToGroundTime, { y:Actor.Y_POSITION, ease:Quad.easeIn } );
 			
 			//X movement is simpler.
-			timeline.to(this, actualDistance / horizontalVelocity,
-					{x:actualTarget, ease:Linear.easeIn }, "start");
+			timeline.to(this, fullTime,
+					{x:this.x + (horizontalVelocity * fullTime), ease:Linear.easeIn }, "start");
 			
 			//And rotation. "Linear" isn't accurate in general, but it serves
 			//as a decent approximation at the top of a parabola.
 			//(The real one is atan((initialVerticalVelocity + GRAVITY * time) / horizontalVelocity)
 			TweenPlugin.activate([DirectionalRotationPlugin]);
-			timeline.to(this, peakTime * 2,
+			timeline.to(this, fullTime,
 					{directionalRotation:(targetRotation + "_short"), ease:Linear.easeIn }, "start");
 					
 			timeline.play();

@@ -1,6 +1,7 @@
 package src 
 {
 	import flash.display.Sprite;
+	import flash.geom.Point;
 	
 	/**
 	 * Actor interface. I originally intended to just use the base Actor class,
@@ -24,7 +25,7 @@ package src
 		function get hitpoints():int;
 		function set hitpoints(hp:int):void;
 		
-		function getPosition():Number;
+		function getPosition():Point;
 		function setPosition(position:Number):void;
 		
 		function updateMiniMap():void;

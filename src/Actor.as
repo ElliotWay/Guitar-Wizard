@@ -2,6 +2,7 @@ package src {
 	import com.greensock.easing.Linear;
 	import com.greensock.TweenLite;
 	import flash.display.Sprite;
+	import flash.geom.Point;
 	
 	/**
 	 * ...
@@ -87,11 +88,11 @@ package src {
 		}
 		
 		/**
-		 * Gets the x coordinate in the center of the actor.
+		 * Gets the point at the center of the actor.
 		 * @return the center of the actor
 		 */
-		public function getPosition() : Number {
-			return _sprite.x + (_sprite.width / 2);
+		public function getPosition():Point {
+			return new Point(_sprite.x + (_sprite.width / 2), _sprite.y + (_sprite.height / 2));
 		}
 		
 		public function setPosition(position:Number):void {

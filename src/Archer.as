@@ -12,7 +12,7 @@ package src
 	 */
 	public class Archer extends Actor 
 	{
-		private static const SKIRMISH_DISTANCE:Number = 75; //pixels
+		private static const SKIRMISH_DISTANCE:Number = 300; //pixels
 		private static const NO_RETREAT_DISTANCE:Number = 25;
 		
 		private var status:int;
@@ -35,7 +35,7 @@ package src
 			this.speed = 80;
 			
 			timeToShoot = 24 * 5 * 6;//400;
-			range = 400;
+			range = 600;
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
@@ -77,12 +77,12 @@ package src
 			
 			//Find the closest valid target.
 			var closest : Actor = validOthers[0];
-			var closeDistance : Number = Math.abs(closest.getPosition() - this.getPosition());
+			var closeDistance : Number = Math.abs(closest.getPosition().x - this.getPosition().x);
 			var distance : Number;
 			
 			for each(var other:Actor in validOthers) {
 				if (other.isValidTarget()) {
-					distance = Math.abs(other.getPosition() - this.getPosition());
+					distance = Math.abs(other.getPosition().x - this.getPosition().x);
 					
 					if (distance < closeDistance) {
 						closest = other;
@@ -157,9 +157,9 @@ package src
 		
 		private function canRetreat():Boolean {
 			if (this.isPlayerPiece) {
-				return (this.getPosition() > NO_RETREAT_DISTANCE);
+				return (this.getPosition().x > NO_RETREAT_DISTANCE);
 			} else {
-				return (this.getPosition() < (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE));
+				return (this.getPosition().x < (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE));
 			}
 		}
 	

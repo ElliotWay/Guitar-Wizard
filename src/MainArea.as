@@ -16,7 +16,7 @@ package src
 		public static const WIDTH:int = 600;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
-		public static const ARENA_WIDTH:int = 1500;
+		public static const ARENA_WIDTH:int = 2500;
 		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;

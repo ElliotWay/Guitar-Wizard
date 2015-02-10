@@ -62,12 +62,12 @@ package src
 			
 			//Find the closest valid target.
 			var closest : Actor = validOthers[0];
-			var closeDistance : Number = Math.abs(closest.getPosition() - this.getPosition());
+			var closeDistance : Number = Math.abs(closest.getPosition().x - this.getPosition().x);
 			var distance : Number;
 			
 			for each(var other:Actor in validOthers) {
 				if (other.isValidTarget()) {
-					distance = Math.abs(other.getPosition() - this.getPosition());
+					distance = Math.abs(other.getPosition().x - this.getPosition().x);
 					
 					if (distance < closeDistance) {
 						closest = other;
