@@ -95,7 +95,7 @@ package src
 			
 			if (frameIndex >= frames.length) {
 				frameIndex = 0;
-				
+			} else if (frameIndex == frames.length - 1) {
 				if (onComplete != null)
 					onComplete.call();
 			}

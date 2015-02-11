@@ -26,12 +26,16 @@ package src
 		private static const SHOOTING_POSITION:int = FRAME_HEIGHT * 2;
 		private static const SHOOTING_FRAMES:int = 6;
 		
+		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
+		private static const DYING_FRAMES:int = 9;
+		private static const DYING_FRAME_WIDTH:int = 140;
+		
 												//24FPS, 4th frame, 5 frames/frame
 		public static const TIME_UNTIL_FIRED:Number = 1000 * (1.0/24.0) * 5 * 4;
 		public static const TIME_TO_SHOOT:Number = 1000 * (1.0 / 24.0) * 5 * SHOOTING_FRAMES;
 		public static const ARROW_POSITION:Point = new Point(60, 25);
 		
-		public function ArcherSprite(color:uint, doneShooting:Function) 
+		public function ArcherSprite(color:uint) 
 		{
 			super();
 			/*this.graphics.beginFill(color);
@@ -64,7 +68,13 @@ package src
 			super.animations[Status.SHOOTING] = shootingAnimation;
 			this.addChild(shootingAnimation);
 			shootingAnimation.visible = false;
-			shootingAnimation.setOnComplete(doneShooting);
+			
+			var dyingAnimation:FrameAnimation = new FrameAnimation(archerData,
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5);
+			
+			super.animations[Status.DYING] = dyingAnimation;
+			this.addChild(dyingAnimation);
+			dyingAnimation.visible = false;
 			
 			
 			var standingAnimation:FrameAnimation = new FrameAnimation(archerData,

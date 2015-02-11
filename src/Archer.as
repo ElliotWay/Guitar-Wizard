@@ -39,9 +39,7 @@ package src
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
-			this._sprite = new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020), function():void {
-				stand();
-			});
+			this._sprite = new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020));
 			this._miniSprite = new SmallTriangleSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020));
 		}
 		
@@ -107,7 +105,7 @@ package src
 					halt();
 					status = Status.SHOOTING;
 					
-					_sprite.animate(Status.SHOOTING);
+					_sprite.animate(Status.SHOOTING, function():void { stand();} );
 					
 					var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
 					shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
@@ -119,8 +117,6 @@ package src
 					
 						arrow.x = _sprite.x + ArcherSprite.ARROW_POSITION.x;
 						arrow.y = _sprite.y + ArcherSprite.ARROW_POSITION.y;
-						
-						trace("arrow: " + arrow.x + ", " + arrow.y);
 						
 						MainArea.mainArea.addProjectile(arrow);
 					});
@@ -142,12 +138,12 @@ package src
 			//otherwise player actors would get an advantage.
 			if (this._hitpoints <= 0) {
 				status = Status.DYING;
-				_sprite.animate(Status.DYING);
+				_sprite.animate(Status.DYING, function():void { _sprite.freeze();} );
 				
 				this.halt();
 				
 				TweenPlugin.activate([TintPlugin]);
-				this.dying = new TweenLite(sprite, 3, { tint : 0x000000 } );
+				this.dying = new TweenLite(sprite, 5, { tint : 0x000000 } );
 			}
 		}
 		

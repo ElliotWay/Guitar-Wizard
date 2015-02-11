@@ -21,7 +21,7 @@ package src {
 			currentAnimation = null;
 		}
 		
-		public function animate(status:int):void {
+		public function animate(status:int, onComplete:Function = null):void {
 			
 			var animation:FrameAnimation;
 			var value:* = animations[status];
@@ -52,6 +52,10 @@ package src {
 				defaultAnimation.visible = true;
 				currentAnimation = defaultAnimation;
 			}
+			
+			if (onComplete != null) {
+				currentAnimation.setOnComplete(onComplete);
+			}
 		}
 		
 		public function animateDefault():void {
@@ -66,6 +70,10 @@ package src {
 			}
 		}
 		
+		public function freeze():void {
+			if (currentAnimation != null)
+				currentAnimation.stop();
+		}
 	}
 
 }
