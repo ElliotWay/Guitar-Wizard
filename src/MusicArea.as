@@ -18,7 +18,7 @@ package  src
 		public static const HEIGHT:int = 250;
 		public static const WIDTH:int = 800;
 		
-		public static const HIT_LINE:int = 75;
+		public static const HIT_LINE:int = 200;
 		
 		/**
 		 * Ratio between space on the screen and time, in pixels per millisecond.
@@ -55,7 +55,7 @@ package  src
 			graphics.lineStyle(0, 0, 0.0);
 			graphics.beginFill(0xFFA319, 0.7);
 			graphics.drawRect(HIT_LINE - GameUI.HIT_TOLERANCE * POSITION_SCALE, 0,
-								HIT_LINE + GameUI.HIT_TOLERANCE * POSITION_SCALE, HEIGHT);
+								2 * GameUI.HIT_TOLERANCE * POSITION_SCALE, HEIGHT);
 			graphics.endFill();
 			
 			NoteSprite.global_hit_line_position = this.localToGlobal(new Point(HIT_LINE, 0));

@@ -4,6 +4,14 @@
 
 - fix miss/hit detection, possibly related to lag
 
+- fix bug where it's possible to hit notes that are not the first available
+
 - create initial actor types
 
 - finish initial music assets
+
+- create more actor assets
+
+- create a way to color actor sprites to indentify owner
+
+---------Completed tasks, just so I feel like I'm making progress.---------------

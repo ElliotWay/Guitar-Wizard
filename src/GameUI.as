@@ -245,6 +245,9 @@ package src {
 		 * 	or null if none do.
 		 */
 		public static function findFirstHit(noteList:Vector.<Note>, noteLetter:int, time:Number):Note {
+			//trace("--------------------");
+			//trace(noteList);
+			//trace("--------------------");
 			//Search from the end.
 			for (var i:int = noteList.length - 1; i >= 0; i--) {
 				var note:Note = noteList[i];
@@ -260,7 +263,7 @@ package src {
 				}
 			}
 			
-			//There were not matches, so return null.
+			//There were no matches, so return null.
 			return null;
 		}
 		
