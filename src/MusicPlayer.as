@@ -25,6 +25,12 @@ package  src
 		private var currentTrack:int;
 		
 		/**
+		 * Approximate time between calling play and the music actually starting.
+		 * Value is in milliseconds.
+		 */
+		public static const STARTUP_LAG:Number = 40;
+		
+		/**
 		 * Construct a new player
 		 * @param	startingTrack the starting track (probably mid)
 		 */
@@ -52,13 +58,15 @@ package  src
 		 */
 		public function go():void {
 			baseChannel = baseMusic.play();
-			switchTrack(currentTrack);
+			
+			resumeTrack(false);
 		}
 		
 		/**
 		 * Switches tracks. Use the Main constants to select the track.
 		 * If we've started playing, this will switch tracks on the fly,
 		 * otherwise it will simply switch which track to start later.
+		 * Assumes that
 		 * @param	track the track to switch to
 		 */
 		public function switchTrack(track:int):void {
@@ -92,15 +100,17 @@ package  src
 		/**
 		 * Resumes the track at the current time of the base part.
 		 * This should not be called if the base part is not currently playing.
+		 * @param useLag Whether to start the track late to give it time to start.
 		 */
-		public function resumeTrack():void {
+		public function resumeTrack(useLag:Boolean = true):void {
+			var optionalDelay:Number = useLag ? STARTUP_LAG : 0.0;
 			//Tracks are already going if not null.
 			if (currentTrack == Main.HIGH && highChannel == null)
-				highChannel = highMusic.play(baseChannel.position);
+				highChannel = highMusic.play(baseChannel.position + optionalDelay);
 			if (currentTrack == Main.MID && midChannel == null)
-				midChannel = midMusic.play(baseChannel.position);
+				midChannel = midMusic.play(baseChannel.position + optionalDelay);
 			if (currentTrack == Main.LOW && lowChannel == null)
-				lowChannel = lowMusic.play(baseChannel.position);
+				lowChannel = lowMusic.play(baseChannel.position + optionalDelay);
 		}
 		
 		/**

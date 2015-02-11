@@ -122,13 +122,16 @@ package src {
 		 * @param	e enter frame event
 		 */
 		public function missChecker(e:Event):void {
-/*			frames++;
-			if (frames >= 250) {
+			/*frames++;
+			if (frames >= 100) {
 				frames = 0;
-				var time:Number = musicPlayer.getTime();
-				var position:Number = - musicArea.getPosition() / MusicArea.POSITION_SCALE;
-				trace("time = " + time + ", position/Scale = " + position
-						+ ", difference = " + (position - time));
+//				var time:Number = musicPlayer.getTime();
+//				var position:Number = - musicArea.getPosition() / MusicArea.POSITION_SCALE;
+//				trace("time = " + time + ", position/Scale = " + position
+//						+ ", difference = " + (position - time));
+//				var mainTime:Number = musicPlayer.getTime();
+//				var trackTime:Number = musicPlayer.getTrackTime();
+//				trace("base : " + mainTime + ", track : " + trackTime + ", difference : " + (mainTime - trackTime));
 			}*/
 			//TODO if slowdown occurs, make this function only every 5 or so frames
 			var cutOffTime:Number = musicPlayer.getTime() - HIT_TOLERANCE - 200;
