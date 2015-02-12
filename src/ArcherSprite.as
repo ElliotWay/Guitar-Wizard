@@ -3,6 +3,7 @@ package src
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	/**
 	 * ...
 	 * @author ...
@@ -42,6 +43,11 @@ package src
 		public static const TIME_UNTIL_FIRED:Number = 1000 * (1.0/24.0) * 5 * 4;
 		public static const TIME_TO_SHOOT:Number = 1000 * (1.0 / 24.0) * 5 * SHOOTING_FRAMES;
 		public static const ARROW_POSITION:Point = new Point(60, 25);
+		
+		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
+		public static const HIT_BOX:Rectangle = new Rectangle(20, 20, 23, 60);
+		
+		private var relativeCenter:Point;
 		
 		public static function initializeAnimations():void {
 			var archerData:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
@@ -112,8 +118,12 @@ package src
 			var die:FrameAnimation;
 			if (facesRight)
 				die = dyingAnimation.copy();
-			else
+			else {
 				die = dyingAnimationReversed.copy();
+				
+				//Large animations need to be shifted.
+				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH);
+			}
 				
 			super.animations[Status.DYING] = die;
 			this.addChild(die);
@@ -131,7 +141,22 @@ package src
 			currentAnimation = stand;
 			
 			super.defaultAnimation = stand;
+			
+			if (facesRight)
+				relativeCenter = CENTER;
+			else
+				relativeCenter = new Point(this.width - CENTER.x, CENTER.y);
+		}
+		
+			
+		override public function get center():Point {
+			return new Point(this.x + relativeCenter.x, this.y + relativeCenter.y);
+		}
+		
+		override public function get hitBox():Rectangle {
+			return new Rectangle(this.x + HIT_BOX.x, this.y + HIT_BOX.y, HIT_BOX.width, HIT_BOX.height);
 		}
 	}
+
 
 }

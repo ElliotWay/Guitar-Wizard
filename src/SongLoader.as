@@ -56,7 +56,7 @@ package  src
 					var song:Sound = Sound(key);
 					song.addEventListener(IOErrorEvent.IO_ERROR, songError);
 					song.addEventListener(Event.COMPLETE, songComplete);
-				
+					
 					song.load(new URLRequest(loading[song]));
 				}
 				
@@ -76,6 +76,7 @@ package  src
 				trace("song missing from loader");
 				throw new Error("missing song error");
 			} else {
+				trace("song loaded: " + loading[song]);
 				delete loading[song];
 				var numKeys:int = 0;
 				for (var key:* in loading)

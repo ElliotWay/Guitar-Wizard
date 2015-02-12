@@ -1,6 +1,8 @@
 package src {
 	import com.greensock.core.Animation;
 	import flash.display.Sprite;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * write this class later, probably give it animations
@@ -73,6 +75,14 @@ package src {
 		public function freeze():void {
 			if (currentAnimation != null)
 				currentAnimation.stop();
+		}
+		
+		public function get center():Point {
+			return new Point(this.x + this.width / 2, this.y + this.height / 2);
+		}
+		
+		public function get hitBox():Rectangle {
+			return this.getBounds(this.parent);
 		}
 	}
 

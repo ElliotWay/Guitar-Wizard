@@ -14,10 +14,10 @@ package src
 	public class Projectile extends Sprite
 	{
 		
-		public static const DAMAGE:Number = 10;
+		public static const DAMAGE:Number = 4;
 		
 		
-		public static const VELOCITY:Number = 350; // pxl/s
+		public static const VELOCITY:Number = 500; // pxl/s
 		
 		public static const GRAVITY:Number = 300; // pxl/s^2
 		
@@ -77,7 +77,8 @@ package src
 		 * @return whether the projectile can hit the actor
 		 */
 		public function hitTest(actor:Actor):Boolean {
-			return actor.isValidTarget() && this.hitTestObject(actor.sprite);
+			return actor.isValidTarget() && 
+					this.getBounds(this.parent).intersects(actor.getHitBox());
 		}
 		
 		/**
@@ -123,14 +124,14 @@ package src
 													2 * relativeTargetY * VELOCITY * VELOCITY)
 			
 			if (radical < 0) {
-				idealAngle = Math.PI / 4;
+				idealAngle = (relativeTargetX > 0 ) ? Math.PI / 4 : 3 * Math.PI / 4;
 			} else {
 				idealAngle = Math.atan((VELOCITY * VELOCITY - Math.sqrt(radical)) / (GRAVITY * relativeTargetX));
+				if (targetIsLeft)
+					idealAngle += Math.PI; //Limitations of arctangent.
 			}
 			
-			var actualAngle:Number = Math.max(-1.5, // more -90 degrees
-					Math.min(1.5, // less than 90 degrees
-					Math.random() * 2 * ERROR - ERROR + idealAngle));
+			var actualAngle:Number = Math.random() * 2 * ERROR - ERROR + idealAngle;
 					
 			var horizontalVelocity:Number = Math.cos(actualAngle) * VELOCITY;
 			var initialVerticalVelocity:Number = Math.sin(actualAngle) * VELOCITY;
@@ -158,13 +159,15 @@ package src
 			//Now create the animations.
 			var angleInDegrees:Number = (actualAngle * 180 / Math.PI);
 			var targetRotation:Number;
-			if (targetIsLeft) {
+			/*if (targetIsLeft) {
 				this.rotation = 180 + angleInDegrees;
 				targetRotation = 180 - angleInDegrees;
 			} else {
 				this.rotation = -angleInDegrees;
 				targetRotation = angleInDegrees;
-			}
+			}*/
+			this.rotation = -angleInDegrees;
+			targetRotation = angleInDegrees;
 			
 			timeline = new TimelineLite( { onComplete:forceFinish } );
 			

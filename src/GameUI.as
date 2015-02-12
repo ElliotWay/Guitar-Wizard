@@ -15,7 +15,7 @@ package src {
 		/**
 		 * In milliseconds, how far from an actual note a hit can be.
 		 */
-		public static const HIT_TOLERANCE:Number = 150;
+		public static const HIT_TOLERANCE:Number = 150; // 150
 		
 		//All the fields are protected to make testing easier,
 		//which is important because this is a complicated and fiddly class.
@@ -329,6 +329,22 @@ package src {
 			mainArea.stopScrolling();
 		}
 		
+		public function switchTrack(track:int):void {
+			trace("switch track to " + track);
+			if (currentTrack == track)
+				return;
+				
+			currentTrack = track;
+			
+			musicPlayer.switchTrack(track);
+			if (track == Main.HIGH)
+				musicArea.setHighNotes();
+			else if (track == Main.MID)
+				musicArea.setMidNotes();
+			else if (track == Main.LOW)
+				musicArea.setLowNotes();
+		}
+		
 		public function keyboardHandler(e:KeyboardEvent):void {
 			switch (e.keyCode) {
 				//First the note keys.
@@ -350,13 +366,24 @@ package src {
 					//TODO create up & down handler
 					break;
 				case Keyboard.DOWN:
-					//lkj
 					break;
 				case Keyboard.LEFT:
 					scrollHandler(false);
 					break;
 				case Keyboard.RIGHT:
 					scrollHandler(true);
+					break;
+					
+				//And the switch track keys.
+				case Keyboard.J:
+					switchTrack(Main.HIGH);
+					break;
+				case Keyboard.K:
+					switchTrack(Main.MID);
+					break;
+				case Keyboard.L:
+					//TODO change later
+					//switchTrack(Main.LOW);
 					break;
 			}
 		}

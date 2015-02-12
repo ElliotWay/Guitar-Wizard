@@ -61,7 +61,7 @@ package  src
 			
 			//TODO definitely change this later.
 			Main.loadSong(baseMusic, baseName);
-			//Main.loadSong(highMusic, highName);
+			Main.loadSong(highMusic, highName);
 			Main.loadSong(midMusic, midName);
 			//Main.loadSong(lowMusic, lowName);
 			

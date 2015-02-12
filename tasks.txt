@@ -14,4 +14,6 @@
 
 - create a way to color actor sprites to indentify owner
 
+- fix bug where player archers shoot too high?
+
 ---------Completed tasks, just so I feel like I'm making progress.---------------

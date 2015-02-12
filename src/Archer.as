@@ -18,7 +18,7 @@ package src
 		private var status:int;
 		
 		private var timeToShoot:Number; //milliseconds
-		private var range:Number;
+		private var range:Number; //Range should decrease below skirmish distance.
 		
 		private var dying:TweenLite;
 		private var _isDead:Boolean;
@@ -35,7 +35,7 @@ package src
 			this.speed = 80;
 			
 			timeToShoot = 24 * 5 * 6;//400;
-			range = 600;
+			range = 700;
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
@@ -55,73 +55,69 @@ package src
 			
 			//Do other stuff.
 			
-			//Check whether any valid targest are available.
-			var validOthers:Vector.<Actor> = 
-				others.filter(function(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
-					return actor.isValidTarget();
-			});
-			if (validOthers.length == 0) {
-				if (status != Status.MOVING)
-					this.go();
-				status = Status.MOVING;
-				
-				_sprite.animate(Status.MOVING);
-					
-				return;
-			}
-			
-			//Find the closest valid target.
-			var closest : Actor = validOthers[0];
-			var closeDistance : Number = Math.abs(closest.getPosition().x - this.getPosition().x);
-			var distance : Number;
-			
-			for each(var other:Actor in validOthers) {
-				if (other.isValidTarget()) {
-					distance = Math.abs(other.getPosition().x - this.getPosition().x);
-					
-					if (distance < closeDistance) {
-						closest = other;
-						closeDistance = distance;
-					}
-				}
-			}
-
+			//If we're shooting, we need to finish shooting before doing anything else.
 			if (status != Status.SHOOTING) {
-				if (closeDistance < SKIRMISH_DISTANCE && canRetreat()) {
-					if (status != Status.RETREATING) {
-						status = Status.RETREATING;
+				
+				//Check whether any valid targets are available.
+				var validOthers:Vector.<Actor> = 
+					others.filter(function(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
+						return actor.isValidTarget();
+				});
+				if (validOthers.length == 0) {
+					if (status != Status.MOVING)
+						this.go();
+					status = Status.MOVING;
+					
+					_sprite.animate(Status.MOVING);
 						
-						_sprite.animate(Status.RETREATING);
-							
-						this.retreat();
-					}
-				} else if (closeDistance < range) {
-					halt();
-					status = Status.SHOOTING;
+					return;
+				}
+				
+				//Find the closest valid target.
+				var closest : Actor = this.getClosest(validOthers, range);
+				
+				if (closest == null) {
 					
-					_sprite.animate(Status.SHOOTING, function():void { stand();} );
-					
-					var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
-					shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-																			//Ideally, "closest" here still refers
-																			//to the closest target, and we can use
-																			//it's current position, not the position
-																			//when we stopped to fire.
-						var arrow:Projectile = new Projectile(MainArea.OPPONENT_ACTORS, closest.getPosition());
-					
-						arrow.x = _sprite.x + ArcherSprite.ARROW_POSITION.x;
-						arrow.y = _sprite.y + ArcherSprite.ARROW_POSITION.y;
-						
-						MainArea.mainArea.addProjectile(arrow);
-					});
-					
-					
-					shotFiredTimer.start();
-				} else {
 					status = Status.MOVING;
 					_sprite.animate(Status.MOVING);
 					
 					go();
+				} else {
+					var closeDistance:Number = Math.abs(this.getPosition().x - closest.getPosition().x);
+					
+					if (closeDistance < SKIRMISH_DISTANCE && canRetreat()) {
+						if (status != Status.RETREATING) {
+							status = Status.RETREATING;
+							
+							_sprite.animate(Status.RETREATING);
+								
+							this.retreat();
+						}
+					} else {
+						halt();
+						status = Status.SHOOTING;
+						
+						_sprite.animate(Status.SHOOTING, function():void { status = Status.STANDING;} );
+						
+						var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
+						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+																				//Ideally, "closest" here still refers
+																				//to the closest target, and we can use
+																				//it's current position, not the position
+																				//when we stopped to fire.
+							var arrow:Projectile = new Projectile(
+									(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
+									closest.getPosition());
+						
+							arrow.x = _sprite.x + ArcherSprite.ARROW_POSITION.x;
+							arrow.y = _sprite.y + ArcherSprite.ARROW_POSITION.y;
+							
+							MainArea.mainArea.addProjectile(arrow);
+						});
+						
+						
+						shotFiredTimer.start();
+					}
 				}
 			}
 			
@@ -136,10 +132,6 @@ package src
 				TweenPlugin.activate([TintPlugin]);
 				this.dying = new TweenLite(sprite, 10, { tint : 0x000000 } );
 			}
-		}
-		
-		public function stand():void {
-			this.status = Status.STANDING;
 		}
 		
 		private function canRetreat():Boolean {

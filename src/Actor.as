@@ -3,6 +3,7 @@ package src {
 	import com.greensock.TweenLite;
 	import flash.display.Sprite;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	
 	/**
 	 * ...
@@ -77,6 +78,37 @@ package src {
 			return true;
 		}
 		
+		/**
+		 * Find the closest actor in a list of actor to this actor,
+		 * within the maximum distance. Returns null if there are no actors in range.
+		 * @param	others  the list of other actors to search
+		 * @param	maxDistance  the maximum distance away the other actor can be
+		 */
+		public function getClosest(others:Vector.<Actor>, maxDistance:Number):Actor {
+			if (others.length == 0)
+				return null;
+			
+			var closest : Actor = others[0];
+			var closeDistance : Number = Math.abs(closest.getPosition().x - this.getPosition().x);
+			var distance : Number;
+			
+			for each(var other:Actor in others) {
+				if (other.isValidTarget()) {
+					distance = Math.abs(other.getPosition().x - this.getPosition().x);
+					
+					if (distance < closeDistance) {
+						closest = other;
+						closeDistance = distance;
+					}
+				}
+			}
+			
+			if (closeDistance > maxDistance)
+				closest = null;
+			
+			return closest;
+		}
+		
 		public function get hitpoints():int 
 		{
 			return _hitpoints;
@@ -92,15 +124,23 @@ package src {
 		 * @return the center of the actor
 		 */
 		public function getPosition():Point {
-			return new Point(_sprite.x + (_sprite.width / 2), _sprite.y + (_sprite.height / 2));
+			return _sprite.center
 		}
 		
+		/**
+		 * TODO change this method
+		 * @param	position
+		 */
 		public function setPosition(position:Number):void {
 			_sprite.y = (Y_POSITION - _sprite.height);
 			
 			_sprite.x = position;
 			
 			updateMiniMap();
+		}
+		
+		public function getHitBox():Rectangle {
+			return _sprite.hitBox;
 		}
 		
 		public function updateMiniMap():void {
