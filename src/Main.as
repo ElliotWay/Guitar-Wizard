@@ -54,6 +54,8 @@ package src
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
+			loadStatics();
+			
 			everyFrameRun = new Dictionary();
 			this.addEventListener(Event.ENTER_FRAME, frameRunner);
 			
@@ -65,6 +67,10 @@ package src
 			
 			song = new Song();
 			song.loadFile("../assets/FurElise.gws");
+		}
+		
+		public static function loadStatics():void {
+			ArcherSprite.initializeAnimations();
 		}
 		
 		public static function fileLoaded():void {

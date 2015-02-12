@@ -13,7 +13,7 @@ package src
 		
 		public function EmptyAnimation() 
 		{
-			super(null, null, 0, 0, 0, 0);
+			super();
 		}
 		
 		override public function go():void {

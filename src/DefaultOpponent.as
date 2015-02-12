@@ -24,6 +24,7 @@ package src
 			//Basic strategy of summon one DefaultActor.
 			
 			var out:Vector.<Actor> = new Vector.<Actor>();
+			return out;
 			
 			if (Math.random() * 4 < 3)
 				out[0] = new DefaultActor(false);

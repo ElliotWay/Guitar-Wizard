@@ -10,9 +10,9 @@ package src
 		public function SmallTriangleSprite(color:uint) 
 		{
 			this.graphics.beginFill(color);
-			this.graphics.moveTo(0, 3);
-			this.graphics.lineTo(1.5, 0);
-			this.graphics.lineTo(3, 3);
+			this.graphics.moveTo(0, 5);
+			this.graphics.lineTo(2.5, 0);
+			this.graphics.lineTo(5, 5);
 		}
 		
 	}

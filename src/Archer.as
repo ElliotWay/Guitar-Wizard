@@ -39,7 +39,7 @@ package src
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
-			this._sprite = new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020));
+			this._sprite = new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020), isPlayerPiece);
 			this._miniSprite = new SmallTriangleSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020));
 		}
 		
@@ -65,10 +65,7 @@ package src
 					this.go();
 				status = Status.MOVING;
 				
-				if (isPlayerPiece)
-					_sprite.animate(Status.MOVING);
-				else
-					_sprite.animate(Status.RETREATING);
+				_sprite.animate(Status.MOVING);
 					
 				return;
 			}
@@ -94,10 +91,7 @@ package src
 					if (status != Status.RETREATING) {
 						status = Status.RETREATING;
 						
-						if (isPlayerPiece)
-							_sprite.animate(Status.RETREATING);
-						else
-							_sprite.animate(Status.MOVING);
+						_sprite.animate(Status.RETREATING);
 							
 						this.retreat();
 					}
@@ -125,10 +119,7 @@ package src
 					shotFiredTimer.start();
 				} else {
 					status = Status.MOVING;
-					if (isPlayerPiece)
-						_sprite.animate(Status.MOVING);
-					else
-						_sprite.animate(Status.RETREATING);
+					_sprite.animate(Status.MOVING);
 					
 					go();
 				}
@@ -143,7 +134,7 @@ package src
 				this.halt();
 				
 				TweenPlugin.activate([TintPlugin]);
-				this.dying = new TweenLite(sprite, 5, { tint : 0x000000 } );
+				this.dying = new TweenLite(sprite, 10, { tint : 0x000000 } );
 			}
 		}
 		
