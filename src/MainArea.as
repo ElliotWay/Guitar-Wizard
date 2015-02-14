@@ -21,7 +21,7 @@ package src
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
 		
-		public static const SCROLL_SPEED:Number = 300; //pixels per seconds
+		public static const SCROLL_SPEED:Number = 600; //pixels per second
 		
 		public static const PLAYER_ACTORS:int = 1;
 		public static const OPPONENT_ACTORS:int = 2;
@@ -106,11 +106,11 @@ package src
 			//create stuff
 			playerHP = 100;
 			opponentHP = 100;
-			for (var i:int = 0; i < 5; i++) {
-				var playerActor:Actor = new Archer(true);
+			for (var i:int = 0; i < 1; i++) {
+				var playerActor:Actor = new Assassin(true);
 				playerSummon(playerActor);
 			}
-			for (var j:int = 0; j < 5; j++) {
+			for (var j:int = 0; j < 1; j++) {
 				var opponentActor:Actor = new Archer(false);
 				opponentSummon(opponentActor);
 			}
@@ -123,7 +123,7 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor):void {
-			var position : Number = Math.random() * 600;
+			var position : Number = Math.random() * 00;
 			playerActors.push(actor);
 			arena.addChild(actor.sprite);
 			

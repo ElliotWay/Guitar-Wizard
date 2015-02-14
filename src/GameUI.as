@@ -330,7 +330,6 @@ package src {
 		}
 		
 		public function switchTrack(track:int):void {
-			trace("switch track to " + track);
 			if (currentTrack == track)
 				return;
 				

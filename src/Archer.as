@@ -134,6 +134,24 @@ package src
 			}
 		}
 		
+		override public function predictPosition(time:Number):Number {
+			if (status == Status.MOVING) {
+				if (isPlayerPiece) {
+					return Math.min(this.getPosition().x + (time * speed / 1000), MainArea.ARENA_WIDTH);
+				} else {
+					return Math.max(this.getPosition().x - (time * speed / 1000), 0);
+				}
+			} else if (status == Status.RETREATING) {
+				if (isPlayerPiece) {
+					return Math.max(this.getPosition().x - (time * speed / 1000), 0);
+				} else {
+					return Math.min(this.getPosition().x + (time * speed / 1000), MainArea.ARENA_WIDTH);
+				}
+			} else {
+				return this.getPosition().x;
+			}
+		}
+		
 		private function canRetreat():Boolean {
 			if (this.isPlayerPiece) {
 				return (this.getPosition().x > NO_RETREAT_DISTANCE);

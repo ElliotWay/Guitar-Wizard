@@ -71,6 +71,7 @@ package src
 		
 		public static function loadStatics():void {
 			ArcherSprite.initializeAnimations();
+			AssassinSprite.initializeAnimations();
 		}
 		
 		public static function fileLoaded():void {

@@ -11,6 +11,7 @@ package src
 		public static const RETREATING : int = 3;
 		public static const SHOOTING : int = 4;
 		public static const STANDING : int = 5;
+		public static const ASSASSINATING : int = 6;
 		
 	}
 

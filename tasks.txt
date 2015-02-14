@@ -1,8 +1,6 @@
-- add synchronize function
-
-- lay out the rest of the screen - mostly done
-
 - fix miss/hit detection, possibly related to lag
+
+- add info panel
 
 - fix bug where it's possible to hit notes that are not the first available
 
@@ -16,4 +14,11 @@
 
 - fix bug where player archers shoot too high?
 
+- smooth track transitions with switch points
+
 ---------Completed tasks, just so I feel like I'm making progress.---------------
+
+- lay out the rest of the screen - mostly done
+
+- add synchronize function - wasn't necessary
+

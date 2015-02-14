@@ -11,14 +11,14 @@ package src
 	public class DefaultActor extends Actor 
 	{
 		
-		private var status : int = 0;
+		protected var status : int = Status.STANDING;
 		
 		protected var range : int;
 		protected var damage : int;
 		
-		private var dying : TweenLite;
+		protected var dying : TweenLite;
 		
-		private var _isDead : Boolean;
+		protected var _isDead : Boolean;
 		
 		public function DefaultActor(isPlayerPiece:Boolean) 
 		{
@@ -57,6 +57,7 @@ package src
 				if (status != Status.MOVING)
 					this.go();
 				status = Status.MOVING;
+				_sprite.animate(Status.MOVING);
 				return;
 			}
 			
@@ -69,17 +70,20 @@ package src
 					
 				closest.hitpoints -= damage;
 				status = Status.FIGHTING;
+				_sprite.animate(Status.FIGHTING);
 			} else {
 				if (status != Status.MOVING)
 					this.go();
 					
 				status = Status.MOVING;
+				_sprite.animate(Status.MOVING);
 			}
 			
 			//Check if we're dying. Actors can interact while dying, otherwise player actors
 			//would get an advantage.
 			if (this._hitpoints <= 0) {
 				status = Status.DYING;
+				_sprite.animate(Status.DYING);
 				this.halt();
 				
 				TweenPlugin.activate([TintPlugin]);

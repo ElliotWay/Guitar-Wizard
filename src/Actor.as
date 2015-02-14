@@ -139,6 +139,18 @@ package src {
 			updateMiniMap();
 		}
 		
+		/**
+		 * Estimate the x position of this actor an amount of time into the future.
+		 * @param	time the number of milliseconds from now to estimate the postion
+		 */
+		public function predictPosition(time:Number):Number {
+			if (isPlayerPiece) {
+				return Math.min(this.getPosition().x + (time * speed / 1000), MainArea.ARENA_WIDTH);
+			} else {
+				return Math.max(this.getPosition().x - (time * speed / 1000), 0);
+			}
+		}
+		
 		public function getHitBox():Rectangle {
 			return _sprite.hitBox;
 		}

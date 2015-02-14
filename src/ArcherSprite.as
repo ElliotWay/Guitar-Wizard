@@ -20,9 +20,6 @@ package src
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
 		private static var movementAnimation:FrameAnimation;
-		
-		private static const RETREAT_POSITION:int = FRAME_HEIGHT * 1;
-		private static const RETREAT_FRAMES:int = 4;
 		private static var retreatingAnimation:FrameAnimation;
 		
 		private static const SHOOTING_POSITION:int = FRAME_HEIGHT * 2;
@@ -68,7 +65,7 @@ package src
 			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
 			
 			standingAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFFF);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
 			standingAnimationReversed = FrameAnimation.flip(standingAnimation);
 		}
 		
@@ -89,7 +86,7 @@ package src
 			if (facesRight)
 				move = movementAnimation.copy();
 			else 
-				move = FrameAnimation.flip(movementAnimation);
+				move = retreatingAnimation.copy();
 				
 			super.animations[Status.MOVING] = move;
 			this.addChild(move);
