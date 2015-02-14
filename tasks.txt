@@ -16,6 +16,8 @@
 
 - smooth track transitions with switch points
 
+- projectile animation has issues on the descent?
+
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
 - lay out the rest of the screen - mostly done

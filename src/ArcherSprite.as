@@ -45,6 +45,7 @@ package src
 		public static const HIT_BOX:Rectangle = new Rectangle(20, 20, 23, 60);
 		
 		private var relativeCenter:Point;
+		private var relativeArrowPosition:Point;
 		
 		public static function initializeAnimations():void {
 			var archerData:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
@@ -142,7 +143,13 @@ package src
 			if (facesRight)
 				relativeCenter = CENTER;
 			else
-				relativeCenter = new Point(this.width - CENTER.x, CENTER.y);
+				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
+				
+			if (facesRight)
+				relativeArrowPosition = ARROW_POSITION;
+			else {
+				relativeArrowPosition = new Point(FRAME_WIDTH - ARROW_POSITION.x, ARROW_POSITION.y);
+			}
 		}
 		
 			
@@ -152,6 +159,10 @@ package src
 		
 		override public function get hitBox():Rectangle {
 			return new Rectangle(this.x + HIT_BOX.x, this.y + HIT_BOX.y, HIT_BOX.width, HIT_BOX.height);
+		}
+		
+		public function get arrowPosition():Point {
+			return new Point(this.x + relativeArrowPosition.x, this.y + relativeArrowPosition.y);
 		}
 	}
 

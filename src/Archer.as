@@ -4,6 +4,7 @@ package src
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.plugins.TintPlugin;
 	import flash.events.TimerEvent;
+	import flash.geom.Point;
 	import flash.utils.Timer;
 	
 	/**
@@ -101,16 +102,15 @@ package src
 						
 						var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-																				//Ideally, "closest" here still refers
-																				//to the closest target, and we can use
-																				//it's current position, not the position
-																				//when we stopped to fire.
+						
 							var arrow:Projectile = new Projectile(
 									(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
 									closest.getPosition());
 						
-							arrow.x = _sprite.x + ArcherSprite.ARROW_POSITION.x;
-							arrow.y = _sprite.y + ArcherSprite.ARROW_POSITION.y;
+							var arrowPosition:Point = (_sprite as ArcherSprite).arrowPosition;
+							
+							arrow.x = arrowPosition.x;
+							arrow.y = arrowPosition.y;
 							
 							MainArea.mainArea.addProjectile(arrow);
 						});

@@ -33,7 +33,7 @@ package src
 		public static const TIME_TO_LAND:Number = 1000 * (1.0 / 24.0) * 3 * 7;
 		
 		public static const CENTER:Point = new Point(60, 45);
-		public static const HIT_BOX:Rectangle = new Rectangle(140, 10, 30, 65);
+		public static const HIT_BOX:Rectangle = new Rectangle(44, 10, 30, 65);
 		
 		private var relativeCenter:Point;
 		private var relativeHitBox:Rectangle;

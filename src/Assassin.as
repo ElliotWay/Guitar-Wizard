@@ -66,16 +66,21 @@ package src
 					
 					var targetPosition:Number = closest.predictPosition(AssassinSprite.TIME_TO_LAND);
 					var landedX:Number = targetPosition +
-							(isPlayerPiece ? -(sprite.width + 10) : _sprite.width + 10) -
+							(isPlayerPiece ? -30 : 30) -
 							AssassinSprite.CENTER.x;
 
 					status = Status.ASSASSINATING;
+					var self:Assassin = this;
+					
+					trace("predicted: " + targetPosition);
 					
 					_sprite.animate(Status.ASSASSINATING, function():void { status = Status.STANDING; } );
 					
 					var landedTimer:Timer = new Timer(AssassinSprite.TIME_TO_LAND, 1);
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						closest.hitpoints -= damage;
+						trace("actual: " + closest.getPosition());
+						trace(self.getPosition());
 					});
 					landedTimer.start();
 					
