@@ -84,9 +84,11 @@ package src
 					
 					go();
 				} else {
-					var closeDistance:Number = Math.abs(this.getPosition().x - closest.getPosition().x);
+					//var closeDistance:Number = Math.abs(this.getPosition().x - closest.getPosition().x);
+					var expectedDistance:Number = Math.abs(this.getPosition().x
+							- closest.predictPosition(ArcherSprite.TIME_TO_SHOOT));
 					
-					if (closeDistance < SKIRMISH_DISTANCE && canRetreat()) {
+					if (expectedDistance < SKIRMISH_DISTANCE && canRetreat()) {
 						if (status != Status.RETREATING) {
 							status = Status.RETREATING;
 							
@@ -102,7 +104,9 @@ package src
 						
 						var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-						
+							if (status == Status.DYING)
+								return;
+							
 							var arrow:Projectile = new Projectile(
 									(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
 									closest.getPosition());

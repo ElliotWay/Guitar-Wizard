@@ -85,7 +85,7 @@ package src
 			arena = new Sprite();
 			this.addChild(arena);
 			
-			arena.graphics.beginFill(0xD0FFB0);
+			arena.graphics.beginFill(0xB0D090);
 			arena.graphics.drawRect(0, 0, ARENA_WIDTH, HEIGHT);
 			arena.graphics.endFill();
 			

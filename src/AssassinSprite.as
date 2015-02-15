@@ -31,6 +31,7 @@ package src
 		private static var standingAnimationReversed:FrameAnimation;
 		
 		public static const TIME_TO_LAND:Number = 1000 * (1.0 / 24.0) * 3 * 7;
+		public static const TIME_BETWEEN_STABS:Number = 1000 * (1.0 / 24.0) * 3 * 3;
 		
 		public static const CENTER:Point = new Point(60, 45);
 		public static const HIT_BOX:Rectangle = new Rectangle(44, 10, 30, 65);

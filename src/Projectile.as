@@ -126,7 +126,11 @@ package src
 			if (radical < 0) {
 				idealAngle = (relativeTargetX > 0 ) ? Math.PI / 4 : 3 * Math.PI / 4;
 			} else {
-				idealAngle = Math.atan((VELOCITY * VELOCITY - Math.sqrt(radical)) / (GRAVITY * relativeTargetX));
+				idealAngle =
+					Math.max(( -Math.PI / 2) + .1, //Restict it to about -85 to 85 degrees.
+					Math.min(Math.PI / 2 - .1,
+						Math.atan((VELOCITY * VELOCITY - Math.sqrt(radical)) / (GRAVITY * relativeTargetX))));
+				
 				if (targetIsLeft)
 					idealAngle += Math.PI; //Limitations of arctangent.
 			}
@@ -140,7 +144,7 @@ package src
 			var peakHeight:Number
 			
 			//If we're pointed up, we need separate calulations for the path up.
-			if (actualAngle > 0) {
+			if (actualAngle > 0 && actualAngle < Math.PI) {
 				peakTime = initialVerticalVelocity / GRAVITY;
 				
 				peakHeight = this.y - (initialVerticalVelocity * initialVerticalVelocity)
@@ -171,11 +175,12 @@ package src
 			
 			timeline = new TimelineLite( { onComplete:forceFinish } );
 			
+			
 			//TODO simplify expressions
 			
 			//Add y movement and time labels
 			timeline.add("start", "+=0");
-			if (actualAngle > 0)
+			if (actualAngle > 0 && actualAngle < Math.PI)
 				timeline.to(this, peakTime, { y:peakHeight, ease:Quad.easeOut } );
 			timeline.to(this, peakToGroundTime, { y:Actor.Y_POSITION, ease:Quad.easeIn } );
 			
