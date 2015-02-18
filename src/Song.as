@@ -59,11 +59,10 @@ package  src
 			_midMusic = new Sound();
 			_lowMusic = new Sound();
 			
-			//TODO definitely change this later.
 			Main.loadSong(baseMusic, baseName);
 			Main.loadSong(highMusic, highName);
 			Main.loadSong(midMusic, midName);
-			//Main.loadSong(lowMusic, lowName);
+			Main.loadSong(lowMusic, lowName);
 			
 			var highNoteString:String = lines[4];
 			var midNoteString:String = lines[5];

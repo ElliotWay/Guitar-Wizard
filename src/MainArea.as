@@ -68,6 +68,11 @@ package src
 			
 		}
 		
+		/**
+		 * Adds the projectile to the list of projectiles, adds it to the arena,
+		 * and starts the projectile moving.
+		 * @param	projectile
+		 */
 		public function addProjectile(projectile:Projectile):void {
 			
 			projectiles.push(projectile);
@@ -106,13 +111,14 @@ package src
 			//create stuff
 			playerHP = 100;
 			opponentHP = 100;
-			for (var i:int = 0; i < 1; i++) {
-				var playerActor:Actor = new Assassin(true);
-				playerSummon(playerActor);
-			}
+			
 			for (var j:int = 0; j < 1; j++) {
 				var opponentActor:Actor = new Archer(false);
 				opponentSummon(opponentActor);
+			}
+			for (var i:int = 0; i < 1; i++) {
+				var playerActor:Actor = new Assassin(true);
+				playerSummon(playerActor);
 			}
 			
 			this.addEventListener(Event.ENTER_FRAME, step);

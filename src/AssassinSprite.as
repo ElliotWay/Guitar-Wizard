@@ -27,6 +27,11 @@ package src
 		private static var assassinateAnimation:FrameAnimation;
 		private static var assassinateAnimationReversed:FrameAnimation;
 		
+		private static const FIGHTING_POSITION:int = FRAME_HEIGHT * 2;
+		private static const FIGHTING_FRAMES:int = 9;
+		private static var fightingAnimation:FrameAnimation;
+		private static var fightingAnimationReversed:FrameAnimation;
+		
 		private static var standingAnimation:FrameAnimation;
 		private static var standingAnimationReversed:FrameAnimation;
 		
@@ -50,6 +55,10 @@ package src
 			assassinateAnimation = FrameAnimation.create(assassinData,
 					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES, 3);
 			assassinateAnimationReversed = FrameAnimation.flip(assassinateAnimation);
+			
+			fightingAnimation = FrameAnimation.create(assassinData,
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 3);
+			fightingAnimationReversed = FrameAnimation.flip(fightingAnimation);
 			
 			standingAnimation = FrameAnimation.create(assassinData,
 					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
@@ -89,6 +98,16 @@ package src
 			super.animations[Status.ASSASSINATING] = assassinate;
 			this.addChild(assassinate);
 			assassinate.visible = false;
+			
+			var fight:FrameAnimation;
+			if (facesRight)
+				fight = fightingAnimation.copy();
+			else
+				fight = fightingAnimationReversed.copy();
+				
+			super.animations[Status.FIGHTING] = fight;
+			this.addChild(fight);
+			fight.visible = false;
 			
 			
 			var stand:FrameAnimation;

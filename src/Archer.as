@@ -13,7 +13,7 @@ package src
 	 */
 	public class Archer extends Actor 
 	{
-		private static const SKIRMISH_DISTANCE:Number = 300; //pixels
+		private static const SKIRMISH_DISTANCE:Number = -1; //300 pixels
 		private static const NO_RETREAT_DISTANCE:Number = 25;
 		
 		private var status:int;

@@ -381,8 +381,7 @@ package src {
 					switchTrack(Main.MID);
 					break;
 				case Keyboard.L:
-					//TODO change later
-					//switchTrack(Main.LOW);
+					switchTrack(Main.LOW);
 					break;
 			}
 		}

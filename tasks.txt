@@ -6,8 +6,6 @@
 
 - create initial actor types
 
-- finish initial music assets
-
 - create more actor assets
 
 - create a way to color actor sprites to indentify owner
@@ -16,7 +14,7 @@
 
 - smooth track transitions with switch points
 
-- projectile animation has issues on the descent?
+- create more general non-hardcoded start for MainArea
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -24,3 +22,6 @@
 
 - add synchronize function - wasn't necessary
 
+- projectile animation has issues on the descent? - fixed: bug in checking for down left shots
+
+- finish initial music assets - they still need editing

@@ -28,7 +28,7 @@ package src
 			super(isPlayerPiece);
 			
 			this.speed = 300;
-			this.damage = 5;
+			this.damage = 0; //5
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
