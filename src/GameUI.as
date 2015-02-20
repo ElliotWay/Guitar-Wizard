@@ -82,7 +82,6 @@ package src {
 		public function loadSong(song:Song):void {
 			this.song = song;
 			musicArea.loadNotes(song);
-			musicArea.setMidNotes();
 			musicPlayer.loadMusic(song);
 			
 			highNotesRemaining = (Vector.<Note>(song.highPart)).reverse();
@@ -335,13 +334,8 @@ package src {
 				
 			currentTrack = track;
 			
+			musicArea.switchNotes(musicPlayer.getTime(), track);
 			musicPlayer.switchTrack(track);
-			if (track == Main.HIGH)
-				musicArea.setHighNotes();
-			else if (track == Main.MID)
-				musicArea.setMidNotes();
-			else if (track == Main.LOW)
-				musicArea.setLowNotes();
 		}
 		
 		public function keyboardHandler(e:KeyboardEvent):void {
