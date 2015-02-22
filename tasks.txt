@@ -12,7 +12,7 @@
 
 - fix bug where player archers shoot too high?
 
-- smooth track transitions with switch points
+- make hitting notes after switching blocks more robust
 
 - create more general non-hardcoded start for MainArea
 
@@ -25,3 +25,6 @@
 - projectile animation has issues on the descent? - fixed: bug in checking for down left shots
 
 - finish initial music assets - they still need editing
+
+- smooth track transitions with switch points - started
+

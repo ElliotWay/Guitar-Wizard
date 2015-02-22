@@ -32,6 +32,8 @@ public class TestRunner extends Sprite
 
 		testCore.run(GameUI_FindHitTest);
 		testCore.run(GameUI_MissUntilTest);
+		testCore.run(GameUI_SwitchTrackTest);
+		testCore.run(MainAreaTest);
 		testCore.run(MusicPlayerTest);
 		testCore.run(NoteSpriteTest);
 		testCore.run(NoteTest);
@@ -74,7 +76,7 @@ class AfterTestClose implements IRunListener {
 
 	public function testRunFinished(result:Result):void {
 		ongoingRuns++;
-		if (ongoingRuns == 7)
+		if (ongoingRuns == 10)
 			System.exit(0);
 	}
 

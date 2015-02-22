@@ -30,7 +30,14 @@ package src {
 		
 		
 		private var song:Song;
-		private var currentTrack:int;
+		
+		protected var currentTrack:int;
+		private var nextTrack:int;
+		
+		protected var switchTimer:Timer;
+		private var switchTime:Number;
+		protected var advanceSwitchTimer:Timer;
+		private var advanceSwitchTime:Number
 		
 		private var expectingHold:Vector.<Boolean>;
 		private var currentHolds:Vector.<Note>;
@@ -57,6 +64,13 @@ package src {
 			musicArea.x = 0; musicArea.y = 0;
 			
 			currentTrack = Main.MID;
+			nextTrack = -1;
+			
+			switchTimer = null;
+			switchTime = -1;
+			advanceSwitchTimer = null;
+			advanceSwitchTime = -1;
+			
 			musicPlayer = new MusicPlayer(Main.MID);
 			
 			expectingHold = new <Boolean>[false, false, false, false];
@@ -328,14 +342,85 @@ package src {
 			mainArea.stopScrolling();
 		}
 		
+		/**
+		 * Prepares to switch to another track.
+		 * Visibility of notes from the new track are changed immediately,
+		 * changing the track and the music playback are set on a timer to change
+		 * at the time that musicArea.switchNotes requests.
+		 * 
+		 * This method uses switchTimer and advanceSwitchTimer;
+		 * if it is too late to switch to a different track, the switch is placed in
+		 * advanceSwitchTimer and then moved to switchTimer when the first switch occurs.
+		 * 
+		 * Requesting a switch to the track that is already pending does nothing.
+		 * @param	track the track to prepare to switch to, in Main constants
+		 */
 		public function switchTrack(track:int):void {
-			if (currentTrack == track)
+			trace(track + "? " + nextTrack);
+			trace(switchTimer + "\n\t" + switchTime);
+			trace(advanceSwitchTimer + "\n\t" + advanceSwitchTime);
+			
+			if (nextTrack == track)
 				return;
 				
+			nextTrack = track;
+				
+			var rightNow:Number, switchPoint:Number;
+			
+			rightNow = musicPlayer.getTime();
+			switchPoint = musicArea.switchNotes(rightNow, track);
+			
+			if (switchTimer == null) {
+				switchTimer = new Timer(switchPoint - rightNow, 1);
+				switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					switchLater(track);
+				});
+				switchTimer.start();
+				
+				switchTime = switchPoint;
+				
+			} else {
+				//var error:Error = new Error();
+				//trace(error.getStackTrace());
+				//switch time is the time of the existing switch.
+				if (switchTime - rightNow < MusicArea.SWITCH_ADVANCE_TIME) {
+					
+					//We're in the space where it's too late to switch the next block,
+					//but we haven't switched yet.
+					if (advanceSwitchTimer != null) {
+						advanceSwitchTimer.stop();
+					}
+					
+					advanceSwitchTimer = new Timer(switchPoint - rightNow, 1);
+					advanceSwitchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+						switchLater(track);
+					});
+					advanceSwitchTimer.start();
+					
+					advanceSwitchTime = switchPoint;
+				} else {
+					
+					switchTimer.stop();
+					switchTimer = new Timer(switchPoint - rightNow, 1);
+					switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+						switchLater(track);
+					});
+					switchTimer.start();
+					
+					switchTime = switchPoint;
+				}
+			}
+		}
+		
+		private function switchLater(track:int):void {
+			musicPlayer.switchTrack(track);
 			currentTrack = track;
 			
-			musicArea.switchNotes(musicPlayer.getTime(), track);
-			musicPlayer.switchTrack(track);
+			switchTimer = advanceSwitchTimer;
+			advanceSwitchTimer = null;
+			
+			switchTime = advanceSwitchTime;
+			advanceSwitchTime = -1;
 		}
 		
 		public function keyboardHandler(e:KeyboardEvent):void {

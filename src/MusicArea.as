@@ -24,7 +24,7 @@ package  src
 		 * Time in milliseconds before the beginning of a block
 		 * after which switching tracks will switch the following block.
 		 */
-		public static const SWITCH_ADVANCE_TIME:Number = 400;
+		public static const SWITCH_ADVANCE_TIME:Number = (WIDTH - HIT_LINE) / POSITION_SCALE;
 		
 		/**
 		 * Ratio between space on the screen and time, in pixels per millisecond.
@@ -74,8 +74,9 @@ package  src
 		 * Change the visibility of note block based on the current time.
 		 * @param	currentTime time from the start of the music, in milliseconds
 		 * @param	track the track to switch to
+		 * @return  time of the next block switch
 		 */
-		public function switchNotes(currentTime:Number, track:int):void {
+		public function switchNotes(currentTime:Number, track:int):Number {
 			//Find the index of the current block.
 			var targetIndex:int = 0;
 			while (targetIndex < blocks.length &&
@@ -84,7 +85,7 @@ package  src
 			}
 			
 			if (targetIndex >= blocks.length) {
-				return; //Can't switch if we're on the last block.
+				return Number.MAX_VALUE; //Can't switch if we're on the last block.
 			} else {
 				switch (track) {
 					case Main.HIGH:
@@ -98,6 +99,8 @@ package  src
 						break;
 				}
 			}
+			
+			return blocks[targetIndex];
 		}
 		
 		/**
