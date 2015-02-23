@@ -8,7 +8,7 @@
 
 - create more actor assets
 
-- create a way to color actor sprites to indentify owner
+- create a way to color actor sprites to identify owner
 
 - fix bug where player archers shoot too high?
 

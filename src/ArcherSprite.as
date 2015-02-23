@@ -53,8 +53,6 @@ package src
 			movementAnimation = FrameAnimation.create(archerData,
 					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5);
 					
-			//retreatingAnimation = FrameAnimation.create(archerData,
-			//		new Point(0, RETREAT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, RETREAT_FRAMES, 5);
 			retreatingAnimation = FrameAnimation.flip(movementAnimation);
 					
 			shootingAnimation = FrameAnimation.create(archerData,

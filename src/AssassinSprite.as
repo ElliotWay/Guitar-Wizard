@@ -32,6 +32,12 @@ package src
 		private static var fightingAnimation:FrameAnimation;
 		private static var fightingAnimationReversed:FrameAnimation;
 		
+		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
+		private static const DYING_FRAMES:int = 8;
+		private static const DYING_FRAME_WIDTH:int = 120;
+		private static var dyingAnimation:FrameAnimation;
+		private static var dyingAnimationReversed:FrameAnimation;
+		
 		private static var standingAnimation:FrameAnimation;
 		private static var standingAnimationReversed:FrameAnimation;
 		
@@ -59,6 +65,10 @@ package src
 			fightingAnimation = FrameAnimation.create(assassinData,
 					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 3);
 			fightingAnimationReversed = FrameAnimation.flip(fightingAnimation);
+			
+			dyingAnimation = FrameAnimation.create(assassinData,
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5);
+			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
 			
 			standingAnimation = FrameAnimation.create(assassinData,
 					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
@@ -109,6 +119,20 @@ package src
 			this.addChild(fight);
 			fight.visible = false;
 			
+			
+			var die:FrameAnimation;
+			if (facesRight)
+				die = dyingAnimation.copy();
+			else {
+				die = dyingAnimationReversed.copy();
+				
+				//Large animations need to be shifted.
+				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH);
+			}
+				
+			super.animations[Status.DYING] = die;
+			this.addChild(die);
+			die.visible = false;
 			
 			var stand:FrameAnimation;
 			if (facesRight) 

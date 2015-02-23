@@ -14,7 +14,7 @@ package src
 	public class Projectile extends Sprite
 	{
 		
-		public static const DAMAGE:Number = 0;
+		public static const DAMAGE:Number = 1;
 		
 		
 		public static const VELOCITY:Number = 500; // pxl/s

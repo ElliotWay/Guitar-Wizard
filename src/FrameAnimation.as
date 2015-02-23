@@ -33,6 +33,7 @@ package src
 		public function FrameAnimation() {
 			onComplete = null;
 			runner = null;
+			frameIndex = -1;
 		}
 		
 		/**
@@ -157,6 +158,9 @@ package src
 		}
 		
 		public function go():void {
+			if (frameIndex >= 0)
+				frames[frameIndex].visible = false;
+			
 			frameCount = 0;
 			
 			frameIndex = 0;

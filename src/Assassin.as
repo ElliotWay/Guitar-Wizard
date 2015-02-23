@@ -155,7 +155,11 @@ package src
 			//would get an advantage.
 			if (this._hitpoints <= 0) {
 				status = Status.DYING;
-				_sprite.animate(Status.DYING);
+				_sprite.animate(Status.DYING, function():void { _sprite.freeze(); } );
+				
+				jumping.kill();
+				fightingTimer.stop();
+				
 				this.halt();
 				
 				TweenPlugin.activate([TintPlugin]);
