@@ -16,7 +16,7 @@ package src
 		public static const WIDTH:int = 600;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
-		public static const ARENA_WIDTH:int = 2000;
+		public static const ARENA_WIDTH:int = 4000;
 		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
@@ -112,13 +112,22 @@ package src
 			playerHP = 100;
 			opponentHP = 100;
 			
-			for (var j:int = 0; j < 1; j++) {
-				var opponentActor:Actor = new Archer(false);
+			for (var j:int = 0; j < 3; j++) {
+				var opponentActor:Actor = new Assassin(false);
 				opponentSummon(opponentActor);
 			}
-			for (var i:int = 0; i < 1; i++) {
+			for (var k:int = 0; k < 0; k++) {
+				var opponentAgain:Actor = new Archer(false);
+				opponentSummon(opponentAgain);
+			}
+			
+			for (var i:int = 0; i < 0; i++) {
 				var playerActor:Actor = new Assassin(true);
 				playerSummon(playerActor);
+			}
+			for (var l:int = 0; l < 3; l++) {
+				var playerAgain:Actor = new Cleric(true);
+				playerSummon(playerAgain);
 			}
 			
 			this.addEventListener(Event.ENTER_FRAME, step);
@@ -129,7 +138,7 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor):void {
-			var position : Number = Math.random() * 00;
+			var position : Number = Math.random() * 1200;
 			playerActors.push(actor);
 			arena.addChild(actor.sprite);
 			
@@ -140,7 +149,7 @@ package src
 		}
 		
 		public function opponentSummon(actor : Actor):void {
-			var position : Number = ARENA_WIDTH - Math.random() * 600;
+			var position : Number = ARENA_WIDTH - Math.random() * 1200;
 			opponentActors.push(actor);
 			arena.addChild(actor.sprite);
 			

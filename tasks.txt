@@ -4,8 +4,6 @@
 
 - fix bug where it's possible to hit notes that are not the first available
 
-- create initial actor types
-
 - create more actor assets
 
 - create a way to color actor sprites to identify owner
@@ -15,6 +13,8 @@
 - make hitting notes after switching blocks more robust
 
 - create more general non-hardcoded start for MainArea
+
+- create arrow sprite instead of triangle
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -27,4 +27,6 @@
 - finish initial music assets - they still need editing
 
 - smooth track transitions with switch points - started
+
+- create initial actor types - finished
 

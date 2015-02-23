@@ -13,8 +13,14 @@ package src
 	 */
 	public class Archer extends Actor 
 	{
-		private static const SKIRMISH_DISTANCE:Number = -1; //300 pixels
+		private static const SKIRMISH_DISTANCE:Number = 300; //300 pixels
 		private static const NO_RETREAT_DISTANCE:Number = 25;
+		
+		/**
+		 * Amount of time the Archer estimates it will take for the arrow to hit its target,
+		 * as the Archer attempt to lead the target. Expressed in milliseconds.
+		 */
+		private static const LEAD_TIME:Number = 600;
 		
 		private var status:int;
 		
@@ -33,7 +39,7 @@ package src
 			dying = null;
 			_isDead = false;
 			
-			this.speed = 80;
+			this.speed = 160;
 			
 			timeToShoot = 24 * 5 * 6;//400;
 			range = 700;
@@ -86,7 +92,7 @@ package src
 				} else {
 					//var closeDistance:Number = Math.abs(this.getPosition().x - closest.getPosition().x);
 					var expectedDistance:Number = Math.abs(this.getPosition().x
-							- closest.predictPosition(ArcherSprite.TIME_TO_SHOOT));
+							- closest.predictPosition(ArcherSprite.TIME_TO_SHOOT).x);
 					
 					if (expectedDistance < SKIRMISH_DISTANCE && canRetreat()) {
 						if (status != Status.RETREATING) {
@@ -109,7 +115,7 @@ package src
 							
 							var arrow:Projectile = new Projectile(
 									(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
-									closest.getPosition());
+									closest.predictPosition(LEAD_TIME));
 						
 							var arrowPosition:Point = (_sprite as ArcherSprite).arrowPosition;
 							
@@ -138,21 +144,30 @@ package src
 			}
 		}
 		
-		override public function predictPosition(time:Number):Number {
+		override public function predictPosition(time:Number):Point {
+			var position:Point = this.getPosition();
 			if (status == Status.MOVING) {
 				if (isPlayerPiece) {
-					return Math.min(this.getPosition().x + (time * speed / 1000), MainArea.ARENA_WIDTH);
+					return new Point(
+							Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
+							position.y);
 				} else {
-					return Math.max(this.getPosition().x - (time * speed / 1000), 0);
+					return new Point(
+							Math.max(position.x - (time * speed / 1000), 0),
+							position.y);
 				}
 			} else if (status == Status.RETREATING) {
 				if (isPlayerPiece) {
-					return Math.max(this.getPosition().x - (time * speed / 1000), 0);
+					return new Point(
+							Math.max(position.x - (time * speed / 1000), 0),
+							position.y);
 				} else {
-					return Math.min(this.getPosition().x + (time * speed / 1000), MainArea.ARENA_WIDTH);
+					return new Point(
+							Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
+							position.y);
 				}
 			} else {
-				return this.getPosition().x;
+				return position;
 			}
 		}
 		

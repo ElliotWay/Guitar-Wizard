@@ -12,7 +12,7 @@ package src {
 	public class Actor implements AbstractActor
 	{
 		
-		public static const Y_POSITION:int = 200;
+		public static const Y_POSITION:int = 300;
 		
 		public static const MINI_Y_POSITION:int = 35;
 		
@@ -140,14 +140,19 @@ package src {
 		}
 		
 		/**
-		 * Estimate the x position of this actor an amount of time into the future.
+		 * Estimate the position of this actor an amount of time into the future.
 		 * @param	time the number of milliseconds from now to estimate the postion
 		 */
-		public function predictPosition(time:Number):Number {
+		public function predictPosition(time:Number):Point {
+			var position:Point = this.getPosition();
 			if (isPlayerPiece) {
-				return Math.min(this.getPosition().x + (time * speed / 1000), MainArea.ARENA_WIDTH);
+				return new Point(
+						Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
+						position.y);
 			} else {
-				return Math.max(this.getPosition().x - (time * speed / 1000), 0);
+				return new Point(
+						Math.max(position.x - (time * speed / 1000), 0),
+						position.y);
 			}
 		}
 		

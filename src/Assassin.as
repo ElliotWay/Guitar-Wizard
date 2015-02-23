@@ -28,7 +28,7 @@ package src
 			super(isPlayerPiece);
 			
 			this.speed = 300;
-			this.damage = 0; //5
+			this.damage = 3; //5
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
@@ -74,7 +74,7 @@ package src
 			if (closest != null && (status == Status.MOVING || status == Status.STANDING)) {
 					
 				var targetPositionAfterJump:Number =
-						closest.predictPosition(AssassinSprite.TIME_TO_LAND);
+						closest.predictPosition(AssassinSprite.TIME_TO_LAND).x;
 						
 				var targetAfterJumpDistance:Number =
 						Math.abs(targetPositionAfterJump - this.getPosition().x);
@@ -86,7 +86,7 @@ package src
 				
 					this.halt();
 					
-					var targetPosition:Number = closest.predictPosition(AssassinSprite.TIME_TO_LAND);
+					var targetPosition:Number = closest.predictPosition(AssassinSprite.TIME_TO_LAND).x;
 					var landedX:Number = targetPosition +
 							(isPlayerPiece ? -30 : 30) -
 							AssassinSprite.CENTER.x;
@@ -157,8 +157,10 @@ package src
 				status = Status.DYING;
 				_sprite.animate(Status.DYING, function():void { _sprite.freeze(); } );
 				
-				jumping.kill();
-				fightingTimer.stop();
+				if (jumping != null)
+					jumping.kill();
+				if (fightingTimer != null)
+					fightingTimer.stop();
 				
 				this.halt();
 				
@@ -173,6 +175,9 @@ package src
 			
 			if (jumping != null)
 				jumping.kill();
+				
+			if (fightingTimer != null)
+				fightingTimer.stop();
 		}
 	}
 

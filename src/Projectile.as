@@ -14,7 +14,7 @@ package src
 	public class Projectile extends Sprite
 	{
 		
-		public static const DAMAGE:Number = 1;
+		public static const DAMAGE:Number = 3;
 		
 		
 		public static const VELOCITY:Number = 500; // pxl/s
@@ -179,6 +179,7 @@ package src
 			//TODO simplify expressions
 			
 			//Add y movement and time labels
+			trace(peakToGroundTime);
 			timeline.add("start", "+=0");
 			if (actualAngle > 0 && actualAngle < Math.PI)
 				timeline.to(this, peakTime, { y:peakHeight, ease:Quad.easeOut } );
