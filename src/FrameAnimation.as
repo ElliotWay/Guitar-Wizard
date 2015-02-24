@@ -158,8 +158,10 @@ package src
 		}
 		
 		public function go():void {
-			if (frameIndex >= 0)
+			if (frameIndex >= 0) {
 				frames[frameIndex].visible = false;
+				frames[0].visible = true;
+			}
 			
 			frameCount = 0;
 			

@@ -38,7 +38,7 @@ package src
 		}
 		
 		override public function createSprites(isPlayerPiece:Boolean):void {
-			this._sprite = new DefaultSprite(isPlayerPiece ? 0x0040FF : 0xFF4000);
+			this._sprite = new ClericSprite(isPlayerPiece);
 			this._miniSprite = new SmallCircleSprite(isPlayerPiece ? 0x0040FF : 0xFF4000);
 		}
 		
@@ -102,16 +102,10 @@ package src
 					if (status != Status.MOVING) {
 						this.go();
 						status = Status.MOVING;
-						_sprite.animate(Status.MOVING);
 					}
+					_sprite.animate(Status.MOVING);
 				}
-			} else {
-					if (status != Status.MOVING) {
-						this.go();
-						status = Status.MOVING;
-						_sprite.animate(Status.MOVING);
-					}
-				}
+			}
 			
 			
 			//Check if we're dying. Actors can act in their first frame while dying,

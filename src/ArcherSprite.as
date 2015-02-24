@@ -71,12 +71,6 @@ package src
 		public function ArcherSprite(color:uint, facesRight:Boolean) 
 		{
 			super();
-			/*this.graphics.beginFill(color);
-			this.graphics.moveTo(0, 20);
-			this.graphics.lineTo(10, 0);
-			this.graphics.lineTo(20, 20);
-			this.graphics.endFill();*/
-			
 			
 			//Copy these animations instead of using the animations themselves.
 			//This way there's only one copy of each bitmap frame.

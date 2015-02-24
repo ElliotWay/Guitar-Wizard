@@ -5,6 +5,7 @@ package src
 	import com.greensock.plugins.DirectionalRotationPlugin;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TimelineLite;
+	import flash.display.Bitmap;
 	import flash.display.Sprite;
 	import flash.geom.Point;
 	/**
@@ -13,6 +14,8 @@ package src
 	 */
 	public class Projectile extends Sprite
 	{
+		[Embed(source="../assets/arrow.png")]
+		private static const ArrowImage:Class;
 		
 		public static const DAMAGE:Number = 3;
 		
@@ -37,6 +40,8 @@ package src
 		
 		private var timeline:TimelineLite;
 		
+		private var arrowHead:Sprite;
+		
 		/**
 		 * Create a new projectile.
 		 * @param	targets bit mask of possible targets
@@ -50,11 +55,20 @@ package src
 			
 			_targetPosition = targetPosition;
 			
-			this.graphics.beginFill(0x005000);
+			this.addChild((new ArrowImage() as Bitmap));
+			
+			arrowHead = new Sprite();
+			this.addChild(arrowHead);
+			arrowHead.graphics.beginFill(0xFF00FF);
+			arrowHead.graphics.drawRect(0, 0, 4, 4);
+			arrowHead.visible = false;
+			arrowHead.x = 32;
+			
+		/*	this.graphics.beginFill(0x005000);
 			this.graphics.moveTo( -3, -3);
 			this.graphics.lineTo( -3, 3);
 			this.graphics.lineTo( 9, 0);
-			this.graphics.endFill();
+			this.graphics.endFill();*/
 		}
 		
 		/**
@@ -77,8 +91,9 @@ package src
 		 * @return whether the projectile can hit the actor
 		 */
 		public function hitTest(actor:Actor):Boolean {
-			return actor.isValidTarget() && 
-					this.getBounds(this.parent).intersects(actor.getHitBox());
+			return actor.isValidTarget() &&	
+					arrowHead.getBounds(this.parent).intersects(actor.getHitBox());
+					//this.getBounds(this.parent).intersects(actor.getHitBox());
 		}
 		
 		/**
@@ -179,7 +194,6 @@ package src
 			//TODO simplify expressions
 			
 			//Add y movement and time labels
-			trace(peakToGroundTime);
 			timeline.add("start", "+=0");
 			if (actualAngle > 0 && actualAngle < Math.PI)
 				timeline.to(this, peakTime, { y:peakHeight, ease:Quad.easeOut } );

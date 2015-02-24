@@ -14,7 +14,7 @@
 
 - create more general non-hardcoded start for MainArea
 
-- create arrow sprite instead of triangle
+- change arrow sprite to pixelated rotation - this may be difficult to tune
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -30,3 +30,4 @@
 
 - create initial actor types - finished
 
+- create arrow sprite instead of triangle

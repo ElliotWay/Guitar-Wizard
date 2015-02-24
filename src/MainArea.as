@@ -113,7 +113,7 @@ package src
 			opponentHP = 100;
 			
 			for (var j:int = 0; j < 3; j++) {
-				var opponentActor:Actor = new Assassin(false);
+				var opponentActor:Actor = new Cleric(false);
 				opponentSummon(opponentActor);
 			}
 			for (var k:int = 0; k < 0; k++) {
@@ -125,8 +125,8 @@ package src
 				var playerActor:Actor = new Assassin(true);
 				playerSummon(playerActor);
 			}
-			for (var l:int = 0; l < 3; l++) {
-				var playerAgain:Actor = new Cleric(true);
+			for (var l:int = 0; l < 1; l++) {
+				var playerAgain:Actor = new Archer(true);
 				playerSummon(playerAgain);
 			}
 			
