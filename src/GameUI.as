@@ -23,6 +23,7 @@ package src {
 		//GUI parts
 		protected var musicArea:MusicArea;
 		protected var mainArea:MainArea;
+		protected var summoningMeter:SummoningMeter;
 		//protected var controlArea:ControlArea;
 		
 		//Other output parts
@@ -45,6 +46,10 @@ package src {
 		private var highNotesRemaining:Vector.<Note>;
 		private var midNotesRemaining:Vector.<Note>;
 		private var lowNotesRemaining:Vector.<Note>;
+		
+		private var highSummonAmount:Number = 7;
+		private var midSummonAmount:Number = 9;
+		private var lowSummonAmount:Number = 11;
 		
 		private var highActorType:Class;
 		private var midActorType:Class;
@@ -80,9 +85,14 @@ package src {
 			this.addChild(mainArea);
 			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
 			
-			highActorType = DefaultActor;
-			midActorType = DefaultActor;
-			lowActorType = DefaultActor;
+			summoningMeter = new SummoningMeter(this);
+			this.addChild(summoningMeter);
+			summoningMeter.x = MainArea.WIDTH;
+			summoningMeter.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT;
+			
+			highActorType = Assassin;
+			midActorType = Archer;
+			lowActorType = Cleric;
 			
 			opponent = new DefaultOpponent();
 		}
@@ -239,7 +249,13 @@ package src {
 				} else {
 					//If it isn't a hold, we can summon now, otherwise
 					//wait until the hold is done.
-					preparePlayerSummon();
+					if (currentTrack == Main.HIGH) {
+						summoningMeter.increase(highSummonAmount);
+					} else if (currentTrack == Main.MID) {
+						summoningMeter.increase(midSummonAmount);
+					} else {
+						summoningMeter.increase(lowSummonAmount);
+					}
 				}
 				
 			} else {
@@ -286,7 +302,7 @@ package src {
 		/**
 		 * Summon a new actor for the player.
 		 */
-		private function preparePlayerSummon():void {
+		public function preparePlayerSummon():void {
 			var actor:Actor;
 			
 			if (currentTrack == Main.HIGH)
@@ -320,15 +336,17 @@ package src {
 				}
 				//If it ended well, the sprite will stop holding on its own.
 				
-				var actor:DefaultScalableActor = new DefaultScalableActor(true);
+				var summonBaseAmount:Number;
+				if (currentTrack == Main.HIGH)
+					summonBaseAmount = highSummonAmount;
+				else if (currentTrack == Main.MID)
+					summonBaseAmount = midSummonAmount;
+				else
+					summonBaseAmount = lowSummonAmount;
 				
-				//			.6 for hitting the start
-				//					.6 for hitting the end
-				//									and .002 * duration of hold
-				actor.setScale(.6 + (goodEnd ? .6 : 0) +
-						.002 * ((Math.min(time, currentHold.endtime)) - currentHold.time));
-				
-				mainArea.playerSummon(actor);
+				summoningMeter.increase(.6 * summonBaseAmount +
+						(goodEnd ? .6 * summonBaseAmount : 0) +
+						(.002 * ((Math.min(time, currentHold.endtime)) - currentHold.time) * summonBaseAmount));
 				
 				expectingHold[noteLetter] = false;
 			}

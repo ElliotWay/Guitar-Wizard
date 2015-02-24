@@ -136,8 +136,9 @@ package src
 					if (status != Status.MOVING) {
 						this.go();
 						status = Status.MOVING;
-						_sprite.animate(Status.MOVING);
 					}
+					
+					_sprite.animate(Status.MOVING);
 				}
 			}  else {
 				if (status != Status.MOVING)

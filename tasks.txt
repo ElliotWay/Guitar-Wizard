@@ -1,7 +1,5 @@
 - fix miss/hit detection, possibly related to lag
 
-- add info panel
-
 - fix bug where it's possible to hit notes that are not the first available
 
 - create more actor assets
@@ -15,6 +13,16 @@
 - create more general non-hardcoded start for MainArea
 
 - change arrow sprite to pixelated rotation - this may be difficult to tune
+
+- add unit creation meter
+
+- refactor actor classes
+
+- stop archers from standing on right side trying to run
+
+- fix issue with main area initializing twice
+
+- smooth summoning meter animations
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -31,3 +39,5 @@
 - create initial actor types - finished
 
 - create arrow sprite instead of triangle
+
+- add info panel - will do this in parts instead of all at once

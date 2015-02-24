@@ -4,6 +4,7 @@ package src
 	import com.greensock.easing.Linear;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.EventPhase;
 	
 	/**
 	 * ...
@@ -112,7 +113,7 @@ package src
 			playerHP = 100;
 			opponentHP = 100;
 			
-			for (var j:int = 0; j < 3; j++) {
+			for (var j:int = 0; j < 0; j++) {
 				var opponentActor:Actor = new Cleric(false);
 				opponentSummon(opponentActor);
 			}
@@ -125,7 +126,7 @@ package src
 				var playerActor:Actor = new Assassin(true);
 				playerSummon(playerActor);
 			}
-			for (var l:int = 0; l < 1; l++) {
+			for (var l:int = 0; l < 0; l++) {
 				var playerAgain:Actor = new Archer(true);
 				playerSummon(playerAgain);
 			}
@@ -138,7 +139,7 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor):void {
-			var position : Number = Math.random() * 1200;
+			var position : Number = Math.random() * 700;
 			playerActors.push(actor);
 			arena.addChild(actor.sprite);
 			
@@ -149,7 +150,7 @@ package src
 		}
 		
 		public function opponentSummon(actor : Actor):void {
-			var position : Number = ARENA_WIDTH - Math.random() * 1200;
+			var position : Number = ARENA_WIDTH - Math.random() * 700;
 			opponentActors.push(actor);
 			arena.addChild(actor.sprite);
 			
