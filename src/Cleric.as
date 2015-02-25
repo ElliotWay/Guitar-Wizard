@@ -54,33 +54,8 @@ package src
 				var closest : Actor = this.getClosest(validOthers, MELEE_RANGE);
 				
 				if (closest != null) {
-					halt();
-			
-					status = Status.FIGHTING;
-					_sprite.animate(Status.FIGHTING);
-					
-					closest.hitpoints -= DAMAGE;
-					
-					//For use in enclosures.
-					var self:Cleric = this;
-					
-					fightingTimer = new Timer(AssassinSprite.TIME_BETWEEN_STABS, 0);
-					fightingTimer.addEventListener(TimerEvent.TIMER, function():void {
-						//Check if we're still in range, and the target is still valid.
-						if (Math.abs(self.getPosition().x - closest.getPosition().x) < MELEE_RANGE &&
-									closest.isValidTarget()) {
-							closest.hitpoints -= DAMAGE;
-						} else {
-							status = Status.STANDING;
-							
-							fightingTimer.stop();
-							
-							//The fighting animation ideally continues smoothly if there
-							//ia another target in range.
-						}
-					});
-					
-					fightingTimer.start();
+					this.meleeAttack(closest, MELEE_RANGE, DAMAGE, AssassinSprite.TIME_BETWEEN_STABS);
+
 				} else {
 					if (status != Status.MOVING) {
 						this.go();

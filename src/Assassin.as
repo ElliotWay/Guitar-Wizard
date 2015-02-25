@@ -26,8 +26,6 @@ package src
 		
 		private var jumping:TweenLite;
 		
-		private var fightingTimer:Timer;
-		
 		private var landedTimer:Timer;
 		private var jumpTarget:Number;
 		
@@ -114,31 +112,8 @@ package src
 					
 					jumping = new TweenLite(_sprite, AssassinSprite.TIME_TO_LAND / 1000,
 							{ x:landedX, ease:Linear.easeInOut } );
-				} else if (Math.abs(this.getPosition().x - closest.getPosition().x)	< MELEE_RANGE) {
-					halt();
-			
-					status = Status.FIGHTING;
-					_sprite.animate(Status.FIGHTING);
-					
-					closest.hitpoints -= damage;
-					
-					fightingTimer = new Timer(AssassinSprite.TIME_BETWEEN_STABS, 0);
-					fightingTimer.addEventListener(TimerEvent.TIMER, function():void {
-						//Check if we're still in range, and the target is still valid.
-						if (Math.abs(self.getPosition().x - closest.getPosition().x) < MELEE_RANGE &&
-									closest.isValidTarget()) {
-							closest.hitpoints -= damage;
-						} else {
-							status = Status.STANDING;
-							
-							fightingTimer.stop();
-							
-							//The fighting animation ideally continues smoothly if there
-							//ia another target in range.
-						}
-					});
-					
-					fightingTimer.start();
+				} else if (this.withinRange(closest, MELEE_RANGE)) {
+					this.meleeAttack(closest, MELEE_RANGE, damage, AssassinSprite.TIME_BETWEEN_STABS);
 				} else {
 					if (status != Status.MOVING) {
 						this.go();
@@ -182,9 +157,6 @@ package src
 			
 			if (jumping != null)
 				jumping.kill();
-				
-			if (fightingTimer != null)
-				fightingTimer.stop();
 		}
 	}
 

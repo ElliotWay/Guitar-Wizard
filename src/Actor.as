@@ -4,8 +4,10 @@ package src {
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TweenLite;
 	import flash.display.Sprite;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.utils.Timer;
 	
 	/**
 	 * ...
@@ -29,6 +31,8 @@ package src {
 		protected var speed : Number; // pxl/s
 		
 		protected var movement : TweenLite;
+		
+		private var fightingTimer:Timer;
 		
 		protected var fading:TweenLite;
 		
@@ -174,6 +178,51 @@ package src {
 			}
 		}
 		
+		/**
+		 * Checks if another actor is within a given range.
+		 * Only considers x coordinates; if an actor is flying, this may not be accurate.
+		 * @param	other the other actor to check
+		 * @param	range the range within which to check for the actor
+		 * @return  whether the other actor was within the range
+		 */
+		protected function withinRange(other:Actor, range:Number):Boolean {
+			return Math.abs(getPosition().x - other.getPosition().x) < range;
+		}
+		
+		/**
+		 * Stops moving and starts attacking the other actor.
+		 * Attacks immediately, then may repeatedly if the actor is within range and a valid target when the next blow occurs.
+		 * @param	other the actor to attack
+		 * @param	range the melee range for this attack
+		 * @param	damage the damage to the other's hitpoints each blow should do
+		 * @param	timeBetweenBlows time before the next range comparison and attack
+		 */
+		protected function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number):void {
+			halt();
+			
+			status = Status.FIGHTING;
+			_sprite.animate(Status.FIGHTING);
+			
+			other.hitpoints -= damage;
+			
+			fightingTimer = new Timer(timeBetweenBlows, 0);
+			fightingTimer.addEventListener(TimerEvent.TIMER, function():void {
+				//Check if we're still in range, and the target is still valid.
+				if (withinRange(other, range) && other.isValidTarget()) {
+					other.hitpoints -= damage;
+				} else {
+					status = Status.STANDING;
+					
+					fightingTimer.stop();
+					
+					//The fighting animation ideally continues smoothly if there
+					//is another target in range.
+				}
+			});
+					
+			fightingTimer.start();
+		}
+		
 		public function getHitBox():Rectangle {
 			return _sprite.hitBox;
 		}
@@ -260,6 +309,9 @@ package src {
 				movement.kill();
 			if (fading != null)
 				fading.kill();
+				
+			if (fightingTimer != null)
+				fightingTimer.stop();
 		}
 	}
 

@@ -61,7 +61,6 @@ package src
 				if (closest == null) {
 					this.go();
 				} else {
-					//var closeDistance:Number = Math.abs(this.getPosition().x - closest.getPosition().x);
 					var expectedDistance:Number = Math.abs(this.getPosition().x
 							- closest.predictPosition(ArcherSprite.TIME_TO_SHOOT).x);
 					

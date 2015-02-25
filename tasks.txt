@@ -20,6 +20,8 @@
 
 - smooth summoning meter animations
 
+- remove actors from acting list and minimap when dying
+
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
 - lay out the rest of the screen - mostly done
