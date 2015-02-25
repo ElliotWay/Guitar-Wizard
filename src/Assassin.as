@@ -5,17 +5,22 @@ package src
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TweenLite;
 	import flash.events.TimerEvent;
+	import flash.geom.Point;
 	import flash.utils.Timer;
 	/**
 	 * ...
 	 * @author ...
 	 */
-	public class Assassin extends DefaultActor 
+	public class Assassin extends Actor
 	{
 		//pixels
 		public static const MAX_JUMP_DISTANCE:int = 400;
 		
 		public static const MIN_JUMP_DISTANCE:int = 300;
+		
+		public static const APPROX_JUMPING_SPEED:int =
+				((MAX_JUMP_DISTANCE + MIN_JUMP_DISTANCE) / 2) /
+				AssassinSprite.TIME_TO_LAND;
 		
 		public static const MELEE_RANGE:int = 30;
 		
@@ -23,24 +28,24 @@ package src
 		
 		private var fightingTimer:Timer;
 		
+		private var landedTimer:Timer;
+		private var jumpTarget:Number;
+		
+		private var damage:Number;
+		
 		public function Assassin(isPlayerPiece:Boolean) 
 		{
-			super(isPlayerPiece);
+			super(isPlayerPiece,
+					new AssassinSprite(isPlayerPiece),
+					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
 			
 			this.speed = 300;
 			this.damage = 3; //5
 		}
 		
-		override public function createSprites(isPlayerPiece:Boolean):void {
-			this._sprite = new AssassinSprite(isPlayerPiece ? true : false);
-			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
-		}
-		
 		override public function reactToTargets(others:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (status == Status.DYING) {
-				if (dying.progress() == 1)
-					_isDead = true;
 				return;
 			}
 			
@@ -60,8 +65,6 @@ package src
 			if (validOthers.length == 0) {
 				if (status != Status.MOVING) {
 					this.go();
-					status = Status.MOVING;
-					_sprite.animate(Status.MOVING);
 				}
 				return;
 			}
@@ -90,6 +93,8 @@ package src
 					var landedX:Number = targetPosition +
 							(isPlayerPiece ? -30 : 30) -
 							AssassinSprite.CENTER.x;
+							
+					jumpTarget = landedX;
 						
 					status = Status.ASSASSINATING;
 						
@@ -97,11 +102,13 @@ package src
 						status = Status.STANDING;
 					} );
 					
-					var landedTimer:Timer = new Timer(AssassinSprite.TIME_TO_LAND, 1);
+					landedTimer = new Timer(AssassinSprite.TIME_TO_LAND, 1);
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						if (Math.abs(self.getPosition().x - closest.getPosition().x)
 								< MELEE_RANGE)
 							closest.hitpoints -= damage;
+							
+						landedTimer = null;
 					});
 					landedTimer.start();
 					
@@ -135,38 +142,37 @@ package src
 				} else {
 					if (status != Status.MOVING) {
 						this.go();
-						status = Status.MOVING;
 					}
-					
-					_sprite.animate(Status.MOVING);
 				}
 			}  else {
 				if (status != Status.MOVING)
 					this.go();
-					
-				status = Status.MOVING;
-				_sprite.animate(Status.MOVING);
 			}
 			
 			
 			
 			}//End of check for ongoing status.
 			
-			//Check if we're dying. Actors can interact while dying, otherwise player actors
-			//would get an advantage.
-			if (this._hitpoints <= 0) {
-				status = Status.DYING;
-				_sprite.animate(Status.DYING, function():void { _sprite.freeze(); } );
-				
-				if (jumping != null)
-					jumping.kill();
-				if (fightingTimer != null)
-					fightingTimer.stop();
-				
-				this.halt();
-				
-				TweenPlugin.activate([TintPlugin]);
-				this.dying = new TweenLite(sprite, 10, { tint : 0x000000 } );
+			this.checkIfDead();
+		}
+		
+		override public function isValidTarget():Boolean {
+			return status != Status.DYING;
+		}
+		
+		override public function predictPosition(time:Number):Point {
+			if (status == Status.ASSASSINATING) {
+				if ((1 - jumping.progress()) * AssassinSprite.TIME_TO_LAND < time) {
+					return new Point(jumpTarget, _sprite.y);
+				} else {
+					if (isPlayerPiece)
+						return new Point(_sprite.x + time * APPROX_JUMPING_SPEED, _sprite.y);
+					else {
+						return new Point(_sprite.x - time * APPROX_JUMPING_SPEED, _sprite.y);
+					}
+				}
+			} else {
+				return super.predictPosition(time);
 			}
 		}
 		

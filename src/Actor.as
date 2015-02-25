@@ -1,5 +1,7 @@
 package src {
 	import com.greensock.easing.Linear;
+	import com.greensock.plugins.TintPlugin;
+	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TweenLite;
 	import flash.display.Sprite;
 	import flash.geom.Point;
@@ -9,7 +11,7 @@ package src {
 	 * ...
 	 * @author Elliot Way
 	 */
-	public class Actor implements AbstractActor
+	public class Actor
 	{
 		
 		public static const Y_POSITION:int = 300;
@@ -19,7 +21,7 @@ package src {
 		protected var _sprite : ActorSprite;
 		protected var _miniSprite : MiniSprite;
 		
-		protected var position : Number
+		protected var status:int;
 		protected var _hitpoints : int;
 		
 		protected var isPlayerPiece : Boolean;
@@ -28,23 +30,23 @@ package src {
 		
 		protected var movement : TweenLite;
 		
-		public function Actor(playerPiece:Boolean) 
+		protected var fading:TweenLite;
+		
+		protected var _isDead:Boolean;
+		
+		public function Actor(playerPiece:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
 		{
-			createSprites(playerPiece);
+			_sprite = sprite;
+			_miniSprite = miniSprite;
 			
 			_hitpoints = 10;
 			isPlayerPiece = playerPiece;
 			speed = 50;
 			
-		}
-		
-		/**
-		 * Creates the sprite and the minisprite.
-		 * Override this function.
-		 * @param	isPlayerPiece
-		 */
-		public function createSprites(isPlayerPiece:Boolean):void {
-			throw new Error("Unimplemented abstract method");
+			status = Status.STANDING;
+			sprite.animate(Status.STANDING);
+			
+			_isDead = false;
 		}
 		
 		public function get sprite() : Sprite {
@@ -68,7 +70,7 @@ package src {
 		 * Override this method if necessary.
 		 */
 		public function get isDead() : Boolean {
-			return (_hitpoints <= 0);
+			return _isDead;
 		}
 		
 		/**
@@ -141,18 +143,34 @@ package src {
 		
 		/**
 		 * Estimate the position of this actor an amount of time into the future.
+		 * Predicts based on speed if status is MOVING or RETREATING, or assumes no motion otherwise.
+		 * Override if a new status involves motion.
 		 * @param	time the number of milliseconds from now to estimate the postion
 		 */
 		public function predictPosition(time:Number):Point {
 			var position:Point = this.getPosition();
-			if (isPlayerPiece) {
-				return new Point(
-						Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
-						position.y);
+			if (status == Status.MOVING) {
+				if (isPlayerPiece) {
+					return new Point(
+							Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
+							position.y);
+				} else {
+					return new Point(
+							Math.max(position.x - (time * speed / 1000), 0),
+							position.y);
+				}
+			} else if (status == Status.RETREATING) {
+				if (isPlayerPiece) {
+					return new Point(
+							Math.max(position.x - (time * speed / 1000), 0),
+							position.y);
+				} else {
+					return new Point(
+							Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
+							position.y);
+				}
 			} else {
-				return new Point(
-						Math.max(position.x - (time * speed / 1000), 0),
-						position.y);
+				return position;
 			}
 		}
 		
@@ -168,9 +186,13 @@ package src {
 		
 		/**
 		 * Starts the sprite moving, direction depending on ownership.
+		 * Updates status and animation to MOVING.
 		 */
 		public function go() : void {
 			halt();
+			
+			status = Status.MOVING;
+			_sprite.animate(Status.MOVING);
 			
 			var distance:Number;
 			if (isPlayerPiece) {
@@ -184,9 +206,13 @@ package src {
 		
 		/**
 		 * Starts the sprite moving in the opposite direction.
+		 * Updates status and animation to RETREATING.
 		 */
 		public function retreat():void {
 			halt();
+			
+			status = Status.RETREATING;
+			_sprite.animate(Status.RETREATING);
 			
 			var distance:Number;
 			if (!isPlayerPiece) {
@@ -195,6 +221,24 @@ package src {
 			} else {
 				distance = _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
+			}
+		}
+		
+		/**
+		 * Checks if hitpoints is below 0.
+		 * If we're dead, sets status and animation to DYING.
+		 */ 
+		public function checkIfDead():void {
+			if (_hitpoints <= 0) {
+				halt();
+				clean();
+				
+				status = Status.DYING;
+				_sprite.animate(Status.DYING, function():void { _sprite.freeze(); } );
+				
+				TweenPlugin.activate([TintPlugin]);
+				this.fading = new TweenLite(sprite, 10, { tint : 0x000000,
+						onComplete:function():void { _isDead = true; } } );
 			}
 		}
 		
@@ -212,7 +256,10 @@ package src {
 		 * (it probably does).
 		 */
 		public function clean():void {
-			halt();
+			if (movement != null)
+				movement.kill();
+			if (fading != null)
+				fading.kill();
 		}
 	}
 

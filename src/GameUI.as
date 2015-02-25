@@ -47,9 +47,9 @@ package src {
 		private var midNotesRemaining:Vector.<Note>;
 		private var lowNotesRemaining:Vector.<Note>;
 		
-		private var highSummonAmount:Number = 7;
+		private var highSummonAmount:Number = 8;
 		private var midSummonAmount:Number = 9;
-		private var lowSummonAmount:Number = 11;
+		private var lowSummonAmount:Number = 9;
 		
 		private var highActorType:Class;
 		private var midActorType:Class;
@@ -374,10 +374,6 @@ package src {
 		 * @param	track the track to prepare to switch to, in Main constants
 		 */
 		public function switchTrack(track:int):void {
-			trace(track + "? " + nextTrack);
-			trace(switchTimer + "\n\t" + switchTime);
-			trace(advanceSwitchTimer + "\n\t" + advanceSwitchTime);
-			
 			if (nextTrack == track)
 				return;
 				

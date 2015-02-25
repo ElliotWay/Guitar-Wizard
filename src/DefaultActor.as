@@ -22,7 +22,9 @@ package src
 		
 		public function DefaultActor(isPlayerPiece:Boolean) 
 		{
-			super(isPlayerPiece);
+			super(isPlayerPiece,
+					new DefaultSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000)),
+					new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000)));
 			
 			status = Status.MOVING;
 			dying = null;
@@ -30,11 +32,6 @@ package src
 			
 			range = 10;
 			damage = 1;
-		}
-		
-		override public function createSprites(isPlayerPiece:Boolean):void {
-			this._sprite = new DefaultSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
-			this._miniSprite = new SmallSquareSprite((isPlayerPiece) ? (0x0000FF) : (0xFF0000));
 		}
 		
 		override public function reactToTargets(others:Vector.<Actor>):void {
