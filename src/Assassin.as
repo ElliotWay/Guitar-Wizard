@@ -131,10 +131,6 @@ package src
 			this.checkIfDead();
 		}
 		
-		override public function isValidTarget():Boolean {
-			return status != Status.DYING;
-		}
-		
 		override public function predictPosition(time:Number):Point {
 			if (status == Status.ASSASSINATING) {
 				if ((1 - jumping.progress()) * AssassinSprite.TIME_TO_LAND < time) {

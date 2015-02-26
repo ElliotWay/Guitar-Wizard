@@ -30,6 +30,7 @@ public class TestRunner extends Sprite
 	    testCore  = new FlexUnitCore();
 	    testCore.addListener(new TraceListener());
 
+		testCore.run(ActorTest);
 		testCore.run(GameUI_FindHitTest);
 		testCore.run(GameUI_MissUntilTest);
 		testCore.run(GameUI_SwitchTrackTest);
@@ -76,7 +77,7 @@ class AfterTestClose implements IRunListener {
 
 	public function testRunFinished(result:Result):void {
 		ongoingRuns++;
-		if (ongoingRuns == 10)
+		if (ongoingRuns == 11)
 			System.exit(0);
 	}
 

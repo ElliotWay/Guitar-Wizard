@@ -66,14 +66,6 @@ package src
 			
 			this.checkIfDead();
 		}
-		
-		override public function get isDead():Boolean {
-			return _isDead;
-		}
-		
-		override public function isValidTarget():Boolean {
-			return status != Status.DYING;
-		}
 	}
 
 }

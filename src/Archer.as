@@ -111,13 +111,5 @@ package src
 				return (this.getPosition().x < (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE));
 			}
 		}
-	
-		override public function get isDead():Boolean {
-			return _isDead;
-		}
-		
-		override public function isValidTarget():Boolean {
-			return status != Status.DYING;
-		}
 	}
 }

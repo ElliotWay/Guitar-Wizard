@@ -48,7 +48,6 @@ package src {
 			speed = 50;
 			
 			status = Status.STANDING;
-			sprite.animate(Status.STANDING);
 			
 			_isDead = false;
 		}
@@ -78,14 +77,14 @@ package src {
 		}
 		
 		/**
-		 * And this one.
+		 * Returns true if status is not DYING.
 		 */
 		public function isValidTarget() : Boolean {
-			return true;
+			return status != Status.DYING;
 		}
 		
 		/**
-		 * Find the closest actor in a list of actor to this actor,
+		 * Find the closest valid target in a list of actors to this actor,
 		 * within the maximum distance. Returns null if there are no actors in range.
 		 * @param	others  the list of other actors to search
 		 * @param	maxDistance  the maximum distance away the other actor can be
@@ -94,8 +93,8 @@ package src {
 			if (others.length == 0)
 				return null;
 			
-			var closest : Actor = others[0];
-			var closeDistance : Number = Math.abs(closest.getPosition().x - this.getPosition().x);
+			var closest:Actor = null;
+			var closeDistance : Number = Number.MAX_VALUE;
 			var distance : Number;
 			
 			for each(var other:Actor in others) {
@@ -134,13 +133,14 @@ package src {
 		}
 		
 		/**
-		 * TODO change this method
-		 * @param	position
+		 * Change the position of this actor.
+		 * TODO change this function
+		 * @param	position where to move the actor's sprite
 		 */
-		public function setPosition(position:Number):void {
-			_sprite.y = (Y_POSITION - _sprite.height);
+		public function setPosition(position:Point):void {
+			_sprite.y = position.y;
 			
-			_sprite.x = position;
+			_sprite.x = position.x;
 			
 			updateMiniMap();
 		}
@@ -185,7 +185,7 @@ package src {
 		 * @param	range the range within which to check for the actor
 		 * @return  whether the other actor was within the range
 		 */
-		protected function withinRange(other:Actor, range:Number):Boolean {
+		public function withinRange(other:Actor, range:Number):Boolean {
 			return Math.abs(getPosition().x - other.getPosition().x) < range;
 		}
 		
@@ -197,7 +197,7 @@ package src {
 		 * @param	damage the damage to the other's hitpoints each blow should do
 		 * @param	timeBetweenBlows time before the next range comparison and attack
 		 */
-		protected function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number):void {
+		public function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number):void {
 			halt();
 			
 			status = Status.FIGHTING;
@@ -214,11 +214,12 @@ package src {
 					status = Status.STANDING;
 					
 					fightingTimer.stop();
+					fightingTimer = null;
 					
 					//The fighting animation ideally continues smoothly if there
 					//is another target in range.
 				}
-			});
+			}, false, 0, true);
 					
 			fightingTimer.start();
 		}
@@ -292,7 +293,7 @@ package src {
 		}
 		
 		/**
-		 * Stop moving. Also clears the animation for GC.
+		 * Stop moving.
 		 */
 		public function halt() : void {
 			if (movement != null)
@@ -301,8 +302,7 @@ package src {
 		
 		/**
 		 * Stops all animations, so they're not leaking memory somewhere.
-		 * Override this method if an actor has its own animations
-		 * (it probably does).
+		 * Override this method if an actor has its own animations.
 		 */
 		public function clean():void {
 			if (movement != null)

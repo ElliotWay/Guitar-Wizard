@@ -5,6 +5,7 @@ package src
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.EventPhase;
+	import flash.geom.Point;
 	
 	/**
 	 * ...
@@ -145,7 +146,7 @@ package src
 			
 			minimap.addChild(actor.miniSprite);
 			
-			actor.setPosition(position); //Also updates the minimap.
+			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			actor.go();
 		}
 		
@@ -156,7 +157,7 @@ package src
 			
 			minimap.addChild(actor.miniSprite);
 			
-			actor.setPosition(position);
+			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			actor.go();
 		}
 		
