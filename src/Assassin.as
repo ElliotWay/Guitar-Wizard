@@ -38,7 +38,7 @@ package src
 					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
 			
 			this.speed = 300;
-			this.damage = 3; //5
+			this.damage = 3;
 		}
 		
 		override public function reactToTargets(others:Vector.<Actor>):void {

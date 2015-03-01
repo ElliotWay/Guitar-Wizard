@@ -21,8 +21,21 @@ package src
 		private static var movementAnimation:FrameAnimation;
 		private static var retreatingAnimation:FrameAnimation;
 		
+		private static const FIGHTING_POSITION:int = FRAME_HEIGHT;
+		private static const FIGHTING_FRAMES:int = 9;
+		private static var fightingAnimation:FrameAnimation;
+		private static var fightingAnimationReversed:FrameAnimation;
+		
+		private static const DYING_POSITION:int = FRAME_HEIGHT * 2;
+		private static const DYING_FRAMES:int = 8;
+		private static const DYING_FRAME_WIDTH:int = 120;
+		private static var dyingAnimation:FrameAnimation;
+		private static var dyingAnimationReversed:FrameAnimation;
+		
 		private static var standingAnimation:FrameAnimation;
 		private static var standingAnimationReversed:FrameAnimation;
+		
+		public static const TIME_BETWEEN_BLOWS:Number = 1000 * (1.0 / 24.0) * 3 * 5;
 		
 		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
 		public static const HIT_BOX:Rectangle = new Rectangle(20, 20, 23, 60);
@@ -37,6 +50,14 @@ package src
 					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5);
 					
 			retreatingAnimation = FrameAnimation.flip(movementAnimation);
+			
+			fightingAnimation = FrameAnimation.create(clericData,
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 5);
+			fightingAnimationReversed = FrameAnimation.flip(fightingAnimation);
+			
+			dyingAnimation = FrameAnimation.create(clericData,
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5);
+			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
 			
 			standingAnimation = FrameAnimation.create(clericData,
 					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
@@ -67,7 +88,29 @@ package src
 			this.addChild(retreat);
 			retreat.visible = false;
 			
+			var fight:FrameAnimation;
+			if (facesRight)
+				fight = fightingAnimation.copy();
+			else
+				fight = fightingAnimationReversed.copy();
+				
+			super.animations[Status.FIGHTING] = fight;
+			this.addChild(fight);
+			fight.visible = false;
 			
+			var die:FrameAnimation;
+			if (facesRight)
+				die = dyingAnimation.copy();
+			else {
+				die = dyingAnimationReversed.copy();
+				
+				//Large animations need to be shifted.
+				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH);
+			}
+				
+			super.animations[Status.DYING] = die;
+			this.addChild(die);
+			die.visible = false;
 			
 			var stand:FrameAnimation;
 			if (facesRight) 
