@@ -24,6 +24,7 @@ package src {
 		protected var musicArea:MusicArea;
 		protected var mainArea:MainArea;
 		protected var summoningMeter:SummoningMeter;
+		protected var infoArea:InfoArea;
 		//protected var controlArea:ControlArea;
 		
 		//Other output parts
@@ -90,6 +91,11 @@ package src {
 			summoningMeter.x = MainArea.WIDTH;
 			summoningMeter.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT;
 			
+			infoArea = new InfoArea();
+			this.addChild(infoArea);
+			infoArea.x = MainArea.WIDTH;
+			infoArea.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT + SummoningMeter.HEIGHT;
+			
 			highActorType = Assassin;
 			midActorType = Archer;
 			lowActorType = Cleric;
@@ -134,6 +140,8 @@ package src {
 			musicPlayer.go();
 			
 			this.addEventListener(Event.ENTER_FRAME, missChecker);
+			
+			infoArea.displayText("Text Test");
 		}
 		
 		public function stop():void {

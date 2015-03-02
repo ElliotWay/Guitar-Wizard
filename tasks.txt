@@ -10,11 +10,7 @@
 
 - change arrow sprite to pixelated rotation - this may be difficult to tune
 
-- refactor actor classes
-
-- stop archers from standing on right side trying to run
-
-- fix issue with main area initializing twice
+- stop archers from standing on left side trying to run
 
 - smooth summoning meter animations
 
@@ -29,23 +25,15 @@
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
 - lay out the rest of the screen - mostly done
-
 - add synchronize function - wasn't necessary
-
 - projectile animation has issues on the descent? - fixed: bug in checking for down left shots
-
 - finish initial music assets - they still need editing
-
 - smooth track transitions with switch points - started
-
 - create initial actor types - finished
-
 - create arrow sprite instead of triangle
-
 - add info panel - will do this in parts instead of all at once
-
 - fix bug where it's possible to hit notes that are not the first available - couldn't reproduce
-
 - add unit creation meter
-
+- refactor actor classes
 - create more actor assets - finished, mostly anyway
+- fix issue with main area initializing twice

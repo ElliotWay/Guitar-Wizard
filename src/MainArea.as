@@ -49,6 +49,8 @@ package src
 		}
 		
 		private function init(e:Event):void {
+			//askdjfhalskfjalskdfjalksdjgh
+			//this.removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			this.width = WIDTH;
 			this.height = HEIGHT;
