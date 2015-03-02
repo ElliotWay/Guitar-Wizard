@@ -1,5 +1,6 @@
 package src
 {
+	import flash.display.NativeMenu;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -16,8 +17,6 @@ package src
 	 */
 	public class Main extends Sprite 
 	{
-		public static const DO_TEST:Boolean = false;
-		
 		public static const WIDTH:int = 800;
 		public static const HEIGHT:int = 600;
 		
@@ -26,6 +25,8 @@ package src
 		public static const HIGH:int = 0;
 		public static const MID:int = 1;
 		public static const LOW:int = 2;
+		
+		private static var menu:Menu;
 		
 		private static var gameUI:GameUI;
 		
@@ -38,11 +39,6 @@ package src
 		
 		public function Main():void 
 		{
-			//If testing mode is on, run the tests, then stop.
-			if (DO_TEST) {
-				TestRunner.runTests();
-				return;
-			}
 			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
@@ -61,12 +57,13 @@ package src
 			
 			songLoader = new SongLoader();
 			
+			menu = new Menu();
+			this.addChild(menu);
+			menu.visible = true;
+			
 			gameUI = new GameUI();
 			this.addChild(gameUI);
-			gameUI.visible = true;
-			
-			song = new Song();
-			song.loadFile("../assets/FurElise.gws");
+			gameUI.visible = false;
 		}
 		
 		public static function loadStatics():void {
@@ -81,8 +78,22 @@ package src
 			songLoader.load();
 		}
 		
+		public static function switchToGame(songFile:String):void {
+			song = new Song();
+			song.loadFile(songFile);
+			
+			menu.visible = false;
+			gameUI.visible = true;
+		}
+		
 		public static function go():void {
 			gameUI.go();
+		}
+		
+		public static function switchToMenu():void {
+			gameUI.stop();
+			gameUI.visible = false;
+			menu.visible = true;
 		}
 		
 		/**

@@ -45,15 +45,15 @@ package  src
 		public function unload():void {
 			var note:Note;
 			
-			for (note in _lowPart) {
+			for each (note in _lowPart) {
 				note.dissociate();
 			}
 			_lowPart = null;
-			for (note in _midPart) {
+			for each (note in _midPart) {
 				note.dissociate();
 			}
 			_midPart = null;
-			for (note in _highPart) {
+			for each (note in _highPart) {
 				note.dissociate();
 			}
 			_highPart = null;

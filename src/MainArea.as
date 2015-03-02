@@ -141,21 +141,21 @@ package src
 			
 			var actor:Actor;
 			
-			for (actor in playerActors) {
+			for each (actor in playerActors) {
 				actor.clean();
-				this.removeChild(actor);
+				this.removeChild(actor.sprite);
 			}
 			playerActors = new Vector.<Actor>();
 			
-			for (actor in opponentActors) {
+			for each (actor in opponentActors) {
 				actor.clean();
-				this.removeChild(actor);
+				this.removeChild(actor.sprite);
 			}
 			opponentActors = new Vector.<Actor>();
 			
 			var projectile:Projectile;
 			
-			for (projectile in projectiles) {
+			for each (projectile in projectiles) {
 				projectile.forceFinish();
 			}
 			projectiles = new Vector.<Projectile>();

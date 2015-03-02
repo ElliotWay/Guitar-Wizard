@@ -136,7 +136,7 @@ package src {
 			this.addEventListener(Event.ENTER_FRAME, missChecker);
 		}
 		
-		public function stop() {
+		public function stop():void {
 			this.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
 			this.stage.removeEventListener(KeyboardEvent.KEY_UP, keyReleaseHandler);
 			
