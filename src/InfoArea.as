@@ -16,7 +16,7 @@ package src
 		/**
 		 * Time in milliseconds before the info area clears itself.
 		 */
-		public static const CLEAR_TIME:Number = 3000;
+		public static const CLEAR_TIME:Number = 2000;
 		
 		public static const HEIGHT:int = 200;
 		

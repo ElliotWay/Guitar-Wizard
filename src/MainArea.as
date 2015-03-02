@@ -145,13 +145,13 @@ package src
 			
 			for each (actor in playerActors) {
 				actor.clean();
-				this.removeChild(actor.sprite);
+				arena.removeChild(actor.sprite);
 			}
 			playerActors = new Vector.<Actor>();
 			
 			for each (actor in opponentActors) {
 				actor.clean();
-				this.removeChild(actor.sprite);
+				arena.removeChild(actor.sprite);
 			}
 			opponentActors = new Vector.<Actor>();
 			

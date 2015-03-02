@@ -59,6 +59,9 @@ package src {
 		private var opponent:OpponentStrategy;
 		private var opponentTimer:Timer;
 		
+		private var recentQuitAttempt:Boolean;
+		private var quitTimer:Timer;
+		
 		public function GameUI() 
 		{
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
@@ -101,6 +104,8 @@ package src {
 			lowActorType = Cleric;
 			
 			opponent = new DefaultOpponent();
+			
+			recentQuitAttempt = false;
 		}
 		
 		/**
@@ -155,6 +160,9 @@ package src {
 			musicPlayer.stop();
 			
 			song.unload();
+			
+			if (quitTimer != null)
+				quitTimer.stop();
 			
 			this.removeEventListener(Event.ENTER_FRAME, missChecker);
 		}
@@ -460,6 +468,24 @@ package src {
 			advanceSwitchTime = -1;
 		}
 		
+		public function quitHandler():void {
+			if (recentQuitAttempt) {
+				
+				recentQuitAttempt = false;
+				Main.switchToMenu();
+			} else {
+				
+				infoArea.displayText("Quit to menu? Press Q again to confirm.");
+				recentQuitAttempt = true;
+				
+				quitTimer = new Timer(InfoArea.CLEAR_TIME, 1);
+				quitTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					recentQuitAttempt = false;
+				});
+				quitTimer.start();
+			}
+		}
+		
 		public function keyboardHandler(e:KeyboardEvent):void {
 			switch (e.keyCode) {
 				//First the note keys.
@@ -530,6 +556,11 @@ package src {
 					break;
 				case Keyboard.RIGHT:
 					stopScrolling();
+					break;
+					
+				//Q to quit to menu.
+				case Keyboard.Q:
+					quitHandler()
 					break;
 			}
 		}
