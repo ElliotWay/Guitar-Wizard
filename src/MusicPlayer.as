@@ -160,6 +160,22 @@ package  src
 				return -1;
 		}
 		
+		/**
+		 * Stop playback and wipe the loaded music.
+		 */
+		public function eject():void {
+			stop();
+			
+			lowChannel = null;
+			lowMusic = null;
+			midChannel = null;
+			midMusic = null;
+			highChannel = null;
+			highMusic = null;
+			baseChannel = null;
+			baseMusic = null;
+		}
+		
 	}
 
 }

@@ -1,7 +1,5 @@
 - fix miss/hit detection, possibly related to lag
 
-- create more actor assets
-
 - create a way to color actor sprites to identify owner
 
 - fix bug where player archers shoot too high?
@@ -21,6 +19,12 @@
 - smooth summoning meter animations
 
 - remove actors from acting list and minimap when dying
+
+- restrict actors in same position?
+
+- make music switches happen just before the switch point so it has time to switch
+
+- remove enter frame listeners
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -43,3 +47,5 @@
 - fix bug where it's possible to hit notes that are not the first available - couldn't reproduce
 
 - add unit creation meter
+
+- create more actor assets - finished, mostly anyway

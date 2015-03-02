@@ -42,6 +42,29 @@ package  src
 			loader.addEventListener(IOErrorEvent.IO_ERROR, fileError);
 		}
 		
+		public function unload():void {
+			var note:Note;
+			
+			for (note in _lowPart) {
+				note.dissociate();
+			}
+			_lowPart = null;
+			for (note in _midPart) {
+				note.dissociate();
+			}
+			_midPart = null;
+			for (note in _highPart) {
+				note.dissociate();
+			}
+			_highPart = null;
+			
+			_blocks = null;
+			
+			_lowMusic = null;
+			_midMusic = null;
+			_highMusic = null;
+		}
+		
 		private function fileError(e:Event):void {
 			Main.showError("Error loading file");
 		}

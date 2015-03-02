@@ -31,6 +31,14 @@ package src
 			associatedSprite = sprite;
 		}
 		
+		/**
+		 * Remove this note's association with a sprite, and its association with this note.
+		 */
+		public function dissociate():void {
+			associatedSprite.dissociate();
+			associatedSprite = null;
+		}
+		
 		public function get letter():int 
 		{
 			return _letter;

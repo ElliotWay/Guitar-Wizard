@@ -135,6 +135,32 @@ package src
 			this.addEventListener(Event.ENTER_FRAME, step);
 		}
 		
+		
+		public function stop():void {
+			this.removeEventListener(Event.ENTER_FRAME, step);
+			
+			var actor:Actor;
+			
+			for (actor in playerActors) {
+				actor.clean();
+				this.removeChild(actor);
+			}
+			playerActors = new Vector.<Actor>();
+			
+			for (actor in opponentActors) {
+				actor.clean();
+				this.removeChild(actor);
+			}
+			opponentActors = new Vector.<Actor>();
+			
+			var projectile:Projectile;
+			
+			for (projectile in projectiles) {
+				projectile.forceFinish();
+			}
+			projectiles = new Vector.<Projectile>();
+		}
+		
 		public function setPlayerHP(hp : int):void {
 			playerHP = hp;
 		}
@@ -280,6 +306,7 @@ package src
 				scroller = null;
 			}
 		}
+		
 	}
 
 }

@@ -177,6 +177,13 @@ package  src
 			}
 		}
 		
+		/**
+		 * Removes the association with a note for easier garbage collecting.
+		 */
+		public function dissociate():void {
+			associatedNote = null;
+		}
+		
 	}
 
 }

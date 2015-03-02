@@ -2,6 +2,7 @@ package  src
 {
 	import com.greensock.TweenLite;
 	import com.greensock.easing.Linear;
+	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.geom.Point;
@@ -39,6 +40,8 @@ package  src
 		private var blocks:Vector.<Number>;
 		
 		private var notesLayer:Sprite;
+		
+		private var scroll:TweenLite;
 		
 		public function MusicArea() 
 		{
@@ -230,7 +233,23 @@ package  src
 		 * Starts scrolling the notes leftwards.
 		 */
 		public function go():void {
-			TweenLite.to(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
+			scroll = new TweenLite(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
+		}
+		
+		/**
+		 * Stops motion of the notes, and unloads the notes.
+		 */
+		public function stop():void {
+			scroll.kill();
+			
+			var block:Sprite;
+			var thing:DisplayObject;
+			
+			lowNotes = null;
+			midNotes = null;
+			highNotes = null;
+			
+			notesLayer = null;
 		}
 		
 		/**

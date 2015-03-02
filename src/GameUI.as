@@ -136,6 +136,21 @@ package src {
 			this.addEventListener(Event.ENTER_FRAME, missChecker);
 		}
 		
+		public function stop() {
+			this.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
+			this.stage.removeEventListener(KeyboardEvent.KEY_UP, keyReleaseHandler);
+			
+			mainArea.stop();
+			opponentTimer.stop();
+			
+			musicArea.stop();
+			musicPlayer.stop();
+			
+			song.unload();
+			
+			this.removeEventListener(Event.ENTER_FRAME, missChecker);
+		}
+		
 		private var frames:int = 0;
 		
 		/**
