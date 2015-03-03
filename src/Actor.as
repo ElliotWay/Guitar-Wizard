@@ -64,7 +64,7 @@ package src {
 		 * Override this method.
 		 * @param	others target actor
 		 */
-		public function reactToTargets(others : Vector.<Actor>):void {
+		public function act(others : Vector.<Actor>):void {
 			//TODO create new error class
 			throw new Error("Unimplemented abstract method.");
 		}

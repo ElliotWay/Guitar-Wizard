@@ -129,7 +129,7 @@ package src {
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
 			this.stage.addEventListener(KeyboardEvent.KEY_UP, keyReleaseHandler);
 
-			mainArea.hardCode();
+			mainArea.go();
 			
 			//Let the opponent start summoning.
 			opponentTimer = new Timer(opponent.timeToAct, 0); //0 repeates indefinitely.

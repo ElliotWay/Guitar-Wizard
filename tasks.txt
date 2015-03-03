@@ -22,6 +22,12 @@
 
 - remove enter frame listeners
 
+- change scale so the right amount of things fit on the screen
+
+- create wizards
+
+- rewrite test runner class
+
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
 - lay out the rest of the screen - mostly done
@@ -33,7 +39,7 @@
 - create arrow sprite instead of triangle
 - add info panel - will do this in parts instead of all at once
 - fix bug where it's possible to hit notes that are not the first available - couldn't reproduce
-- add unit creation meter
-- refactor actor classes
+- add unit creation meter - done
+- refactor actor classes - almost all behavior now part of Actor instead of its subclasses
 - create more actor assets - finished, mostly anyway
-- fix issue with main area initializing twice
+- fix issue with main area initializing twice - width and height parameters should be avoided

@@ -49,46 +49,15 @@ package src
 		}
 		
 		private function init(e:Event):void {
-			//askdjfhalskfjalskdfjalksdjgh
-			//this.removeEventListener(Event.ADDED_TO_STAGE, init);
-			
-			this.width = WIDTH;
-			this.height = HEIGHT;
+			this.removeEventListener(Event.ADDED_TO_STAGE, init);
+			this.graphics.beginFill(0xD0D0FF);
+			this.graphics.drawRect(0, 0, WIDTH, HEIGHT);
+			this.graphics.endFill();
 			
 			playerActors = new Vector.<Actor>();
 			opponentActors = new Vector.<Actor>();
 			
 			projectiles = new Vector.<Projectile>();
-			
-			arena = null;
-			scroller = null;
-			minimap = null;
-			
-			this.graphics.beginFill(0xD0D0FF);
-			this.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-			this.graphics.endFill();
-			
-			//TODO remove these later.
-			
-		}
-		
-		/**
-		 * Adds the projectile to the list of projectiles, adds it to the arena,
-		 * and starts the projectile moving.
-		 * @param	projectile
-		 */
-		public function addProjectile(projectile:Projectile):void {
-			
-			projectiles.push(projectile);
-						
-			projectile.addEventListener(Event.ADDED_TO_STAGE, function(e:Event):void {
-				projectile.go();
-			});
-			
-			arena.addChild(projectile);
-		}
-		
-		public function hardCode():void {
 			
 			//prep arena
 			arena = new Sprite();
@@ -112,9 +81,27 @@ package src
 			minimap.x = WIDTH;
 			minimap.y = 0;
 			
-			//create stuff
-			playerHP = 100;
-			opponentHP = 100;
+			scroller = null;
+			
+		}
+		
+		/**
+		 * Adds the projectile to the list of projectiles, adds it to the arena,
+		 * and starts the projectile moving.
+		 * @param	projectile
+		 */
+		public function addProjectile(projectile:Projectile):void {
+			
+			projectiles.push(projectile);
+						
+			projectile.addEventListener(Event.ADDED_TO_STAGE, function(e:Event):void {
+				projectile.go();
+			});
+			
+			arena.addChild(projectile);
+		}
+		
+		public function hardCode():void {
 			
 			for (var j:int = 0; j < 0; j++) {
 				var opponentActor:Actor = new Assassin(false);
@@ -134,12 +121,20 @@ package src
 				playerSummon(playerAgain);
 			}
 			
-			this.addEventListener(Event.ENTER_FRAME, step);
+		}
+		
+		public function go():void {
+			playerHP = 100;
+			opponentHP = 100;
+			
+			hardCode();
+			
+			Main.runEveryFrame(step);
 		}
 		
 		
 		public function stop():void {
-			this.removeEventListener(Event.ENTER_FRAME, step);
+			Main.stopRunningEveryFrame(step);
 			
 			var actor:Actor;
 			
@@ -193,16 +188,16 @@ package src
 		 * Tell all the actors to act.
 		 * @param	e an enter frame event
 		 */
-		public function step(e:Event):void {
+		public function step():void {
 			//TODO if slowdown occurs, limit to every n frames OR maybe we can get some sort of prediction system going
 			var actor:Actor;
 			
 			for each (actor in playerActors) {
-				actor.reactToTargets(opponentActors);
+				actor.act(opponentActors);
 			}
 			
 			for each (actor in opponentActors) {
-				actor.reactToTargets(playerActors);
+				actor.act(playerActors);
 			}
 			
 			checkProjectiles();
@@ -236,7 +231,6 @@ package src
 			
 			for each (projectile in projectiles) {
 				if ((projectile.targets & PLAYER_ACTORS) > 0) {
-					
 					for each (target in playerActors) {
 						if (projectile.hitTest(target)) {
 							projectile.collide(target);
@@ -245,7 +239,6 @@ package src
 				}
 				
 				if ((projectile.targets & OPPONENT_ACTORS) > 0) {
-					
 					for each (target in opponentActors) {
 						if (projectile.hitTest(target)) {
 							projectile.collide(target);

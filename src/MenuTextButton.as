@@ -5,6 +5,8 @@ package src
 	import flash.events.MouseEvent;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
+	import flash.ui.Mouse;
+	import flash.ui.MouseCursor;
 	
 	/**
 	 * ...
@@ -56,6 +58,8 @@ package src
 		}
 		
 		public function setRollover(e:Event):void {
+			Mouse.cursor = MouseCursor.BUTTON;
+			
 			normal.visible = false;
 			pressed.visible = false;
 			
@@ -63,6 +67,8 @@ package src
 		}
 		
 		public function setNormal(e:Event):void {
+			Mouse.cursor = MouseCursor.AUTO;
+			
 			rollover.visible = false;
 			pressed.visible = false;
 			

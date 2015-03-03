@@ -38,6 +38,7 @@ package src
 			
 			text.multiline = true;
 			text.wordWrap = true;
+			text.selectable = false;
 			
 			text.width = MainArea.MINIMAP_WIDTH;
 			text.height = HEIGHT;

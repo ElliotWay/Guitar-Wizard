@@ -37,7 +37,7 @@ package src
 			range = 700;
 		}
 		
-		override public function reactToTargets(others:Vector.<Actor>):void {
+		override public function act(others:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (status == Status.DYING) {
 				return;
