@@ -18,7 +18,8 @@ package src
 		public static const WIDTH:int = 600;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
-		public static const ARENA_WIDTH:int = 4000;
+		public static const ARENA_WIDTH:int = 2000;
+		public static const SHIELD_POSITION:int = 350;
 		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
@@ -32,9 +33,6 @@ package src
 		private var opponentActors : Vector.<Actor>;
 		
 		private var projectiles:Vector.<Projectile>;
-
-		private var playerHP : int;
-		private var opponentHP : int;
 		
 		private var arena : Sprite;
 		private var scroller:TweenLite;
@@ -124,8 +122,21 @@ package src
 		}
 		
 		public function go():void {
-			playerHP = 100;
-			opponentHP = 100;
+
+			var playerShield:Shield = new Shield(true);
+			var opponentShield:Shield = new Shield(false);
+			
+			playerShield.position();
+			opponentShield.position();
+			
+			arena.addChild(playerShield.sprite);
+			arena.addChild(opponentShield.sprite);
+			
+			minimap.addChild(playerShield.miniSprite);
+			minimap.addChild(opponentShield.miniSprite);
+			
+			playerActors.push(playerShield);
+			opponentActors.push(opponentShield);
 			
 			hardCode();
 			
@@ -141,12 +152,14 @@ package src
 			for each (actor in playerActors) {
 				actor.clean();
 				arena.removeChild(actor.sprite);
+				minimap.removeChild(actor.miniSprite);
 			}
 			playerActors = new Vector.<Actor>();
 			
 			for each (actor in opponentActors) {
 				actor.clean();
 				arena.removeChild(actor.sprite);
+				minimap.removeChild(actor.miniSprite);
 			}
 			opponentActors = new Vector.<Actor>();
 			
@@ -158,12 +171,8 @@ package src
 			projectiles = new Vector.<Projectile>();
 		}
 		
-		public function setPlayerHP(hp : int):void {
-			playerHP = hp;
-		}
-		
 		public function playerSummon(actor : Actor):void {
-			var position : Number = Math.random() * 700;
+			var position : Number = Math.random() * SHIELD_POSITION;
 			playerActors.push(actor);
 			arena.addChild(actor.sprite);
 			
@@ -174,7 +183,7 @@ package src
 		}
 		
 		public function opponentSummon(actor : Actor):void {
-			var position : Number = ARENA_WIDTH - Math.random() * 700;
+			var position : Number = ARENA_WIDTH - Math.random() * SHIELD_POSITION;
 			opponentActors.push(actor);
 			arena.addChild(actor.sprite);
 			
@@ -268,9 +277,7 @@ package src
 		private function filterDead(actorList:Vector.<Actor>):void {
 			
 			for each (var actor:Actor in actorList.filter(checkDead, this)) {
-				arena.removeChild(actor.sprite);
 				minimap.removeChild(actor.miniSprite);
-				actor.clean();
 			}
 		}
 		

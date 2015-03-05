@@ -144,7 +144,7 @@ package src {
 			musicArea.go();
 			musicPlayer.go();
 			
-			this.addEventListener(Event.ENTER_FRAME, missChecker);
+			Main.runEveryFrame(missChecker);
 			
 			infoArea.displayText("Text Test");
 		}
@@ -164,7 +164,7 @@ package src {
 			if (quitTimer != null)
 				quitTimer.stop();
 			
-			this.removeEventListener(Event.ENTER_FRAME, missChecker);
+			Main.stopRunningEveryFrame(missChecker);
 		}
 		
 		private var frames:int = 0;
@@ -175,7 +175,7 @@ package src {
 		 * Intended as an event listener to run every frame.
 		 * @param	e enter frame event
 		 */
-		public function missChecker(e:Event):void {
+		public function missChecker():void {
 			/*frames++;
 			if (frames >= 100) {
 				frames = 0;
@@ -422,7 +422,7 @@ package src {
 				});
 				switchTimer.start();
 				
-				switchTime = switchPoint;
+				switchTime = switchPoint - MusicPlayer.STARTUP_LAG;
 				
 			} else {
 				//var error:Error = new Error();
@@ -455,6 +455,10 @@ package src {
 					switchTime = switchPoint;
 				}
 			}
+		}
+		
+		private function prepareTrackSwitch(rightNow:Number, switchTime:Number):void {
+			
 		}
 		
 		private function switchLater(track:int):void {

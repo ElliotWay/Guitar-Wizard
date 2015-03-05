@@ -6,27 +6,30 @@
 
 - make hitting notes after switching blocks more robust
 
-- create more general non-hardcoded start for MainArea
-
 - change arrow sprite to pixelated rotation - this may be difficult to tune
-
-- stop archers from standing on left side trying to run
 
 - smooth summoning meter animations
 
-- remove actors from acting list and minimap when dying
-
 - restrict actors in same position?
 
-- make music switches happen just before the switch point so it has time to switch
-
-- remove enter frame listeners
-
-- change scale so the right amount of things fit on the screen
+- make music switches happen just before the switch point so it has time to switch - hmm
 
 - create wizards
 
 - rewrite test runner class
+
+- make clerics bless surrounding allies
+
+- create better opponent strategies
+
+- archers are overpowered - partially solved?
+
+- create summoning animations
+
+- create shield sprite
+
+- stop archers retreating behind shield
+	- arrows can't go through the shield?
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -43,3 +46,8 @@
 - refactor actor classes - almost all behavior now part of Actor instead of its subclasses
 - create more actor assets - finished, mostly anyway
 - fix issue with main area initializing twice - width and height parameters should be avoided
+- create more general non-hardcoded start for MainArea
+- remove enter frame listeners
+- remove actors from acting list and minimap when dying
+- stop archers from standing on left side trying to run
+- change scale so the right amount of things fit on the screen - might have to change it again, sadly

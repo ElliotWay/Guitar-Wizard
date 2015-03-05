@@ -13,8 +13,8 @@ package src
 		[Embed(source="../assets/cleric.png")]
 		private static const ClericImage:Class;
 		
-		private static const FRAME_WIDTH:int = 80;
-		private static const FRAME_HEIGHT:int = 96;
+		private static const FRAME_WIDTH:int = 40;
+		private static const FRAME_HEIGHT:int = 48;
 		
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
@@ -28,7 +28,7 @@ package src
 		
 		private static const DYING_POSITION:int = FRAME_HEIGHT * 2;
 		private static const DYING_FRAMES:int = 8;
-		private static const DYING_FRAME_WIDTH:int = 120;
+		private static const DYING_FRAME_WIDTH:int = 60;
 		private static var dyingAnimation:FrameAnimation;
 		private static var dyingAnimationReversed:FrameAnimation;
 		
@@ -38,7 +38,7 @@ package src
 		public static const TIME_BETWEEN_BLOWS:Number = 1000 * (1.0 / 24.0) * 3 * 5;
 		
 		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
-		public static const HIT_BOX:Rectangle = new Rectangle(20, 20, 23, 60);
+		public static const HIT_BOX:Rectangle = new Rectangle(10, 10, 11, 30);
 		
 		private var relativeCenter:Point;
 		private var relativeHitBox:Rectangle;

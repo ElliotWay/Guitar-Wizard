@@ -37,7 +37,7 @@ package src
 					new AssassinSprite(isPlayerPiece),
 					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
 			
-			this.speed = 300;
+			this.speed = 150;
 			this.damage = 3;
 		}
 		
@@ -104,7 +104,7 @@ package src
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						if (Math.abs(self.getPosition().x - closest.getPosition().x)
 								< MELEE_RANGE)
-							closest.hitpoints -= damage;
+							closest.hitpoints -= 2*damage; //Double damage on assassination
 							
 						landedTimer = null;
 					});

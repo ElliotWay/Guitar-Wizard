@@ -25,7 +25,7 @@ package src
 					new ClericSprite(isPlayerPiece),
 					new SmallCircleSprite(isPlayerPiece ? 0x0040FF : 0xFF4000));
 			
-			this.speed = 90;
+			this.speed = 45;
 			this._hitpoints = 30;
 			
 		}

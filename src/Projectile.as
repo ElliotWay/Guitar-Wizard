@@ -17,10 +17,10 @@ package src
 		[Embed(source="../assets/arrow.png")]
 		private static const ArrowImage:Class;
 		
-		public static const DAMAGE:Number = 3;
+		public static const DAMAGE:Number = 1;
 		
 		
-		public static const VELOCITY:Number = 500; // pxl/s
+		public static const VELOCITY:Number = 400; // pxl/s
 		
 		public static const GRAVITY:Number = 300; // pxl/s^2
 		
@@ -30,7 +30,7 @@ package src
 		 */
 		public static const TRAJECTORY_CONSTANT:Number = (VELOCITY * VELOCITY) / GRAVITY; //pxl
 		
-		public static const ERROR:Number = .1; //.1 radians
+		public static const ERROR:Number = .3; //.1 radians
 		
 		
 		private var _targetPosition:Point;
@@ -60,9 +60,9 @@ package src
 			arrowHead = new Sprite();
 			this.addChild(arrowHead);
 			arrowHead.graphics.beginFill(0xFF00FF);
-			arrowHead.graphics.drawRect(0, 0, 4, 4);
+			arrowHead.graphics.drawRect(0, 0, 2, 2);
 			arrowHead.visible = false;
-			arrowHead.x = 32;
+			arrowHead.x = 16;
 			
 		/*	this.graphics.beginFill(0x005000);
 			this.graphics.moveTo( -3, -3);
@@ -91,9 +91,12 @@ package src
 		 * @return whether the projectile can hit the actor
 		 */
 		public function hitTest(actor:Actor):Boolean {
-			return actor.isValidTarget() &&	
-					arrowHead.getBounds(this.parent).intersects(actor.getHitBox());
-					//this.getBounds(this.parent).intersects(actor.getHitBox());
+			if (actor is Shield) {
+				return (actor as Shield).intersects(arrowHead);
+			} else {
+				return actor.isValidTarget() &&
+						arrowHead.getBounds(this.parent).intersects(actor.getHitBox());
+			}
 		}
 		
 		/**

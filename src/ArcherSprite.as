@@ -14,8 +14,8 @@ package src
 		[Embed(source="../assets/archer.png")]
 		private static const ArcherImage:Class;
 		
-		private static const FRAME_WIDTH:int = 72;
-		private static const FRAME_HEIGHT:int = 96;
+		private static const FRAME_WIDTH:int = 36;
+		private static const FRAME_HEIGHT:int = 48;
 		
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
@@ -29,7 +29,7 @@ package src
 		
 		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
 		private static const DYING_FRAMES:int = 9;
-		private static const DYING_FRAME_WIDTH:int = 140;
+		private static const DYING_FRAME_WIDTH:int = 70;
 		private static var dyingAnimation:FrameAnimation;
 		private static var dyingAnimationReversed:FrameAnimation;
 		
@@ -39,10 +39,10 @@ package src
 												//24FPS, 4th frame, 5 frames/frame
 		public static const TIME_UNTIL_FIRED:Number = 1000 * (1.0/24.0) * 5 * 4;
 		public static const TIME_TO_SHOOT:Number = 1000 * (1.0 / 24.0) * 5 * SHOOTING_FRAMES;
-		public static const ARROW_POSITION:Point = new Point(60, 25);
+		public static const ARROW_POSITION:Point = new Point(30, 12);
 		
 		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
-		public static const HIT_BOX:Rectangle = new Rectangle(20, 20, 23, 60);
+		public static const HIT_BOX:Rectangle = new Rectangle(10, 10, 11, 30);
 		
 		private var relativeCenter:Point;
 		private var relativeArrowPosition:Point;

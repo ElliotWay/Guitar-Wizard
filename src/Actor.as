@@ -284,11 +284,15 @@ package src {
 				clean();
 				
 				status = Status.DYING;
+				_isDead = true;
 				_sprite.animate(Status.DYING, function():void { _sprite.freeze(); } );
 				
 				TweenPlugin.activate([TintPlugin]);
-				this.fading = new TweenLite(sprite, 10, { tint : 0x000000,
-						onComplete:function():void { _isDead = true; } } );
+				this.fading = new TweenLite(sprite, 10, { tint : 0xB0D090,
+						onComplete:function():void {
+							_sprite.parent.removeChild(_sprite);
+							clean();
+						} } );
 			}
 		}
 		
@@ -312,6 +316,8 @@ package src {
 				
 			if (fightingTimer != null)
 				fightingTimer.stop();
+				
+			_sprite.freeze();
 		}
 	}
 

@@ -5,7 +5,8 @@ package src {
 	import flash.geom.Rectangle;
 	
 	/**
-	 * write this class later, probably give it animations
+	 * Base class for actor sprite that defines interaction with animations.
+	 * Subclasses should add elements to animations and set defaultAnimation.
 	 * @author Elliot Way
 	 */
 	public class ActorSprite extends Sprite 

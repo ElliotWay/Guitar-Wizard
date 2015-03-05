@@ -245,6 +245,8 @@ package  src
 			var block:Sprite;
 			var thing:DisplayObject;
 			
+			this.removeChild(notesLayer);
+			
 			lowNotes = null;
 			midNotes = null;
 			highNotes = null;

@@ -14,7 +14,7 @@ package src
 	public class Archer extends Actor 
 	{
 		private static const SKIRMISH_DISTANCE:Number = 300; //300 pixels
-		private static const NO_RETREAT_DISTANCE:Number = 25;
+		private static const NO_RETREAT_DISTANCE:Number = 50;
 		
 		/**
 		 * Amount of time the Archer estimates it will take for the arrow to hit its target,
@@ -31,10 +31,11 @@ package src
 					new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020), isPlayerPiece),
 					new SmallTriangleSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020)));
 			
-			this.speed = 160;
+			this.speed = 70;
+			this._hitpoints = 5;
 			
 			timeToShoot = 24 * 5 * 6;//400;
-			range = 700;
+			range = Projectile.TRAJECTORY_CONSTANT - 50;
 		}
 		
 		override public function act(others:Vector.<Actor>):void {
@@ -66,10 +67,6 @@ package src
 					
 					if (expectedDistance < SKIRMISH_DISTANCE && canRetreat()) {
 						if (status != Status.RETREATING) {
-							status = Status.RETREATING;
-							
-							_sprite.animate(Status.RETREATING);
-								
 							this.retreat();
 						}
 					} else {
@@ -106,9 +103,11 @@ package src
 		
 		private function canRetreat():Boolean {
 			if (this.isPlayerPiece) {
-				return (this.getPosition().x > NO_RETREAT_DISTANCE);
+				//return (this.getPosition().x > NO_RETREAT_DISTANCE);
+				return (this.getPosition().x > MainArea.SHIELD_POSITION + 50);
 			} else {
-				return (this.getPosition().x < (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE));
+				//return (this.getPosition().x < (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE));
+				return (this.getPosition().x < (MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION + 50));
 			}
 		}
 	}

@@ -14,8 +14,8 @@ package src
 		[Embed(source="../assets/assassin.png")]
 		private static const AssassinImage:Class;
 		
-		private static const FRAME_WIDTH:int = 96;
-		private static const FRAME_HEIGHT:int = 96;
+		private static const FRAME_WIDTH:int = 48;
+		private static const FRAME_HEIGHT:int = 48;
 		
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
@@ -34,7 +34,7 @@ package src
 		
 		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
 		private static const DYING_FRAMES:int = 8;
-		private static const DYING_FRAME_WIDTH:int = 120;
+		private static const DYING_FRAME_WIDTH:int = 60;
 		private static var dyingAnimation:FrameAnimation;
 		private static var dyingAnimationReversed:FrameAnimation;
 		
@@ -44,8 +44,8 @@ package src
 		public static const TIME_TO_LAND:Number = 1000 * (1.0 / 24.0) * 3 * 7;
 		public static const TIME_BETWEEN_STABS:Number = 1000 * (1.0 / 24.0) * 3 * 3;
 		
-		public static const CENTER:Point = new Point(60, 45);
-		public static const HIT_BOX:Rectangle = new Rectangle(44, 10, 30, 65);
+		public static const CENTER:Point = new Point(30, 22);
+		public static const HIT_BOX:Rectangle = new Rectangle(22, 5, 15, 32);
 		
 		private var relativeCenter:Point;
 		private var relativeHitBox:Rectangle;

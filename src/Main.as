@@ -70,6 +70,7 @@ package src
 			ArcherSprite.initializeAnimations();
 			AssassinSprite.initializeAnimations();
 			ClericSprite.initializeAnimations();
+			ShieldSprite.initializeAnimations();
 		}
 		
 		public static function fileLoaded():void {
