@@ -78,6 +78,12 @@ package src {
 				currentAnimation.stop();
 		}
 		
+		public function moveToBottom():void {
+			if (this.parent != null) {
+				this.parent.addChildAt(this, 0);
+			}
+		}
+		
 		public function get center():Point {
 			return new Point(this.x + this.width / 2, this.y + this.height / 2);
 		}

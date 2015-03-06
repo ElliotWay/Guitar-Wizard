@@ -13,7 +13,7 @@ package src
 	 */
 	public class Archer extends Actor 
 	{
-		private static const SKIRMISH_DISTANCE:Number = 300; //300 pixels
+		private static const SKIRMISH_DISTANCE:Number = 150;
 		private static const NO_RETREAT_DISTANCE:Number = 50;
 		
 		/**
@@ -40,7 +40,7 @@ package src
 		
 		override public function act(others:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
-			if (status == Status.DYING) {
+			if (_status == Status.DYING) {
 				return;
 			}
 			
@@ -48,16 +48,10 @@ package src
 			//Do other stuff.
 			
 			//If we're shooting, we need to finish shooting before doing anything else.
-			if (status != Status.SHOOTING) {
-				
-				//Check whether any valid targets are available.
-				var validOthers:Vector.<Actor> = 
-					others.filter(function(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
-						return actor.isValidTarget();
-				});
+			if (_status != Status.SHOOTING) {
 				
 				//Find the closest valid target.
-				var closest : Actor = this.getClosest(validOthers, range);
+				var closest : Actor = this.getClosest(others, range);
 				
 				if (closest == null) {
 					this.go();
@@ -66,18 +60,18 @@ package src
 							- closest.predictPosition(ArcherSprite.TIME_TO_SHOOT).x);
 					
 					if (expectedDistance < SKIRMISH_DISTANCE && canRetreat()) {
-						if (status != Status.RETREATING) {
+						if (_status != Status.RETREATING) {
 							this.retreat();
 						}
 					} else {
 						halt();
-						status = Status.SHOOTING;
+						_status = Status.SHOOTING;
 						
-						_sprite.animate(Status.SHOOTING, function():void { status = Status.STANDING;} );
+						_sprite.animate(Status.SHOOTING, function():void { _status = Status.STANDING;} );
 						
 						var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-							if (status == Status.DYING)
+							if (_status == Status.DYING)
 								return;
 							
 							var arrow:Projectile = new Projectile(

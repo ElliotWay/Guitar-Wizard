@@ -32,32 +32,20 @@ package src
 		
 		override public function act(others:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
-			if (status == Status.DYING) {
+			if (_status == Status.DYING) {
 				return;
 			}
 			
-			if (status != Status.FIGHTING) {
-				//Check whether any valid targets are available.
-				var validOthers:Vector.<Actor> = 
-					others.filter(function(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
-						return actor.isValidTarget();
-				});
-				if (validOthers.length == 0) {
-					if (status != Status.MOVING) {
-						this.go();
-					}
-						
-					return;
-				}
+			if (_status != Status.FIGHTING) {
 				
 				//Find the closest valid target.
-				var closest : Actor = this.getClosest(validOthers, MELEE_RANGE);
+				var closest : Actor = this.getClosest(others, MELEE_RANGE);
 				
 				if (closest != null) {
 					this.meleeAttack(closest, MELEE_RANGE, DAMAGE, ClericSprite.TIME_BETWEEN_BLOWS);
 
 				} else {
-					if (status != Status.MOVING) {
+					if (_status != Status.MOVING) {
 						this.go();
 					}
 				}

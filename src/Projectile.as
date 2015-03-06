@@ -94,7 +94,7 @@ package src
 			if (actor is Shield) {
 				return (actor as Shield).intersects(arrowHead);
 			} else {
-				return actor.isValidTarget() &&
+				return !actor.isDead &&
 						arrowHead.getBounds(this.parent).intersects(actor.getHitBox());
 			}
 		}
@@ -191,7 +191,7 @@ package src
 			this.rotation = -angleInDegrees;
 			targetRotation = angleInDegrees;
 			
-			timeline = new TimelineLite( { onComplete:forceFinish } );
+			timeline = new TimelineLite( /*{ onComplete:forceFinish }*/ );
 			
 			
 			//TODO simplify expressions

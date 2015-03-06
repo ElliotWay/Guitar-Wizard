@@ -51,3 +51,4 @@
 - remove actors from acting list and minimap when dying
 - stop archers from standing on left side trying to run
 - change scale so the right amount of things fit on the screen - might have to change it again, sadly
+- make units only attack in the correct direction - also significant changes to ActorTest

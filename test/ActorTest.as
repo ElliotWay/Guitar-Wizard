@@ -10,6 +10,9 @@ package test
 	import mockolate.stub;
 	import org.flexunit.async.Async;
 	import org.hamcrest.assertThat;
+	import org.hamcrest.core.anything;
+	import org.hamcrest.core.isA;
+	import org.hamcrest.core.not;
 	import src.Actor;
 	import src.ActorSprite;
 	import src.MiniSprite;
@@ -25,13 +28,23 @@ package test
 	public class ActorTest
 	{
 		
-		private var actor:Actor;
+		private var playerActor:Actor;
+		private var opponentActor:Actor;
+		
+		private var dyingLeft450:Actor, dyingRight550:Actor;
+		private var left450:Actor, right550:Actor;
+		private var left350:Actor, right650:Actor;
+		private var movingActor:Actor;
 		
 		[Mock]
 		public var sprite:ActorSprite;
 		
 		[Mock]
-		public var farLeft:Actor, closeLeft:Actor, closeRight:Actor, farRight:Actor;
+		public var sprite450:ActorSprite, sprite550:ActorSprite;
+		[Mock]
+		public var sprite350:ActorSprite, sprite650:ActorSprite;
+		[Mock]
+		public var movingSprite:ActorSprite;
 		
 		[Mock]
 		public var farInvalid:Actor, closeInvalid:Actor;
@@ -58,144 +71,203 @@ package test
 			spriteHitBox = new Rectangle(10, 20, 40, 30);
 			stub(sprite).getter("hitBox").returns(spriteHitBox);
 			
-			stub(farLeft).method("getPosition").returns(new Point(200, 10));
-			stub(farLeft).method("isValidTarget").returns(true);
-			stub(closeLeft).method("getPosition").returns(new Point(450, 10));
-			stub(closeLeft).method("isValidTarget").returns(true);
-			stub(closeRight).method("getPosition").returns(new Point(600, 10));
-			stub(closeRight).method("isValidTarget").returns(true);
-			stub(farRight).method("getPosition").returns(new Point(750, 10));
-			stub(farRight).method("isValidTarget").returns(true);
+			stub(sprite450).getter("center").returns(new Point(450, 10));
+			dyingLeft450 = new Actor(true, sprite450, miniSprite);
+			dyingLeft450.hitpoints = 0;
+			dyingLeft450.checkIfDead();
+			left450 = new Actor(true, sprite450, miniSprite);
 			
-			stub(farInvalid).method("getPosition").returns(new Point(250, 10));
-			stub(farInvalid).method("isValidTarget").returns(false);
-			stub(closeInvalid).method("getPosition").returns(new Point(400, 10));
-			stub(closeInvalid).method("isValidTarget").returns(false);
+			stub(sprite550).getter("center").returns(new Point(550, 10));
+			dyingRight550 = new Actor(false, sprite550, miniSprite);
+			dyingRight550.hitpoints = 0;
+			dyingRight550.checkIfDead();
+			right550 = new Actor(false, sprite550, miniSprite);
+			
+			stub(sprite350).getter("center").returns(new Point(350, 10));
+			left350 = new Actor(true, sprite350, miniSprite);
+			
+			stub(sprite650).getter("center").returns(new Point(650, 10));
+			right650 = new Actor(false, sprite650, miniSprite);
 
+			movingActor = new Actor(false, movingSprite, miniSprite);
 			
 			afterFirstBlow = new Timer(1.5 * TIME_BETWEEN_BLOWS, 1);
 			afterSecondBlow = new Timer(2.5 * TIME_BETWEEN_BLOWS, 1);
 			
-			actor = new Actor(true, sprite, miniSprite);
+			playerActor = new Actor(true, sprite, miniSprite);
+			opponentActor = new Actor(false, sprite, miniSprite);
 		}
 		
-		[Test]
+		[Test(order = 0)]
 		public function getsCenter():void {
-			var result:Point = actor.getPosition();
+			var result:Point = playerActor.getPosition();
 			
 			assertThat(result, spriteCenter);
 		}
 		
-		[Test]
+		[Test(order = 0)]
 		public function getsHitBox():void {
-			var result:Rectangle = actor.getHitBox();
+			var result:Rectangle = playerActor.getHitBox();
 			
 			assertThat(result, spriteHitBox);
 		}
 		
-		[Test]
+		[Test(order = 0)]
 		public function hitPointsAcessors():void {
-			actor.hitpoints = 5;
+			playerActor.hitpoints = 5;
 			
-			assertThat(actor.hitpoints, 5);
+			assertThat(playerActor.hitpoints, 5);
 			
-			actor.hitpoints += 10;
-			actor.hitpoints -= 3;
+			playerActor.hitpoints += 10;
+			playerActor.hitpoints -= 3;
 			
-			assertThat(actor.hitpoints, 12);
+			assertThat(playerActor.hitpoints, 12);
+		}
+		
+		[Test(order = 1)]
+		public function checksWithinRange():void {
+			assertThat(playerActor.withinRange(left450, 100), true);
+			assertThat(playerActor.withinRange(left350, 100), false);
+			assertThat(playerActor.withinRange(right550, 100), true);
+			assertThat(playerActor.withinRange(right650, 100), false)
+		}
+		
+		[Test(order = 1)]
+		public function diesIfNoHitpoints():void {
+			playerActor.hitpoints = 0;
+			playerActor.checkIfDead();
+			
+			assertThat(playerActor.status, Status.DYING);
+			assertThat(sprite, received().method("animate").args(Status.DYING, isA(Function)));
+			
+			assertThat(playerActor.isDead, true);
+		}
+		
+		[Test(order = 1)]
+		public function livesIfSomeHitpoints():void {
+			playerActor.hitpoints = 1;
+			playerActor.checkIfDead();
+			
+			assertThat(playerActor.status, not(Status.DYING));
+			assertThat(sprite, not(received().method("animate").args(Status.DYING, isA(Function))));
+			
+			assertThat(playerActor.isDead, false);
+		}
+		
+		[Test(order = 2)]
+		public function notValidIfDying():void {
+			assertThat(playerActor.isValidTarget(dyingRight550), false);
+			
+			assertThat(opponentActor.isValidTarget(dyingLeft450), false);
+		}
+		
+		[Test(order = 2)]
+		public function notValidIfWrongDirection():void {
+			assertThat(playerActor.isValidTarget(left450), false);
+			
+			assertThat(opponentActor.isValidTarget(right550), false);
+		}
+		
+		[Test(order = 2)]
+		public function validIfAliveCorrectDirection():void {
+			assertThat(playerActor.isValidTarget(right550), true);
+			
+			assertThat(opponentActor.isValidTarget(left450), true);
 		}
 		
 		// Actor.getClosest tests.
 		
-		[Test]
+		[Test(order = 3)]
 		public function nullWithEmptyList():void {
 			var empty:Vector.<Actor> = new Vector.<Actor>();
 			
-			assertThat(actor.getClosest(empty, 1000), null);
+			assertThat(playerActor.getClosest(empty, 1000), null);
 		}
 		
-		[Test]
+		[Test(order = 3)]
 		public function nullIfNoneInRange():void {
-			var tooFar:Vector.<Actor> = new <Actor>[farLeft, farRight];
+			var tooFar:Vector.<Actor> = new <Actor>[left350, right650];
 			
-			assertThat(actor.getClosest(tooFar, 100), null);
+			assertThat(playerActor.getClosest(tooFar, 100), null);
+			
+			assertThat(opponentActor.getClosest(tooFar, 100), null);
 		}
 		
-		[Test]
+		[Test(order = 3)]
 		public function findsClosest():void {
-									//Jumbling the order just in case it makes a difference.
-			var all:Vector.<Actor> = new <Actor>[closeLeft, farRight, closeRight, farLeft];
+			var left:Vector.<Actor> = new <Actor>[left450, left350];
+			var right:Vector.<Actor> = new <Actor>[right550, right650];
 			
-			assertThat(actor.getClosest(all, 400), closeLeft);
+			assertThat(playerActor.getClosest(right, 400), right550);
+			
+			assertThat(opponentActor.getClosest(left, 400), left450);
 		}
 		
-		[Test]
-		public function findsClosestIfRight():void {
-			var far:Vector.<Actor> = new <Actor>[farRight, farLeft];
-			
-			assertThat(actor.getClosest(far, 400), farRight);
-		}
-		
-		[Test]
+		[Test(order = 3)]
 		public function nullIfNoneValid():void {
-			var invalid:Vector.<Actor> = new <Actor>[closeInvalid, farInvalid];
+			var leftInvalid:Vector.<Actor> = new <Actor>[dyingLeft450, left350, left450, dyingRight550];
+			var rightInvalid:Vector.<Actor> = new <Actor>[right650, dyingRight550, dyingLeft450, right550];
 			
-			assertThat(actor.getClosest(invalid, 200), null);
+			assertThat(playerActor.getClosest(leftInvalid, 400), null);
+			
+			assertThat(opponentActor.getClosest(rightInvalid, 400), null);
 		}
 		
-		[Test]
+		[Test(order = 3)]
 		public function nullIfOnlyCloseInvalid():void {
-			var invalidClose:Vector.<Actor> = new <Actor>[farLeft, farRight, closeInvalid];
+			var closeInvalidForPlayer:Vector.<Actor> = new <Actor>[left450, dyingRight550, right650];
+			var closeInvalidForOpponent:Vector.<Actor> = new <Actor>[right550, dyingLeft450, left350];
 			
-			assertThat(actor.getClosest(invalidClose, 200), null);
+			assertThat(playerActor.getClosest(closeInvalidForPlayer, 100), null);
+			
+			assertThat(opponentActor.getClosest(closeInvalidForOpponent, 100), null);
 		}
 		
-		[Test]
+		[Test(order = 3)]
 		public function findsClosestIfFarInvalid():void {
-			var invalidFar:Vector.<Actor> = new <Actor>[farInvalid, farRight, closeRight];
+			var invalidFar:Vector.<Actor> = new <Actor>[left350, left450, right550, right650];
 			
-			assertThat(actor.getClosest(invalidFar, 200), closeRight);
+			assertThat(playerActor.getClosest(invalidFar, 100), right550);
+			
+			assertThat(opponentActor.getClosest(invalidFar, 100), left450);
 		}
 		
-		[Test]
+		[Test(order = 3)]
 		public function findsClosestIfInvalidIsCloser():void {
-										//Far right is closer than far left at 250 away.
-			var someValidClose:Vector.<Actor> = new <Actor>[closeInvalid, farLeft, farRight];
+			var closeInvalidForPlayer:Vector.<Actor> = new <Actor>[dyingRight550, right650];
+			var closeInvalidForOpponent:Vector.<Actor> = new <Actor>[dyingLeft450, left350];
 		
-			assertThat(actor.getClosest(someValidClose, 275), farRight);
+			assertThat(playerActor.getClosest(closeInvalidForPlayer, 400), right650);
+			
+			assertThat(opponentActor.getClosest(closeInvalidForOpponent, 400), left350);
 		}
 		
 		//End Actor.getClosest tests.
 		
-		[Test]
-		public function checksWithinRange():void {
-			assertThat(actor.withinRange(closeLeft, 100), true);
-			assertThat(actor.withinRange(farLeft, 100), false);
-			assertThat(actor.withinRange(closeRight, 200), true);
-			assertThat(actor.withinRange(farRight, 200), false)
-		}
-		
 		
 		// Actor.meleeAttack tests.
 		
-		[Test]
+		[Test(order = 4)]
 		public function meleeStartsImmediately():void {
-			actor.meleeAttack(closeLeft, 60, 1, 2);
+			right550.hitpoints = 50;
+			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS);
 			
 			assertThat(sprite, received().method("animate").args(Status.FIGHTING));
-			assertThat(closeLeft, received().setter("hitpoints").once());
+			assertThat(playerActor.status, Status.FIGHTING);
+			assertThat(right550.hitpoints, 40);
 		}
 		
-		[Test(async)]
+		[Test(async, order = 4)]
 		public function hitsAgain():void {
-			actor.meleeAttack(closeLeft, 60, 1, TIME_BETWEEN_BLOWS);
+			right550.hitpoints = 50;
+			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(closeLeft, received().setter("hitpoints").twice());
+				assertThat(right550.hitpoints, 30);
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(closeLeft, received().setter("hitpoints").thrice());
+				assertThat(right550.hitpoints, 20);
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);
@@ -205,19 +277,18 @@ package test
 			afterSecondBlow.start();
 		}
 		
-		[Test(async)]
+		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetMoves():void {
-			stub(actorMock).method("getPosition").returns(new Point(450, 10), new Point(350, 10));
-			stub(actorMock).method("isValidTarget").returns(true);
-			
-			actor.meleeAttack(actorMock, 100, 1, TIME_BETWEEN_BLOWS);
+			stub(movingSprite).getter("center").returns(new Point(550, 10), new Point(650, 10));
+			movingActor.hitpoints = 50;
+			playerActor.meleeAttack(movingActor, 100, 10, TIME_BETWEEN_BLOWS);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(actorMock, received().setter("hitpoints").twice());
+				assertThat(movingActor.hitpoints, 30);
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(actorMock, received().setter("hitpoints").twice());
+				assertThat(movingActor.hitpoints, 30);
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);
@@ -227,19 +298,19 @@ package test
 			afterSecondBlow.start();
 		}
 		
-		[Test(async)]
+		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetBecomesInvalid():void {
-			stub(actorMock).method("getPosition").returns(new Point(450, 10));
-			stub(actorMock).method("isValidTarget").returns(true, false);
-			
-			actor.meleeAttack(actorMock, 100, 1, TIME_BETWEEN_BLOWS);
+			right550.hitpoints = 50;
+			playerActor.meleeAttack(right550, 100, 10, TIME_BETWEEN_BLOWS);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(actorMock, received().setter("hitpoints").twice());
+				assertThat(right550.hitpoints, 30);
+				right550.hitpoints = 0;
+				right550.checkIfDead();
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(actorMock, received().setter("hitpoints").twice());
+				assertThat(actorMock.hitpoints, 0);
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);
@@ -251,39 +322,21 @@ package test
 		
 		//End Actor.meleeAttack tests.
 		
-		[Test]
+		[Test(order = 0)]
 		public function goMoves():void {
-			actor.go();
+			playerActor.go();
 			
 			assertThat(sprite, received().method("animate").arg(Status.MOVING));
+			assertThat(playerActor.status, Status.MOVING);
 		}
 		
-		[Test]
+		[Test(order = 0)]
 		public function retreatRetreats():void {
-			actor.retreat();
+			playerActor.retreat();
 			
 			assertThat(sprite, received().method("animate").arg(Status.RETREATING));
+			assertThat(playerActor.status, Status.RETREATING);
 		}
-		
-		/* Can't check the checkIfDead method because it requires sprite
-		 * to be a more realisic sprite.
-		[Test]
-		public function diesIfDead():void {
-			actor.hitpoints = 0;
-			
-			actor.checkIfDead();
-			
-			assertThat(sprite, received().method("animate").arg(Status.DYING));
-		}
-		
-		[Test]
-		public function livesIfAlive():void {
-			actor.hitpoints = 1;
-			
-			actor.checkIfDead();
-			
-			assertThat(sprite, received().method("animate").arg(Status.DYING).never());
-		}*/
 		
 		[After]
 		public function tearDown():void {
@@ -297,7 +350,11 @@ package test
 				afterSecondBlow = null;
 			}
 			
-			actor = null;
+			playerActor.clean();
+			playerActor = null;
+			
+			opponentActor.clean();
+			opponentActor = null;
 		}
 	}
 

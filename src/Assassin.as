@@ -14,9 +14,9 @@ package src
 	public class Assassin extends Actor
 	{
 		//pixels
-		public static const MAX_JUMP_DISTANCE:int = 400;
+		public static const MAX_JUMP_DISTANCE:int = 200;
 		
-		public static const MIN_JUMP_DISTANCE:int = 300;
+		public static const MIN_JUMP_DISTANCE:int = 150;
 		
 		public static const APPROX_JUMPING_SPEED:int =
 				((MAX_JUMP_DISTANCE + MIN_JUMP_DISTANCE) / 2) /
@@ -43,36 +43,23 @@ package src
 		
 		override public function act(others:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
-			if (status == Status.DYING) {
+			if (_status == Status.DYING) {
 				return;
 			}
 			
 			
 			//Do other stuff.
 			
-			if (status != Status.ASSASSINATING && status != Status.FIGHTING) {
+			if (_status != Status.ASSASSINATING && _status != Status.FIGHTING) {
 				
 				
-				
-			//Check whether any valid targets are available.
-			var validOthers:Vector.<Actor> = 
-				others.filter(function(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
-					return actor.isValidTarget();
-			});
-			
-			if (validOthers.length == 0) {
-				if (status != Status.MOVING) {
-					this.go();
-				}
-				return;
-			}
 			
 			//Find the closest valid target.
-			var closest:Actor = this.getClosest(validOthers, MAX_JUMP_DISTANCE * 2);
+			var closest:Actor = this.getClosest(others, MAX_JUMP_DISTANCE * 2);
 			
 			var self:Assassin = this; //For use inside enclosures.
 			
-			if (closest != null && (status == Status.MOVING || status == Status.STANDING)) {
+			if (closest != null && (_status == Status.MOVING || _status == Status.STANDING)) {
 					
 				var targetPositionAfterJump:Number =
 						closest.predictPosition(AssassinSprite.TIME_TO_LAND).x;
@@ -94,10 +81,10 @@ package src
 							
 					jumpTarget = landedX;
 						
-					status = Status.ASSASSINATING;
+					_status = Status.ASSASSINATING;
 						
 					_sprite.animate(Status.ASSASSINATING, function():void { 
-						status = Status.STANDING;
+						_status = Status.STANDING;
 					} );
 					
 					landedTimer = new Timer(AssassinSprite.TIME_TO_LAND, 1);
@@ -115,12 +102,12 @@ package src
 				} else if (this.withinRange(closest, MELEE_RANGE)) {
 					this.meleeAttack(closest, MELEE_RANGE, damage, AssassinSprite.TIME_BETWEEN_STABS);
 				} else {
-					if (status != Status.MOVING) {
+					if (_status != Status.MOVING) {
 						this.go();
 					}
 				}
 			}  else {
-				if (status != Status.MOVING)
+				if (_status != Status.MOVING)
 					this.go();
 			}
 			
@@ -132,7 +119,7 @@ package src
 		}
 		
 		override public function predictPosition(time:Number):Point {
-			if (status == Status.ASSASSINATING) {
+			if (_status == Status.ASSASSINATING) {
 				if ((1 - jumping.progress()) * AssassinSprite.TIME_TO_LAND < time) {
 					return new Point(jumpTarget, _sprite.y);
 				} else {

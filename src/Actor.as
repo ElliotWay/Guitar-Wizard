@@ -20,10 +20,15 @@ package src {
 		
 		public static const MINI_Y_POSITION:int = 35;
 		
+		/**
+		 * If an actor is this close, they are already past.
+		 */
+		public static const TOO_CLOSE:int = 20;
+		
 		protected var _sprite : ActorSprite;
 		protected var _miniSprite : MiniSprite;
 		
-		protected var status:int;
+		protected var _status:int;
 		protected var _hitpoints : int;
 		
 		protected var isPlayerPiece : Boolean;
@@ -47,7 +52,7 @@ package src {
 			isPlayerPiece = playerPiece;
 			speed = 50;
 			
-			status = Status.STANDING;
+			_status = Status.STANDING;
 			
 			_isDead = false;
 		}
@@ -77,14 +82,21 @@ package src {
 		}
 		
 		/**
-		 * Returns true if status is not DYING.
+		 * Returns false if the target is dying, or in the wrong direction.
 		 */
-		public function isValidTarget() : Boolean {
-			return status != Status.DYING;
+		public function isValidTarget(other:Actor) : Boolean {
+			if (other._status == Status.DYING)
+				return false;
+			
+			if (isPlayerPiece) {
+				return other.getPosition().x - this.getPosition().x > TOO_CLOSE;
+			} else {
+				return this.getPosition().x - other.getPosition().x > TOO_CLOSE;
+			}
 		}
 		
 		/**
-		 * Find the closest valid target in a list of actors to this actor,
+		 * Find the closest <b>valid target</b> in a list of actors to this actor,
 		 * within the maximum distance. Returns null if there are no actors in range.
 		 * @param	others  the list of other actors to search
 		 * @param	maxDistance  the maximum distance away the other actor can be
@@ -98,7 +110,7 @@ package src {
 			var distance : Number;
 			
 			for each(var other:Actor in others) {
-				if (other.isValidTarget()) {
+				if (isValidTarget(other)) {
 					distance = Math.abs(other.getPosition().x - this.getPosition().x);
 					
 					if (distance < closeDistance) {
@@ -123,6 +135,11 @@ package src {
 		{
 			_hitpoints = value;
 		}
+		
+		public function get status():int {
+			return _status;
+		}
+		
 		
 		/**
 		 * Gets the point at the center of the actor.
@@ -153,7 +170,7 @@ package src {
 		 */
 		public function predictPosition(time:Number):Point {
 			var position:Point = this.getPosition();
-			if (status == Status.MOVING) {
+			if (_status == Status.MOVING) {
 				if (isPlayerPiece) {
 					return new Point(
 							Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
@@ -163,7 +180,7 @@ package src {
 							Math.max(position.x - (time * speed / 1000), 0),
 							position.y);
 				}
-			} else if (status == Status.RETREATING) {
+			} else if (_status == Status.RETREATING) {
 				if (isPlayerPiece) {
 					return new Point(
 							Math.max(position.x - (time * speed / 1000), 0),
@@ -200,7 +217,7 @@ package src {
 		public function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number):void {
 			halt();
 			
-			status = Status.FIGHTING;
+			_status = Status.FIGHTING;
 			_sprite.animate(Status.FIGHTING);
 			
 			other.hitpoints -= damage;
@@ -208,10 +225,10 @@ package src {
 			fightingTimer = new Timer(timeBetweenBlows, 0);
 			fightingTimer.addEventListener(TimerEvent.TIMER, function():void {
 				//Check if we're still in range, and the target is still valid.
-				if (withinRange(other, range) && other.isValidTarget()) {
+				if (withinRange(other, range) && isValidTarget(other)) {
 					other.hitpoints -= damage;
 				} else {
-					status = Status.STANDING;
+					_status = Status.STANDING;
 					
 					fightingTimer.stop();
 					fightingTimer = null;
@@ -241,7 +258,7 @@ package src {
 		public function go() : void {
 			halt();
 			
-			status = Status.MOVING;
+			_status = Status.MOVING;
 			_sprite.animate(Status.MOVING);
 			
 			var distance:Number;
@@ -261,7 +278,7 @@ package src {
 		public function retreat():void {
 			halt();
 			
-			status = Status.RETREATING;
+			_status = Status.RETREATING;
 			_sprite.animate(Status.RETREATING);
 			
 			var distance:Number;
@@ -283,16 +300,25 @@ package src {
 				halt();
 				clean();
 				
-				status = Status.DYING;
-				_isDead = true;
-				_sprite.animate(Status.DYING, function():void { _sprite.freeze(); } );
-				
 				TweenPlugin.activate([TintPlugin]);
-				this.fading = new TweenLite(sprite, 10, { tint : 0xB0D090,
+				
+				_sprite.moveToBottom();
+				
+				_status = Status.DYING;
+				_isDead = true;
+				_sprite.animate(Status.DYING, function():void {
+					_sprite.freeze();
+					
+					
+					
+					fading = new TweenLite(sprite, 5, { tint : 0xB0D090,
 						onComplete:function():void {
 							_sprite.parent.removeChild(_sprite);
 							clean();
 						} } );
+					} );
+				
+				
 			}
 		}
 		
