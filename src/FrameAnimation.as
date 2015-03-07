@@ -33,7 +33,7 @@ package src
 		public function FrameAnimation() {
 			onComplete = null;
 			runner = null;
-			frameIndex = -1;
+			frameIndex = 0;
 		}
 		
 		/**
@@ -180,20 +180,27 @@ package src
 			Main.runEveryFrame(runner);
 		}
 		
-		private function nextFrame():void {
+		/**
+		 * Advances to the next frame. If we're on the last frame, also runs the onComplete function.
+		 * TODO remove check for runner after onComplete, for usage without runner
+		 */
+		public function nextFrame():void {
 			
 			frames[frameIndex].visible = false;
 			
 			frameIndex++;
 			
 			if (frameIndex >= frames.length) {
-				if (onComplete != null)
+				if (onComplete != null) {
 					onComplete.call();
 					
-				//The onComplete function may have stopped the animation at the end,
-				//so we need to show the last frame.
-				if (runner == null) {
-					frameIndex--;
+					//The onComplete function may have stopped the animation at the end,
+					//so we need to show the last frame.
+					if (runner == null) {
+						frameIndex--;
+					} else {
+						frameIndex = 0;
+					}
 				} else {
 					frameIndex = 0;
 				}

@@ -23,7 +23,7 @@ package src {
 		/**
 		 * If an actor is this close, they are already past.
 		 */
-		public static const TOO_CLOSE:int = 20;
+		public static const TOO_CLOSE:int = 10;
 		
 		protected var _sprite : ActorSprite;
 		protected var _miniSprite : MiniSprite;

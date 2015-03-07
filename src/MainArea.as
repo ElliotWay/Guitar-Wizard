@@ -32,6 +32,9 @@ package src
 		private var playerActors : Vector.<Actor>;
 		private var opponentActors : Vector.<Actor>;
 		
+		private var playerWizard:Wizard;
+		private var opponentWizard:Wizard;
+		
 		private var projectiles:Vector.<Projectile>;
 		
 		private var arena : Sprite;
@@ -124,16 +127,21 @@ package src
 		public function go():void {
 
 			var playerShield:Shield = new Shield(true);
-			var opponentShield:Shield = new Shield(false);
-			
 			playerShield.position();
-			opponentShield.position();
-			
 			arena.addChild(playerShield.sprite);
-			arena.addChild(opponentShield.sprite);
-			
 			minimap.addChild(playerShield.miniSprite);
+			
+			var opponentShield:Shield = new Shield(false);
+			opponentShield.position();
+			arena.addChild(opponentShield.sprite);
 			minimap.addChild(opponentShield.miniSprite);
+			
+			playerWizard = new Wizard(true);
+			playerWizard.sprite.y = Actor.Y_POSITION - 46;
+			playerWizard.sprite.x = 30;
+			arena.addChild(playerWizard.sprite);
+			minimap.addChild(playerWizard.miniSprite);
+			
 			
 			playerActors.push(playerShield);
 			opponentActors.push(opponentShield);
@@ -191,6 +199,13 @@ package src
 			
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			actor.go();
+		}
+		
+		/**
+		 * Make the player's wizard continue playing.
+		 */
+		public function updateWizard():void {
+			playerWizard.play();
 		}
 		
 		/**

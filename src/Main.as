@@ -71,6 +71,7 @@ package src
 			AssassinSprite.initializeAnimations();
 			ClericSprite.initializeAnimations();
 			ShieldSprite.initializeAnimations();
+			WizardSprite.initializeAnimations();
 		}
 		
 		public static function fileLoaded():void {

@@ -49,6 +49,7 @@ package src
 			
 			this.addChild(stand);
 			stand.visible = true;
+			super.animations[Status.STANDING] = stand;
 			
 			super.defaultAnimation = stand;
 		}

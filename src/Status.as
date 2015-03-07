@@ -13,6 +13,10 @@ package src
 		public static const SHOOTING : int = 5;
 		public static const ASSASSINATING : int = 6;
 		
+		public static const PLAY_LOW:int = 5;
+		public static const PLAY_MID:int = 6;
+		public static const PLAY_HIGH:int = 7;
+		
 	}
 
 }

@@ -24,6 +24,11 @@ package src {
 			currentAnimation = null;
 		}
 		
+		/**
+		 * Animate the given status.
+		 * @param	status the status to animate
+		 * @param	onComplete a function to run once we're past the last frame
+		 */
 		public function animate(status:int, onComplete:Function = null):void {
 			
 			var animation:FrameAnimation;
@@ -61,6 +66,9 @@ package src {
 			}
 		}
 		
+		/**
+		 * Animate the default animation.
+		 */
 		public function animateDefault():void {
 			if (currentAnimation != defaultAnimation && currentAnimation != null) {
 				currentAnimation.stop();
@@ -73,11 +81,17 @@ package src {
 			}
 		}
 		
+		/**
+		 * Stop the current animation at its current frame.
+		 */
 		public function freeze():void {
 			if (currentAnimation != null)
 				currentAnimation.stop();
 		}
 		
+		/**
+		 * Move this animation to the bottom of its parent container.
+		 */
 		public function moveToBottom():void {
 			if (this.parent != null) {
 				this.parent.addChildAt(this, 0);

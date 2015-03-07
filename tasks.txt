@@ -26,10 +26,16 @@
 
 - create summoning animations
 
-- create shield sprite
+- create better shield sprite
 
 - stop archers retreating behind shield
 	- arrows can't go through the shield?
+	
+- fix bug where timing is off after quitting and starting again
+
+- fix bug where actors still stand fighting no one
+
+- fix bug where late switches sometimes switch the music, but not the notes
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 

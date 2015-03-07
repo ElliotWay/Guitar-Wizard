@@ -132,7 +132,7 @@ package src {
 			mainArea.go();
 			
 			//Let the opponent start summoning.
-			opponentTimer = new Timer(opponent.timeToAct, 0); //0 repeates indefinitely.
+			opponentTimer = new Timer(opponent.timeToAct, 0); //0 repeats indefinitely.
 			opponentTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
 				var opponentSummon:Vector.<Actor> = opponent.act();
 				for each(var actor:Actor in opponentSummon) {
@@ -253,6 +253,8 @@ package src {
 			//If we're currently in a hold, we can ignore these events.
 			if (expectingHold[noteLetter])
 				return;
+				
+			mainArea.updateWizard();
 			
 			var notesToSearch:Vector.<Note>;
 			
