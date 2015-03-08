@@ -59,6 +59,8 @@ package  src
 		public function go():void {
 			baseChannel = baseMusic.play();
 			
+			currentTrack = Main.MID; //TODO change this
+			
 			resumeTrack(false);
 		}
 		

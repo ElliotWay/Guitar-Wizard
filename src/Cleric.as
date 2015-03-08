@@ -13,7 +13,7 @@ package src
 	public class Cleric extends Actor 
 	{
 		
-		private static const MELEE_RANGE:int = 40;
+		private static const MELEE_RANGE:int = 20;
 		
 		private static const DAMAGE:int = 3;
 		
@@ -30,7 +30,7 @@ package src
 			
 		}
 		
-		override public function act(others:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -39,7 +39,7 @@ package src
 			if (_status != Status.FIGHTING) {
 				
 				//Find the closest valid target.
-				var closest : Actor = this.getClosest(others, MELEE_RANGE);
+				var closest : Actor = this.getClosest(enemies, MELEE_RANGE);
 				
 				if (closest != null) {
 					this.meleeAttack(closest, MELEE_RANGE, DAMAGE, ClericSprite.TIME_BETWEEN_BLOWS);

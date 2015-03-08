@@ -16,13 +16,21 @@ package src
 					new ThinLineSprite(0x00FFFF));
 			
 			this.speed = 0;
-			this._hitpoints = 100;
+			this._hitpoints = 200;
 		}
 		
-		override public function act(others:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//Do nothing.
 			
 			checkIfDead();
+			
+			if (isDead) {
+				if (isPlayerPiece) {
+					MainArea.playerShieldIsUp = false;
+				} else {
+					MainArea.opponentShieldIsUp = false;
+				}
+			}
 		}
 		
 		/**

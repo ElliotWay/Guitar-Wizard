@@ -8,13 +8,9 @@
 
 - change arrow sprite to pixelated rotation - this may be difficult to tune
 
-- smooth summoning meter animations
-
 - restrict actors in same position?
 
 - make music switches happen just before the switch point so it has time to switch - hmm
-
-- create wizards
 
 - rewrite test runner class
 
@@ -25,17 +21,18 @@
 - archers are overpowered - partially solved?
 
 - create summoning animations
-
-- create better shield sprite
-
-- stop archers retreating behind shield
-	- arrows can't go through the shield?
 	
-- fix bug where timing is off after quitting and starting again
+- fix bug where timing is off for both position of notes and hitting them after quitting and starting again
 
 - fix bug where actors still stand fighting no one
 
 - fix bug where late switches sometimes switch the music, but not the notes
+
+- sync animations to beat
+
+- smooth summoning meter animations
+
+- create better shield sprite
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -58,3 +55,6 @@
 - stop archers from standing on left side trying to run
 - change scale so the right amount of things fit on the screen - might have to change it again, sadly
 - make units only attack in the correct direction - also significant changes to ActorTest
+- create wizards - WIZARD!
+- stop archers retreating behind shield
+	- arrows can't go through the shield?

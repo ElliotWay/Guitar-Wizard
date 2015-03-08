@@ -17,6 +17,26 @@ package src
 		public static const PLAY_MID:int = 6;
 		public static const PLAY_HIGH:int = 7;
 		
+		public static function toString(status:int):String {
+			switch (status) {
+				case DYING:
+					return "dying";
+				case STANDING:
+					return "standing";
+				case MOVING:
+					return "moving";
+				case RETREATING:
+					return "retreating";
+				case FIGHTING:
+					return "fighting";
+				case SHOOTING:
+					return "shooting";
+				case ASSASSINATING:
+					return "assassinating";
+			}
+			
+			return "bad status";
+		}
 	}
 
 }

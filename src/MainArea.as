@@ -35,6 +35,9 @@ package src
 		private var playerWizard:Wizard;
 		private var opponentWizard:Wizard;
 		
+		public static var playerShieldIsUp:Boolean;
+		public static var opponentShieldIsUp:Boolean;
+		
 		private var projectiles:Vector.<Projectile>;
 		
 		private var arena : Sprite;
@@ -131,14 +134,18 @@ package src
 			arena.addChild(playerShield.sprite);
 			minimap.addChild(playerShield.miniSprite);
 			
+			playerShieldIsUp = true;
+			
 			var opponentShield:Shield = new Shield(false);
 			opponentShield.position();
 			arena.addChild(opponentShield.sprite);
 			minimap.addChild(opponentShield.miniSprite);
 			
+			opponentShieldIsUp = true;
+			
 			playerWizard = new Wizard(true);
 			playerWizard.sprite.y = Actor.Y_POSITION - 46;
-			playerWizard.sprite.x = 30;
+			playerWizard.sprite.x = 10;
 			arena.addChild(playerWizard.sprite);
 			minimap.addChild(playerWizard.miniSprite);
 			
@@ -217,11 +224,11 @@ package src
 			var actor:Actor;
 			
 			for each (actor in playerActors) {
-				actor.act(opponentActors);
+				actor.act(playerActors, opponentActors);
 			}
 			
 			for each (actor in opponentActors) {
-				actor.act(playerActors);
+				actor.act(opponentActors, playerActors);
 			}
 			
 			checkProjectiles();

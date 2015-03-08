@@ -41,7 +41,7 @@ package src
 			this.damage = 3;
 		}
 		
-		override public function act(others:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -55,7 +55,7 @@ package src
 				
 			
 			//Find the closest valid target.
-			var closest:Actor = this.getClosest(others, MAX_JUMP_DISTANCE * 2);
+			var closest:Actor = this.getClosest(enemies, MAX_JUMP_DISTANCE * 2);
 			
 			var self:Assassin = this; //For use inside enclosures.
 			

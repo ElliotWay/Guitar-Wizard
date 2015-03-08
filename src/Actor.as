@@ -69,7 +69,7 @@ package src {
 		 * Override this method.
 		 * @param	others target actor
 		 */
-		public function act(others : Vector.<Actor>):void {
+		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//TODO create new error class
 			throw new Error("Unimplemented abstract method.");
 		}
@@ -277,9 +277,10 @@ package src {
 		 */
 		public function retreat():void {
 			halt();
-			
+				
 			_status = Status.RETREATING;
 			_sprite.animate(Status.RETREATING);
+			
 			
 			var distance:Number;
 			if (!isPlayerPiece) {
@@ -310,8 +311,7 @@ package src {
 					_sprite.freeze();
 					
 					
-					
-					fading = new TweenLite(sprite, 5, { tint : 0xB0D090,
+					fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
 						onComplete:function():void {
 							_sprite.parent.removeChild(_sprite);
 							clean();

@@ -17,7 +17,7 @@ package src
 			this.hitpoints = 1;
 		}
 		
-		override public function act(others:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			throw new Error("Error: wizards shouldn't be in the acting list");
 		}
 		
