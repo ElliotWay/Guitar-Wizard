@@ -22,6 +22,11 @@ package src
 		private static var movementAnimation:FrameAnimation;
 		private static var retreatingAnimation:FrameAnimation;
 		
+		private static const SUMMON_POSITION:int = FRAME_HEIGHT;
+		private static const SUMMON_FRAMES:int = 7;
+		private static var summonAnimation:FrameAnimation;
+		private static var summonAnimationReversed:FrameAnimation;
+		
 		private static const SHOOTING_POSITION:int = FRAME_HEIGHT * 2;
 		private static const SHOOTING_FRAMES:int = 6;
 		private static var shootingAnimation:FrameAnimation;
@@ -54,6 +59,10 @@ package src
 					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5);
 					
 			retreatingAnimation = FrameAnimation.flip(movementAnimation);
+			
+			summonAnimation = FrameAnimation.create(archerData,
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5);
+			summonAnimationReversed = FrameAnimation.flip(summonAnimation);
 					
 			shootingAnimation = FrameAnimation.create(archerData,
 					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES, 5);
@@ -64,7 +73,7 @@ package src
 			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
 			
 			standingAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50);
 			standingAnimationReversed = FrameAnimation.flip(standingAnimation);
 		}
 		
@@ -75,73 +84,59 @@ package src
 			//Copy these animations instead of using the animations themselves.
 			//This way there's only one copy of each bitmap frame.
 			
-			var move:FrameAnimation;
-			if (facesRight)
+			var move:FrameAnimation, retreat:FrameAnimation, summon:FrameAnimation;
+			var shoot:FrameAnimation, die:FrameAnimation, stand:FrameAnimation;
+			
+			if (facesRight) {
 				move = movementAnimation.copy();
-			else 
+				retreat = retreatingAnimation.copy();
+				summon = summonAnimation.copy();
+				shoot = shootingAnimation.copy();
+				die = dyingAnimation.copy();
+				stand = standingAnimation.copy();
+				
+				relativeCenter = CENTER;
+				relativeArrowPosition = ARROW_POSITION;
+			} else {
 				move = retreatingAnimation.copy();
+				retreat = movementAnimation.copy();
+				summon = summonAnimationReversed.copy();
+				shoot = shootingAnimationReversed.copy();
+				die = dyingAnimationReversed.copy();
+				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
+				stand = standingAnimationReversed.copy();
+				
+				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
+				relativeArrowPosition = new Point(FRAME_WIDTH - ARROW_POSITION.x, ARROW_POSITION.y);
+			}
 				
 			super.animations[Status.MOVING] = move;
 			this.addChild(move);
 			move.visible = false;
-			
-			var retreat:FrameAnimation;
-			if (facesRight)
-				retreat = retreatingAnimation.copy();
-			else
-				retreat = movementAnimation.copy();
 				
 			super.animations[Status.RETREATING] = retreat;
 			this.addChild(retreat);
 			retreat.visible = false;
-			
-			var shoot:FrameAnimation;
-			if (facesRight)
-				shoot = shootingAnimation.copy();
-			else
-				shoot = shootingAnimationReversed.copy();
+				
+			super.animations[Status.SUMMONING] = summon;
+			this.addChild(summon);
+			summon.visible = false;
 				
 			super.animations[Status.SHOOTING] = shoot;
 			this.addChild(shoot);
 			shoot.visible = false;
-			
-			var die:FrameAnimation;
-			if (facesRight)
-				die = dyingAnimation.copy();
-			else {
-				die = dyingAnimationReversed.copy();
-				
-				//Large animations need to be shifted.
-				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH);
-			}
 				
 			super.animations[Status.DYING] = die;
 			this.addChild(die);
 			die.visible = false;
-			
-			var stand:FrameAnimation;
-			if (facesRight) 
-				stand = standingAnimation.copy();
-			else
-				stand = standingAnimationReversed.copy();
 				
 			super.animations[Status.STANDING] = stand;
 			this.addChild(stand);
 			stand.visible = true;
+			
 			currentAnimation = stand;
 			
 			super.defaultAnimation = stand;
-			
-			if (facesRight)
-				relativeCenter = CENTER;
-			else
-				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
-				
-			if (facesRight)
-				relativeArrowPosition = ARROW_POSITION;
-			else {
-				relativeArrowPosition = new Point(FRAME_WIDTH - ARROW_POSITION.x, ARROW_POSITION.y);
-			}
 		}
 		
 			

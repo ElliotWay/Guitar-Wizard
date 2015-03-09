@@ -57,11 +57,11 @@ package src {
 			_isDead = false;
 		}
 		
-		public function get sprite() : Sprite {
+		public function get sprite():ActorSprite {
 			return _sprite;
 		}
 		
-		public function get miniSprite():Sprite {
+		public function get miniSprite():MiniSprite {
 			return _miniSprite;
 		}
 		

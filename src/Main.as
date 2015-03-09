@@ -59,11 +59,13 @@ package src
 			
 			menu = new Menu();
 			this.addChild(menu);
-			menu.visible = true;
+			menu.visible = false;//TODO true
 			
 			gameUI = new GameUI();
 			this.addChild(gameUI);
 			gameUI.visible = false;
+			
+			switchToGame("../assets/FurElise.gws");
 		}
 		
 		public static function loadStatics():void {

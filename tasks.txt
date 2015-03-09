@@ -21,6 +21,8 @@
 - archers are overpowered - partially solved?
 
 - create summoning animations
+
+- rewrite actor sprite constructors
 	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
 

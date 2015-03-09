@@ -188,24 +188,30 @@ package src
 		
 		public function playerSummon(actor : Actor):void {
 			var position : Number = Math.random() * SHIELD_POSITION;
-			playerActors.push(actor);
 			arena.addChild(actor.sprite);
-			
-			minimap.addChild(actor.miniSprite);
-			
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
-			actor.go();
+			
+			actor.sprite.animate(Status.SUMMONING, function():void {
+				
+				minimap.addChild(actor.miniSprite);
+				playerActors.push(actor);
+				
+				actor.go();
+			});
 		}
 		
 		public function opponentSummon(actor : Actor):void {
 			var position : Number = ARENA_WIDTH - Math.random() * SHIELD_POSITION;
-			opponentActors.push(actor);
 			arena.addChild(actor.sprite);
-			
-			minimap.addChild(actor.miniSprite);
-			
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
-			actor.go();
+			
+			actor.sprite.animate(Status.SUMMONING, function():void {
+				
+				minimap.addChild(actor.miniSprite);
+				opponentActors.push(actor);
+				
+				actor.go();
+			});
 		}
 		
 		/**

@@ -22,17 +22,22 @@ package src
 		private static var movementAnimation:FrameAnimation;
 		private static var retreatingAnimation:FrameAnimation;
 		
-		private static const ASSASSINATE_POSITION:int = FRAME_HEIGHT;
+		private static const SUMMON_POSITION:int = FRAME_HEIGHT;
+		private static const SUMMON_FRAMES:int = 5;
+		private static var summonAnimation:FrameAnimation;
+		private static var summonAnimationReversed:FrameAnimation;
+		
+		private static const ASSASSINATE_POSITION:int = FRAME_HEIGHT * 2;
 		private static const ASSASSINATE_FRAMES:int = 11;
 		private static var assassinateAnimation:FrameAnimation;
 		private static var assassinateAnimationReversed:FrameAnimation;
 		
-		private static const FIGHTING_POSITION:int = FRAME_HEIGHT * 2;
+		private static const FIGHTING_POSITION:int = FRAME_HEIGHT * 3;
 		private static const FIGHTING_FRAMES:int = 9;
 		private static var fightingAnimation:FrameAnimation;
 		private static var fightingAnimationReversed:FrameAnimation;
 		
-		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
+		private static const DYING_POSITION:int = FRAME_HEIGHT * 4;
 		private static const DYING_FRAMES:int = 8;
 		private static const DYING_FRAME_WIDTH:int = 60;
 		private static var dyingAnimation:FrameAnimation;
@@ -58,6 +63,10 @@ package src
 					
 			retreatingAnimation = FrameAnimation.flip(movementAnimation);
 			
+			summonAnimation = FrameAnimation.create(assassinData,
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5);
+			summonAnimationReversed = FrameAnimation.flip(summonAnimation);
+			
 			assassinateAnimation = FrameAnimation.create(assassinData,
 					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES, 3);
 			assassinateAnimationReversed = FrameAnimation.flip(assassinateAnimation);
@@ -71,7 +80,7 @@ package src
 			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
 			
 			standingAnimation = FrameAnimation.create(assassinData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50);
 			standingAnimationReversed = FrameAnimation.flip(standingAnimation);
 		}
 		
@@ -79,56 +88,55 @@ package src
 		{
 			super();
 			
-			var move:FrameAnimation;
-			if (facesRight)
+			var move:FrameAnimation, retreat:FrameAnimation, summon:FrameAnimation;
+			var assassinate:FrameAnimation, fight:FrameAnimation, die:FrameAnimation;
+			var stand:FrameAnimation;
+			
+			if (facesRight) {
 				move = movementAnimation.copy();
-			else 
-				move = FrameAnimation.flip(movementAnimation);
+				retreat = retreatingAnimation.copy();
+				summon = summonAnimation.copy();
+				fight = fightingAnimation.copy();
+				assassinate = assassinateAnimation.copy();
+				die = dyingAnimation.copy();
+				stand = standingAnimation.copy();
+				
+				relativeCenter = CENTER;
+				relativeHitBox = HIT_BOX;
+			} else {
+				move = retreatingAnimation.copy();
+				retreat = movementAnimation.copy();
+				summon = summonAnimationReversed.copy();
+				fight = fightingAnimationReversed.copy();
+				assassinate = assassinateAnimationReversed.copy();
+				die = dyingAnimationReversed.copy();
+				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
+				stand = standingAnimationReversed.copy();
+				
+				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
+				relativeHitBox = new Rectangle(FRAME_WIDTH - HIT_BOX.x - HIT_BOX.width, HIT_BOX.y,
+						HIT_BOX.width, HIT_BOX.height);
+			}
 				
 			super.animations[Status.MOVING] = move;
 			this.addChild(move);
 			move.visible = false;
-			
-			var retreat:FrameAnimation;
-			if (facesRight)
-				retreat = retreatingAnimation.copy();
-			else
-				retreat = movementAnimation.copy();
 				
 			super.animations[Status.RETREATING] = retreat;
 			this.addChild(retreat);
 			retreat.visible = false;
-			
-			var assassinate:FrameAnimation;
-			if (facesRight)
-				assassinate = assassinateAnimation.copy();
-			else
-				assassinate = assassinateAnimationReversed.copy();
+				
+			super.animations[Status.SUMMONING] = summon;
+			this.addChild(summon);
+			summon.visible = false;
 				
 			super.animations[Status.ASSASSINATING] = assassinate;
 			this.addChild(assassinate);
 			assassinate.visible = false;
-			
-			var fight:FrameAnimation;
-			if (facesRight)
-				fight = fightingAnimation.copy();
-			else
-				fight = fightingAnimationReversed.copy();
 				
 			super.animations[Status.FIGHTING] = fight;
 			this.addChild(fight);
 			fight.visible = false;
-			
-			
-			var die:FrameAnimation;
-			if (facesRight)
-				die = dyingAnimation.copy();
-			else {
-				die = dyingAnimationReversed.copy();
-				
-				//Large animations need to be shifted.
-				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH);
-			}
 				
 			super.animations[Status.DYING] = die;
 			this.addChild(die);
@@ -147,18 +155,6 @@ package src
 			currentAnimation = stand;
 			
 			super.defaultAnimation = stand;
-			
-			if (facesRight)
-				relativeCenter = CENTER;
-			else
-				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
-				
-			if (facesRight) {
-				relativeHitBox = HIT_BOX;
-			} else {
-				relativeHitBox = new Rectangle(FRAME_WIDTH - HIT_BOX.x - HIT_BOX.width, HIT_BOX.y,
-						HIT_BOX.width, HIT_BOX.height);
-			}
 		}
 		
 		override public function get center():Point {
