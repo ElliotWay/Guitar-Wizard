@@ -20,7 +20,7 @@ package src
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
 		private static var movementAnimation:FrameAnimation;
-		private static var retreatingAnimation:FrameAnimation;
+		private static var movementAnimationReversed:FrameAnimation;
 		
 		private static const SUMMON_POSITION:int = FRAME_HEIGHT;
 		private static const SUMMON_FRAMES:int = 5;
@@ -59,42 +59,58 @@ package src
 			var assassinData:BitmapData = (new AssassinImage() as Bitmap).bitmapData;
 			
 			movementAnimation = FrameAnimation.create(assassinData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 3);
-					
-			retreatingAnimation = FrameAnimation.flip(movementAnimation);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 3,
+					0x0000FF, false);
+			movementAnimationReversed = FrameAnimation.create(assassinData,
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 3,
+					0xFF0000, true);
 			
 			summonAnimation = FrameAnimation.create(assassinData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5);
-			summonAnimationReversed = FrameAnimation.flip(summonAnimation);
-			
-			assassinateAnimation = FrameAnimation.create(assassinData,
-					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES, 3);
-			assassinateAnimationReversed = FrameAnimation.flip(assassinateAnimation);
-			
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 3,
+					0x0000FF, false);
+			summonAnimationReversed = FrameAnimation.create(assassinData,
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 3,
+					0xFF0000, true);
+					
 			fightingAnimation = FrameAnimation.create(assassinData,
-					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 3);
-			fightingAnimationReversed = FrameAnimation.flip(fightingAnimation);
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 3,
+					0x0000FF, false);
+			fightingAnimationReversed = FrameAnimation.create(assassinData,
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 3,
+					0xFF0000, true);
+					
+			assassinateAnimation = FrameAnimation.create(assassinData,
+					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES, 3,
+					0x0000FF, false);
+			assassinateAnimationReversed = FrameAnimation.create(assassinData,
+					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES, 3,
+					0xFF0000, true);
 			
 			dyingAnimation = FrameAnimation.create(assassinData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5);
-			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 3,
+					0x0000FF, false);
+			dyingAnimationReversed = FrameAnimation.create(assassinData,
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 3,
+					0xFF0000, true);
 			
 			standingAnimation = FrameAnimation.create(assassinData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50);
-			standingAnimationReversed = FrameAnimation.flip(standingAnimation);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
+					0x0000FF, false);
+			standingAnimationReversed = FrameAnimation.create(assassinData,
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
+					0xFF0000, true);
 		}
 		
 		public function AssassinSprite(facesRight:Boolean) 
 		{
 			super();
 			
-			var move:FrameAnimation, retreat:FrameAnimation, summon:FrameAnimation;
+			var move:FrameAnimation, summon:FrameAnimation;
 			var assassinate:FrameAnimation, fight:FrameAnimation, die:FrameAnimation;
 			var stand:FrameAnimation;
 			
 			if (facesRight) {
 				move = movementAnimation.copy();
-				retreat = retreatingAnimation.copy();
 				summon = summonAnimation.copy();
 				fight = fightingAnimation.copy();
 				assassinate = assassinateAnimation.copy();
@@ -104,8 +120,7 @@ package src
 				relativeCenter = CENTER;
 				relativeHitBox = HIT_BOX;
 			} else {
-				move = retreatingAnimation.copy();
-				retreat = movementAnimation.copy();
+				move = movementAnimationReversed.copy();
 				summon = summonAnimationReversed.copy();
 				fight = fightingAnimationReversed.copy();
 				assassinate = assassinateAnimationReversed.copy();
@@ -121,10 +136,6 @@ package src
 			super.animations[Status.MOVING] = move;
 			this.addChild(move);
 			move.visible = false;
-				
-			super.animations[Status.RETREATING] = retreat;
-			this.addChild(retreat);
-			retreat.visible = false;
 				
 			super.animations[Status.SUMMONING] = summon;
 			this.addChild(summon);

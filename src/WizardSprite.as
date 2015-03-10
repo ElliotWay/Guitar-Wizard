@@ -26,7 +26,9 @@ package src
 			
 			midAnimation = FrameAnimation.create(wizardData,
 					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES, 5);
-			midAnimationReversed = FrameAnimation.flip(midAnimation);
+			midAnimationReversed = FrameAnimation.create(wizardData,
+					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES, 5,
+					0xFF0000, true);
 		}
 		
 		public function WizardSprite(isPlayerPiece:Boolean) 

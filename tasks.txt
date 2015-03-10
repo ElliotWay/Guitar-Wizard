@@ -1,6 +1,4 @@
 ---Might do soon.----------
-- create a way to color actor sprites to identify owner
-
 - sync animations to beat
 
 
@@ -39,7 +37,7 @@
 
 - change arrow sprite to pixelated rotation - this may be difficult to tune
 
----------Completed tasks, just so I feel like I'm making progress.---------------
+---Completed.---------------
 
 - lay out the rest of the screen - mostly done
 - add synchronize function - wasn't necessary
@@ -65,3 +63,4 @@
 	- arrows can't go through the shield?
 - rewrite actor sprite constructors
 - create summoning animations
+- create a way to color actor sprites to identify owner

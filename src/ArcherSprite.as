@@ -20,7 +20,9 @@ package src
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
 		private static var movementAnimation:FrameAnimation;
+		private static var movementAnimationReversed:FrameAnimation;
 		private static var retreatingAnimation:FrameAnimation;
+		private static var retreatingAnimationReversed:FrameAnimation;
 		
 		private static const SUMMON_POSITION:int = FRAME_HEIGHT;
 		private static const SUMMON_FRAMES:int = 7;
@@ -56,25 +58,46 @@ package src
 			var archerData:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
 			
 			movementAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
+					0x0000FF, false);
+			movementAnimationReversed = FrameAnimation.create(archerData,
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
+					0xFF0000, true);
 					
-			retreatingAnimation = FrameAnimation.flip(movementAnimation);
+			retreatingAnimation = FrameAnimation.create(archerData,
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
+					0x0000FF, true);
+			retreatingAnimationReversed = FrameAnimation.create(archerData,
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
+					0xFF0000, false);
 			
 			summonAnimation = FrameAnimation.create(archerData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5);
-			summonAnimationReversed = FrameAnimation.flip(summonAnimation);
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5,
+					0x0000FF, false);
+			summonAnimationReversed = FrameAnimation.create(archerData,
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5,
+					0xFF0000, true);
 					
 			shootingAnimation = FrameAnimation.create(archerData,
-					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES, 5);
-			shootingAnimationReversed = FrameAnimation.flip(shootingAnimation);
+					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES, 5,
+					0x0000FF, false);
+			shootingAnimationReversed = FrameAnimation.create(archerData,
+					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES, 5,
+					0xFF0000, true);
 			
 			dyingAnimation = FrameAnimation.create(archerData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5);
-			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5,
+					0x0000FF, false);
+			dyingAnimationReversed = FrameAnimation.create(archerData,
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5,
+					0xFF0000, true);
 			
 			standingAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50);
-			standingAnimationReversed = FrameAnimation.flip(standingAnimation);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
+					0x0000FF, false);
+			standingAnimationReversed = FrameAnimation.create(archerData,
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
+					0xFF0000, true);
 		}
 		
 		public function ArcherSprite(color:uint, facesRight:Boolean) 
@@ -98,8 +121,8 @@ package src
 				relativeCenter = CENTER;
 				relativeArrowPosition = ARROW_POSITION;
 			} else {
-				move = retreatingAnimation.copy();
-				retreat = movementAnimation.copy();
+				move = movementAnimationReversed.copy();
+				retreat = retreatingAnimationReversed.copy();
 				summon = summonAnimationReversed.copy();
 				shoot = shootingAnimationReversed.copy();
 				die = dyingAnimationReversed.copy();

@@ -33,11 +33,15 @@ package src
 			
 			dyingAnimation = FrameAnimation.create(shieldData,
 				new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 10);
-			dyingAnimationReversed = FrameAnimation.flip(dyingAnimation);
+			dyingAnimationReversed = FrameAnimation.create(shieldData,
+				new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 10,
+						0x0, true);
 			
 			standingAnimation = FrameAnimation.create(shieldData,
 					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
-			standingAnimationReversed = FrameAnimation.flip(standingAnimation);
+			standingAnimationReversed = FrameAnimation.create(shieldData,
+					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF,
+					0x0, true);
 		}
 		
 		public function ShieldSprite(isPlayerPiece:Boolean) 
