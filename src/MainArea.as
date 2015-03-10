@@ -35,6 +35,7 @@ package src
 		private var playerWizard:Wizard;
 		private var opponentWizard:Wizard;
 		
+		//TODO do this better
 		public static var playerShieldIsUp:Boolean;
 		public static var opponentShieldIsUp:Boolean;
 		

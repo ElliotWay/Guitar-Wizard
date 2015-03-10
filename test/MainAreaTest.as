@@ -13,12 +13,10 @@ package test
 	import src.MainArea;
 	import src.MiniSprite;
 	import src.Projectile;
+	import src.Status;
 	
 	MockolateRunner;
 	/**
-	 * Never mind, MainArea can't be tested yet.
-	 * Need to create a more general start method.
-	 * @author ...
 	 */
 	[RunWith("mockolate.runner.MockolateRunner")]
 	public class MainAreaTest 
@@ -49,6 +47,11 @@ package test
 		public function setup():void {
 			
 			stub(actor).getter("sprite").returns(sprite);
+			stub(sprite).method("animate")
+					.callsWithArguments(function(status:int, func:Function):void {
+						func.call();
+					});
+			
 			stub(actor).getter("miniSprite").returns(miniSprite);
 
 			stub(playerActor1).getter("sprite").returns(sprite);
@@ -76,8 +79,12 @@ package test
 			mainArea.playerSummon(actor);
 			
 			assertThat(actor, received().getter("sprite"));
-			assertThat(actor, received().getter("miniSprite"));
 			
+			assertThat(sprite, received().method("animate")
+					.args(Status.SUMMONING, isA(Function)));
+					
+			
+			assertThat(actor, received().getter("miniSprite"));
 			assertThat(actor, received().method("go"));
 		}
 		
@@ -86,8 +93,12 @@ package test
 			mainArea.opponentSummon(actor);
 			
 			assertThat(actor, received().getter("sprite"));
-			assertThat(actor, received().getter("miniSprite"));
 			
+			assertThat(sprite, received().method("animate")
+					.args(Status.SUMMONING, isA(Function)));
+					
+			
+			assertThat(actor, received().getter("miniSprite"));
 			assertThat(actor, received().method("go"));
 		}
 		

@@ -22,6 +22,7 @@ package  src
 		private var baseMusic:Sound;
 		private var baseChannel:SoundChannel;
 		
+		private var startingTrack:int;
 		private var currentTrack:int;
 		
 		/**
@@ -36,7 +37,7 @@ package  src
 		 */
 		public function MusicPlayer(startingTrack:int) 
 		{
-			currentTrack = startingTrack;
+			this.startingTrack = startingTrack;
 		}
 		
 		/**
@@ -57,9 +58,9 @@ package  src
 		 * Start playing the base music and the currently selected track.
 		 */
 		public function go():void {
-			baseChannel = baseMusic.play();
+			currentTrack = startingTrack;
 			
-			currentTrack = Main.MID; //TODO change this
+			baseChannel = baseMusic.play();
 			
 			resumeTrack(false);
 		}

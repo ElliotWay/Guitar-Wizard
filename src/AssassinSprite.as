@@ -142,12 +142,6 @@ package src
 			this.addChild(die);
 			die.visible = false;
 			
-			var stand:FrameAnimation;
-			if (facesRight) 
-				stand = standingAnimation.copy();
-			else
-				stand = standingAnimationReversed.copy();
-			
 			super.animations[Status.STANDING] = stand;
 			this.addChild(stand);
 			stand.visible = true;

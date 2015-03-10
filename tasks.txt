@@ -1,12 +1,13 @@
-- fix miss/hit detection, possibly related to lag
-
+---Might do soon.----------
 - create a way to color actor sprites to identify owner
 
-- fix bug where player archers shoot too high?
+- sync animations to beat
+
+
+---Should do at some point.----------------
+- fix miss/hit detection, possibly related to lag
 
 - make hitting notes after switching blocks more robust
-
-- change arrow sprite to pixelated rotation - this may be difficult to tune
 
 - restrict actors in same position?
 
@@ -20,21 +21,23 @@
 
 - archers are overpowered - partially solved?
 
-- create summoning animations
 
-- rewrite actor sprite constructors
-	
+---Bugs.-------------------	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
 
 - fix bug where actors still stand fighting no one
 
 - fix bug where late switches sometimes switch the music, but not the notes
 
-- sync animations to beat
+- fix bug where player archers shoot too high?
 
+
+---Do Later.------------------
 - smooth summoning meter animations
 
 - create better shield sprite
+
+- change arrow sprite to pixelated rotation - this may be difficult to tune
 
 ---------Completed tasks, just so I feel like I'm making progress.---------------
 
@@ -60,3 +63,5 @@
 - create wizards - WIZARD!
 - stop archers retreating behind shield
 	- arrows can't go through the shield?
+- rewrite actor sprite constructors
+- create summoning animations
