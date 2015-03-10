@@ -46,9 +46,6 @@ package src
 		private static var standingAnimation:FrameAnimation;
 		private static var standingAnimationReversed:FrameAnimation;
 		
-		public static const TIME_TO_LAND:Number = 1000 * (1.0 / 24.0) * 3 * 7;
-		public static const TIME_BETWEEN_STABS:Number = 1000 * (1.0 / 24.0) * 3 * 3;
-		
 		public static const CENTER:Point = new Point(30, 22);
 		public static const HIT_BOX:Rectangle = new Rectangle(22, 5, 15, 32);
 		
@@ -59,46 +56,46 @@ package src
 			var assassinData:BitmapData = (new AssassinImage() as Bitmap).bitmapData;
 			
 			movementAnimation = FrameAnimation.create(assassinData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 3,
-					0x0000FF, false);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.FOUR_PER_BEAT, 0x0000FF, false);
 			movementAnimationReversed = FrameAnimation.create(assassinData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 3,
-					0xFF0000, true);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.FOUR_PER_BEAT, 0xFF0000, true);
 			
 			summonAnimation = FrameAnimation.create(assassinData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 3,
-					0x0000FF, false);
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			summonAnimationReversed = FrameAnimation.create(assassinData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 3,
-					0xFF0000, true);
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 					
 			fightingAnimation = FrameAnimation.create(assassinData,
-					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 3,
-					0x0000FF, false);
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
+					FrameAnimation.THREE_PER_BEAT, 0x0000FF, false);
 			fightingAnimationReversed = FrameAnimation.create(assassinData,
-					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 3,
-					0xFF0000, true);
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
+					FrameAnimation.THREE_PER_BEAT, 0xFF0000, true);
 					
 			assassinateAnimation = FrameAnimation.create(assassinData,
-					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES, 3,
-					0x0000FF, false);
+					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES,
+					FrameAnimation.FOUR_PER_BEAT, 0x0000FF, false);
 			assassinateAnimationReversed = FrameAnimation.create(assassinData,
-					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES, 3,
-					0xFF0000, true);
+					new Point(0, ASSASSINATE_POSITION), FRAME_WIDTH, FRAME_HEIGHT, ASSASSINATE_FRAMES,
+					FrameAnimation.FOUR_PER_BEAT, 0xFF0000, true);
 			
 			dyingAnimation = FrameAnimation.create(assassinData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 3,
-					0x0000FF, false);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.FOUR_PER_BEAT, 0x0000FF, false);
 			dyingAnimationReversed = FrameAnimation.create(assassinData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 3,
-					0xFF0000, true);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.FOUR_PER_BEAT, 0xFF0000, true);
 			
 			standingAnimation = FrameAnimation.create(assassinData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
-					0x0000FF, false);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0000FF, false);
 			standingAnimationReversed = FrameAnimation.create(assassinData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
-					0xFF0000, true);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0xFF0000, true);
 		}
 		
 		public function AssassinSprite(facesRight:Boolean) 
@@ -160,6 +157,20 @@ package src
 			currentAnimation = stand;
 			
 			super.defaultAnimation = stand;
+		}
+		
+		public static function timeToLand():Number {
+			// (time/beat) * (beat/frame) * (7th frame)
+			//		?	   *	(1/3)     *  7
+			
+			return Main.getBeat() * (7.0 / 3.0);
+		}
+		
+		public static function timeBetweenStabs():Number {
+			// (time/beat) * (beat/frame) * (3 frames)
+			//		?	   *	(1/3)     *  3
+			
+			return Main.getBeat();
 		}
 		
 		override public function get center():Point {

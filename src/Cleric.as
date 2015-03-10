@@ -42,7 +42,7 @@ package src
 				var closest : Actor = this.getClosest(enemies, MELEE_RANGE);
 				
 				if (closest != null) {
-					this.meleeAttack(closest, MELEE_RANGE, DAMAGE, ClericSprite.TIME_BETWEEN_BLOWS);
+					this.meleeAttack(closest, MELEE_RANGE, DAMAGE, ClericSprite.timeBetweenBlows());
 
 				} else {
 					if (_status != Status.MOVING) {

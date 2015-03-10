@@ -71,7 +71,7 @@ package src {
 		 */
 		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//TODO create new error class
-			throw new Error("Unimplemented abstract method.");
+			throw new GWError("Unimplemented abstract method.");
 		}
 		
 		/**

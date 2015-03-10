@@ -4,10 +4,12 @@ package src
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.media.Sound;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
 	import flash.utils.Dictionary;
+	import flash.utils.Timer;
 	import org.flexunit.runner.FlexUnitCore;
 	import test.TestRunner;
 	
@@ -37,6 +39,13 @@ package src
 		
 		private static var everyFrameRun:Dictionary;
 		
+		private static var millisecondsPerBeat:int;
+		
+		private static var quarterBeatRun:Dictionary;
+		private static var quarterBeatTimer:Timer;
+		private static var thirdBeatRun:Dictionary;
+		private static var thirdBeatTimer:Timer;
+		
 		public function Main():void 
 		{
 			
@@ -52,8 +61,13 @@ package src
 			
 			loadStatics();
 			
-			everyFrameRun = new Dictionary();
+			everyFrameRun = new Dictionary(true);
 			this.addEventListener(Event.ENTER_FRAME, frameRunner);
+			
+			quarterBeatRun = new Dictionary(true);
+			quarterBeatTimer = null;
+			thirdBeatRun = new Dictionary(true);
+			thirdBeatTimer = null;
 			
 			songLoader = new SongLoader();
 			
@@ -109,6 +123,36 @@ package src
 			songLoader.addSong(song, url);
 		}
 		
+		public static function setBeat(millisPerBeat:int):void {
+			
+			millisecondsPerBeat = millisPerBeat;
+			
+			if (quarterBeatTimer != null) {
+				quarterBeatTimer.stop();
+			}
+			//Remember that repeating 0 times mean repeat indefinitely.
+			quarterBeatTimer = new Timer(millisPerBeat / 4, 0);
+			quarterBeatTimer.addEventListener(TimerEvent.TIMER, quarterBeatRunner);
+			
+			if (thirdBeatTimer != null) {
+				thirdBeatTimer.stop();
+			}
+			thirdBeatTimer = new Timer(millisPerBeat / 3, 0);
+			thirdBeatTimer.addEventListener(TimerEvent.TIMER, thirdBeatRunner);
+			
+			quarterBeatTimer.start();
+			thirdBeatTimer.start();
+		}
+		
+		/**
+		 * Get the current beat, in milliseconds per beat.
+		 * This beat drives the functions running every quarter and every third beat.
+		 * @return the current beat, in milliseconds per beat
+		 */
+		public static function getBeat():int {
+			return millisecondsPerBeat;
+		}
+		
 		public static function showError(errorMessage:String):void {
 			var errorSprite:Sprite = new Sprite();
 			
@@ -141,8 +185,38 @@ package src
 			delete everyFrameRun[func];
 		}
 		
+		public static function runEveryQuarterBeat(func:Function):void {
+			quarterBeatRun[func] = func;
+		}
+		
+		public static function stopRunningEveryQuarterBeat(func:Function):void {
+			delete quarterBeatRun[func];
+		}
+		
+		public static function runEveryThirdBeat(func:Function):void {
+			thirdBeatRun[func] = func;
+		}
+		
+		public static function stopRunningEveryThirdBeat(func:Function):void {
+			delete thirdBeatRun[func];
+		}
+		
 		private static function frameRunner(e:Event):void {
 			for (var func:Object in everyFrameRun) {
+				
+				(func as Function).call();
+			}
+		}
+		
+		private static function quarterBeatRunner(e:Event):void {
+			for (var func:Object in quarterBeatRun) {
+				
+				(func as Function).call();
+			}
+		}
+		
+		private static function thirdBeatRunner(e:Event):void {
+			for (var func:Object in thirdBeatRun) {
 				
 				(func as Function).call();
 			}

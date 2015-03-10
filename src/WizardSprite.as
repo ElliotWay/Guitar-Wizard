@@ -25,10 +25,11 @@ package src
 			var wizardData:BitmapData = (new WizardImage() as Bitmap).bitmapData;
 			
 			midAnimation = FrameAnimation.create(wizardData,
-					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES, 5);
+					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES,
+					FrameAnimation.ONE_PER_BEAT, 0x0, false);
 			midAnimationReversed = FrameAnimation.create(wizardData,
-					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES,
+					FrameAnimation.ONE_PER_BEAT,0xFF0000, true);
 		}
 		
 		public function WizardSprite(isPlayerPiece:Boolean) 

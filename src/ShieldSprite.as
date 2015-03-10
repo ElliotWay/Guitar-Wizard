@@ -32,16 +32,18 @@ package src
 			var shieldData:BitmapData = (new ShieldData() as Bitmap).bitmapData;
 			
 			dyingAnimation = FrameAnimation.create(shieldData,
-				new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 10);
+					new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.ONE_PER_BEAT, 0x0, false);
 			dyingAnimationReversed = FrameAnimation.create(shieldData,
-				new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 10,
-						0x0, true);
+					new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.ONE_PER_BEAT, 0x0, true);
 			
 			standingAnimation = FrameAnimation.create(shieldData,
-					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF);
+					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1, 
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0, false);
 			standingAnimationReversed = FrameAnimation.create(shieldData,
-					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1, 0xFFFFFFF,
-					0x0, true);
+					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1,
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0, true);
 		}
 		
 		public function ShieldSprite(isPlayerPiece:Boolean) 

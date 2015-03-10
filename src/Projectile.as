@@ -30,7 +30,7 @@ package src
 		 */
 		public static const TRAJECTORY_CONSTANT:Number = (VELOCITY * VELOCITY) / GRAVITY; //pxl
 		
-		public static const ERROR:Number = .3; //.1 radians
+		public static const ERROR:Number = .2; //.1 radians
 		
 		
 		private var _targetPosition:Point;

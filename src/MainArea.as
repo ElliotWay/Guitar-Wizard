@@ -29,6 +29,9 @@ package src
 		public static const PLAYER_ACTORS:int = 1;
 		public static const OPPONENT_ACTORS:int = 2;
 		
+		// (1 / BPM) * 60 * 1000, 500 is 120BPM
+		public static const MILLISECONDS_PER_BEAT:int = 500;
+		
 		private var playerActors : Vector.<Actor>;
 		private var opponentActors : Vector.<Actor>;
 		
@@ -113,7 +116,7 @@ package src
 				opponentSummon(opponentActor);
 			}
 			for (var k:int = 0; k < 0; k++) {
-				var opponentAgain:Actor = new Archer(false);
+				var opponentAgain:Actor = new Cleric(false);
 				opponentSummon(opponentAgain);
 			}
 			
@@ -155,6 +158,8 @@ package src
 			opponentActors.push(opponentShield);
 			
 			hardCode();
+			
+			Main.setBeat(MILLISECONDS_PER_BEAT);
 			
 			Main.runEveryFrame(step);
 		}
@@ -227,7 +232,6 @@ package src
 		 * @param	e an enter frame event
 		 */
 		public function step():void {
-			//TODO if slowdown occurs, limit to every n frames OR maybe we can get some sort of prediction system going
 			var actor:Actor;
 			
 			for each (actor in playerActors) {

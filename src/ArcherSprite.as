@@ -43,9 +43,7 @@ package src
 		private static var standingAnimation:FrameAnimation;
 		private static var standingAnimationReversed:FrameAnimation;
 		
-												//24FPS, 4th frame, 5 frames/frame
-		public static const TIME_UNTIL_FIRED:Number = 1000 * (1.0/24.0) * 5 * 4;
-		public static const TIME_TO_SHOOT:Number = 1000 * (1.0 / 24.0) * 5 * SHOOTING_FRAMES;
+		public static const ARROW_TIME:Number = 6000;
 		public static const ARROW_POSITION:Point = new Point(30, 12);
 		
 		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
@@ -58,46 +56,46 @@ package src
 			var archerData:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
 			
 			movementAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			movementAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 					
 			retreatingAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
-					0x0000FF, true);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, true);
 			retreatingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
-					0xFF0000, false);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, false);
 			
 			summonAnimation = FrameAnimation.create(archerData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			summonAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 					
 			shootingAnimation = FrameAnimation.create(archerData,
-					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES,
+					FrameAnimation.THREE_HALVES_PER_BEAT, 0x0000FF, false);
 			shootingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES,
+					FrameAnimation.THREE_HALVES_PER_BEAT, 0xFF0000, true);
 			
 			dyingAnimation = FrameAnimation.create(archerData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			dyingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 			
 			standingAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
-					0x0000FF, false);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0000FF, false);
 			standingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
-					0xFF0000, true);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0xFF0000, true);
 		}
 		
 		public function ArcherSprite(color:uint, facesRight:Boolean) 
@@ -162,6 +160,12 @@ package src
 			super.defaultAnimation = stand;
 		}
 		
+		public static function timeUntilFired():Number {
+			// (time/beat) * (beat/frame) * (4th frame)
+			//		?	   *	(2/3)     *  4
+			
+			return Main.getBeat() * (10.0 / 3.0);
+		}
 			
 		override public function get center():Point {
 			return new Point(this.x + relativeCenter.x, this.y + relativeCenter.y);

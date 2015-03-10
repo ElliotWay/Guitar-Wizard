@@ -40,8 +40,6 @@ package src
 		private static var standingAnimation:FrameAnimation;
 		private static var standingAnimationReversed:FrameAnimation;
 		
-		public static const TIME_BETWEEN_BLOWS:Number = 1000 * (1.0 / 24.0) * 3 * 5;
-		
 		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
 		public static const HIT_BOX:Rectangle = new Rectangle(10, 10, 11, 30);
 		
@@ -52,39 +50,39 @@ package src
 			var clericData:BitmapData = (new ClericImage() as Bitmap).bitmapData;
 			
 			movementAnimation = FrameAnimation.create(clericData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			movementAnimationReversed = FrameAnimation.create(clericData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 			
 			summonAnimation = FrameAnimation.create(clericData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			summonAnimationReversed = FrameAnimation.create(clericData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 					
 			fightingAnimation = FrameAnimation.create(clericData,
-					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
+					FrameAnimation.THREE_HALVES_PER_BEAT, 0x0000FF, false);
 			fightingAnimationReversed = FrameAnimation.create(clericData,
-					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
+					FrameAnimation.THREE_HALVES_PER_BEAT, 0xFF0000, true);
 			
 			dyingAnimation = FrameAnimation.create(clericData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5,
-					0x0000FF, false);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			dyingAnimationReversed = FrameAnimation.create(clericData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES, 5,
-					0xFF0000, true);
+					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 			
 			standingAnimation = FrameAnimation.create(clericData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
-					0x0000FF, false);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0000FF, false);
 			standingAnimationReversed = FrameAnimation.create(clericData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1, 50,
-					0xFF0000, true);
+					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
+					FrameAnimation.ONE_THIRD_PER_BEAT, 0xFF0000, true);
 		}
 		
 		public function ClericSprite(facesRight:Boolean) 
@@ -142,6 +140,13 @@ package src
 			currentAnimation = stand;
 			
 			super.defaultAnimation = stand;
+		}
+		
+		public static function timeBetweenBlows():Number {
+			// (time/beat) * (beat/frame) * (3 frames)
+			//		?	   *	(2/3)     *  3
+			
+			return Main.getBeat() * 2;
 		}
 		
 		override public function get center():Point {

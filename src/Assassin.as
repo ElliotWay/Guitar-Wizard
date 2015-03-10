@@ -20,7 +20,7 @@ package src
 		
 		public static const APPROX_JUMPING_SPEED:int =
 				((MAX_JUMP_DISTANCE + MIN_JUMP_DISTANCE) / 2) /
-				AssassinSprite.TIME_TO_LAND;
+				1200; //Approx time to land
 		
 		public static const MELEE_RANGE:int = 30;
 		
@@ -62,7 +62,7 @@ package src
 			if (closest != null && (_status == Status.MOVING || _status == Status.STANDING)) {
 					
 				var targetPositionAfterJump:Number =
-						closest.predictPosition(AssassinSprite.TIME_TO_LAND).x;
+						closest.predictPosition(AssassinSprite.timeToLand()).x;
 						
 				var targetAfterJumpDistance:Number =
 						Math.abs(targetPositionAfterJump - this.getPosition().x);
@@ -74,8 +74,7 @@ package src
 				
 					this.halt();
 					
-					var targetPosition:Number = closest.predictPosition(AssassinSprite.TIME_TO_LAND).x;
-					var landedX:Number = targetPosition +
+					var landedX:Number = targetPositionAfterJump +
 							(isPlayerPiece ? -30 : 30) -
 							AssassinSprite.CENTER.x;
 							
@@ -87,7 +86,7 @@ package src
 						_status = Status.STANDING;
 					} );
 					
-					landedTimer = new Timer(AssassinSprite.TIME_TO_LAND, 1);
+					landedTimer = new Timer(AssassinSprite.timeToLand(), 1);
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						if (Math.abs(self.getPosition().x - closest.getPosition().x)
 								< MELEE_RANGE)
@@ -97,10 +96,10 @@ package src
 					});
 					landedTimer.start();
 					
-					jumping = new TweenLite(_sprite, AssassinSprite.TIME_TO_LAND / 1000,
+					jumping = new TweenLite(_sprite, AssassinSprite.timeToLand() / 1000,
 							{ x:landedX, ease:Linear.easeInOut } );
 				} else if (this.withinRange(closest, MELEE_RANGE)) {
-					this.meleeAttack(closest, MELEE_RANGE, damage, AssassinSprite.TIME_BETWEEN_STABS);
+					this.meleeAttack(closest, MELEE_RANGE, damage, AssassinSprite.timeBetweenStabs());
 				} else {
 					if (_status != Status.MOVING) {
 						this.go();
@@ -120,7 +119,7 @@ package src
 		
 		override public function predictPosition(time:Number):Point {
 			if (_status == Status.ASSASSINATING) {
-				if ((1 - jumping.progress()) * AssassinSprite.TIME_TO_LAND < time) {
+				if ((1 - jumping.progress()) * AssassinSprite.timeToLand() < time) {
 					return new Point(jumpTarget, _sprite.y);
 				} else {
 					if (isPlayerPiece)

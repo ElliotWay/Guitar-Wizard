@@ -68,14 +68,14 @@ package src
 						go();
 						
 				} else if (withinRange(closest, MELEE_RANGE)) {
-					this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE, ClericSprite.TIME_BETWEEN_BLOWS);
+					this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE, ClericSprite.timeBetweenBlows());
 					
 				} else if (this.isBehindShield()) {
 					if (_status != Status.MOVING)
 						go();
 				} else {
 					var expectedDistance:Number = Math.abs(this.getPosition().x
-							- closest.predictPosition(ArcherSprite.TIME_TO_SHOOT).x);
+							- closest.predictPosition(ArcherSprite.ARROW_TIME).x);
 					
 					var behindShield:Boolean = this.isBehindShield();
 					
@@ -90,10 +90,8 @@ package src
 						
 						_sprite.animate(Status.SHOOTING, function():void { _status = Status.STANDING;} );
 						
-						var shotFiredTimer:Timer = new Timer(ArcherSprite.TIME_UNTIL_FIRED, 1);
+						var shotFiredTimer:Timer = new Timer(ArcherSprite.timeUntilFired(), 1);
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-							if (_status == Status.DYING)
-								return;
 							
 							var arrow:Projectile = new Projectile(
 									(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),

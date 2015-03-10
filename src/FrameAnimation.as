@@ -16,11 +16,19 @@ package src
 	{
 		public static const FLAG_COLOR:uint = 0xFF0000;
 		
+		public static const ONE_PER_BEAT:int = -1;
+		public static const TWO_PER_BEAT:int = -2;
+		public static const THREE_PER_BEAT:int = -3;
+		public static const FOUR_PER_BEAT:int = -4;
+		public static const THREE_HALVES_PER_BEAT:int = -5;
+		public static const ONE_HALF_PER_BEAT:int = -6;
+		public static const ONE_THIRD_PER_BEAT:int = -7;
+		
 		private var frames:Vector.<Bitmap>;
 		
 		private var frameIndex:int;
 		
-		private var frameToFrameRatio:uint;
+		private var framesPerBeat:int;
 		
 		private var frameCount:int;
 		private var runner:Function;
@@ -44,14 +52,19 @@ package src
 		 * @param	frameWidth  width of each frame
 		 * @param	frameHeight  height of each frame
 		 * @param	numFrames  number of frames in this animation
-		 * @param	frameToFrameRatio  ratio between actual frames and frames in this animation
+		 * @param	framesPerBeat  using <b>FrameAnimation CONSTANTS</b> how many frames per beat
 		 * @param	color  color to set pixels of the flag color to. Ignores the alpha channel.
-		 * @param	whether to flip the animation horizontally
+		 * @param	flipped whether to flip the animation horizontally
 		 * @return  the constructed FrameAnimation
 		 */
-		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frameToFrameRatio:uint,  color:uint = 0xFF0000, flipped:Boolean = false):FrameAnimation
+		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, framesPerBeat:int,  color:uint = 0xFF0000, flipped:Boolean = false):FrameAnimation
 		{
 			var output:FrameAnimation = new FrameAnimation();
+			
+			if (framesPerBeat >= 0)
+				throw new Error("Error: use FrameAnimation constants to define frames per beat");
+			else 
+				output.framesPerBeat = framesPerBeat;
 			
 			if (position.x + numFrames * frameWidth > image.width ||
 					position.y + frameHeight > image.height)
@@ -103,7 +116,6 @@ package src
 				bmpFrame.visible = false;
 			}
 			
-			output.frameToFrameRatio = frameToFrameRatio;
 			
 			output.frames[0].visible = true;
 			
@@ -129,7 +141,7 @@ package src
 				output.frames[index].visible = false;
 			}
 			
-			output.frameToFrameRatio = animation.frameToFrameRatio;
+			output.framesPerBeat = animation.framesPerBeat;
 			
 			output.frames[0].visible = true;
 			
@@ -160,17 +172,50 @@ package src
 			
 			frameIndex = 0;
 			
+			var countMax:int = 1;
+			
+			switch (framesPerBeat) {
+				case ONE_PER_BEAT:
+					countMax = 3;
+					break;
+				case TWO_PER_BEAT:
+					countMax = 2;
+					break;
+				case THREE_PER_BEAT:
+					countMax = 1;
+					break;
+				case FOUR_PER_BEAT:
+					countMax = 1;
+					break;
+				case THREE_HALVES_PER_BEAT:
+					countMax = 2;
+					break;
+				case ONE_HALF_PER_BEAT:
+					countMax = 6;
+					break;
+				case ONE_THIRD_PER_BEAT:
+					countMax = 9;
+					break;
+			}
+			
+			if (runner != null)
+				stop();
+			
 			runner = function():void {
 				frameCount++;
 				
-				if (frameCount >= frameToFrameRatio) {
+				if (frameCount >= countMax) {
 					nextFrame();
 					
 					frameCount = 0;
 				}
 			}
 			
-			Main.runEveryFrame(runner);
+			if (framesPerBeat == TWO_PER_BEAT || framesPerBeat == FOUR_PER_BEAT) {
+				Main.runEveryQuarterBeat(runner);
+			} else {
+				Main.runEveryThirdBeat(runner);
+			}
 		}
 		
 		/**
@@ -203,8 +248,12 @@ package src
 		}
 		
 		public function stop():void {
-			if (runner != null)
-				Main.stopRunningEveryFrame(runner);
+			if (runner != null){
+				if (framesPerBeat == TWO_PER_BEAT || framesPerBeat == FOUR_PER_BEAT)
+					Main.stopRunningEveryQuarterBeat(runner);
+				else
+					Main.stopRunningEveryThirdBeat(runner);
+			}
 			
 			runner = null;
 		}
