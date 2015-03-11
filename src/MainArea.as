@@ -2,10 +2,12 @@ package src
 {
 	import com.greensock.TweenLite;
 	import com.greensock.easing.Linear;
+	import flash.display.Bitmap;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.EventPhase;
 	import flash.geom.Point;
+	
 	
 	/**
 	 * ...
@@ -13,6 +15,7 @@ package src
 	 */
 	public class MainArea extends Sprite 
 	{
+		
 		public static var mainArea:MainArea;
 		
 		public static const WIDTH:int = 600;
@@ -132,6 +135,7 @@ package src
 		}
 		
 		public function go():void {
+			
 
 			var playerShield:Shield = new Shield(true);
 			playerShield.position();

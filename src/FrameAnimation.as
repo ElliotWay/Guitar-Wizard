@@ -16,6 +16,8 @@ package src
 	{
 		public static const FLAG_COLOR:uint = 0xFF0000;
 		
+		public static const SCALE:int = 2;
+		
 		public static const ONE_PER_BEAT:int = -1;
 		public static const TWO_PER_BEAT:int = -2;
 		public static const THREE_PER_BEAT:int = -3;
@@ -97,13 +99,12 @@ package src
 					}
 				}
 				
-				//Horizontal flip, if requested.
-				var finalData:BitmapData;
+				//Matrix transformations: scaling and horizontal flip, if requested
+				var finalData:BitmapData = new BitmapData(frameWidth * SCALE, frameHeight * SCALE, true, 0x0);
 				if (flipped) {
-					finalData = new BitmapData(frameWidth, frameHeight, true, 0x0);
-					finalData.draw(innerBitmapData, new Matrix( -1, 0, 0, 1, innerBitmapData.width, 0));
+					finalData.draw(innerBitmapData, new Matrix( -SCALE, 0, 0, SCALE, frameWidth * SCALE, 0));
 				} else {
-					finalData = innerBitmapData;
+					finalData.draw(innerBitmapData, new Matrix( SCALE, 0, 0, SCALE, 0, 0));
 				}
 				
 				

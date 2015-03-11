@@ -13,8 +13,8 @@ package src
 		[Embed(source="../assets/cleric.png")]
 		private static const ClericImage:Class;
 		
-		private static const FRAME_WIDTH:int = 40;
-		private static const FRAME_HEIGHT:int = 48;
+		private static const FRAME_WIDTH:int = 20;
+		private static const FRAME_HEIGHT:int = 24;
 		
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
@@ -33,7 +33,7 @@ package src
 		
 		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
 		private static const DYING_FRAMES:int = 8;
-		private static const DYING_FRAME_WIDTH:int = 60;
+		private static const DYING_FRAME_WIDTH:int = 30;
 		private static var dyingAnimation:FrameAnimation;
 		private static var dyingAnimationReversed:FrameAnimation;
 		

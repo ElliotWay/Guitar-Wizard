@@ -13,8 +13,8 @@ package src
 		[Embed(source = "../assets/wizard.png")]
 		private static const WizardImage:Class;
 		
-		private static const FRAME_WIDTH:int = 50;
-		private static const FRAME_HEIGHT:int = 50;
+		private static const FRAME_WIDTH:int = 25;
+		private static const FRAME_HEIGHT:int = 25;
 		
 		private static const MID_POSITION:int = 0;
 		private static const MID_FRAMES:int = 14;

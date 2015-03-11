@@ -1,7 +1,5 @@
 ---Might do soon.----------
 
-- make frame animation adjust scale instead of doing it manually
-
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag
@@ -21,6 +19,8 @@
 - archers are overpowered - partially solved?
 
 - wizard towers
+
+- archer punching animation, cleric blessing animation
 
 
 ---Bugs.-------------------	
@@ -68,3 +68,4 @@
 - create summoning animations
 - create a way to color actor sprites to identify owner
 - sync animations to beat
+- make frame animation adjust scale instead of doing it manually

@@ -14,8 +14,8 @@ package src
 		[Embed(source="../assets/archer.png")]
 		private static const ArcherImage:Class;
 		
-		private static const FRAME_WIDTH:int = 36;
-		private static const FRAME_HEIGHT:int = 48;
+		private static const FRAME_WIDTH:int = 18;
+		private static const FRAME_HEIGHT:int = 24;
 		
 		private static const MOVEMENT_POSITION:int = 0;
 		private static const MOVEMENT_FRAMES:int = 4;
@@ -36,7 +36,7 @@ package src
 		
 		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
 		private static const DYING_FRAMES:int = 9;
-		private static const DYING_FRAME_WIDTH:int = 70;
+		private static const DYING_FRAME_WIDTH:int = 35;
 		private static var dyingAnimation:FrameAnimation;
 		private static var dyingAnimationReversed:FrameAnimation;
 		
