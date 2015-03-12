@@ -13,6 +13,7 @@ package src
 		public static const FIGHTING : int = 5;
 		public static const SHOOTING : int = 6;
 		public static const ASSASSINATING : int = 7;
+		public static const BLESSING:int = 8;
 		
 		public static const PLAY_LOW:int = 6;
 		public static const PLAY_MID:int = 7;
@@ -36,6 +37,8 @@ package src
 					return "shooting";
 				case ASSASSINATING:
 					return "assassinating";
+				case BLESSING:
+					return "blessing";
 			}
 			
 			return "bad status";

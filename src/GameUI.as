@@ -50,7 +50,7 @@ package src {
 		
 		private var highSummonAmount:Number = 8;
 		private var midSummonAmount:Number = 9;
-		private var lowSummonAmount:Number = 9;
+		private var lowSummonAmount:Number = 8;
 		
 		private var highActorType:Class;
 		private var midActorType:Class;
@@ -292,6 +292,7 @@ package src {
 				}
 				
 			} else {
+				summoningMeter.decrease(3);
 				
 				musicPlayer.stopTrack();
 				musicPlayer.playMissSound();

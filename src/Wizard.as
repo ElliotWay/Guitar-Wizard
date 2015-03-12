@@ -14,7 +14,7 @@ package src
 					new SmallTriangleSprite(0x000060));
 					
 					
-			this.hitpoints = 1;
+			this._hitpoints = 1;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {

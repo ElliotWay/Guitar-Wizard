@@ -66,6 +66,15 @@ package src
 			
 			uncover.x = 2 + (progress / 100) * (WIDTH - 4);
 		}
+		
+		public function decrease(amount:Number):void {
+			
+			progress -= amount;
+			if (progress < 0)
+				progress = 0;
+				
+			uncover.x = 2 + (progress / 100) * (WIDTH - 4);
+		}
 	}
 
 }

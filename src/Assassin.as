@@ -90,7 +90,7 @@ package src
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						if (Math.abs(self.getPosition().x - closest.getPosition().x)
 								< MELEE_RANGE)
-							closest.hitpoints -= 2*damage; //Double damage on assassination
+							closest.hit(2*damage); //Double damage on assassination
 							
 						landedTimer = null;
 					});

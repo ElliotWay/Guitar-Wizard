@@ -20,6 +20,9 @@ package src {
 		
 		public static const MINI_Y_POSITION:int = 35;
 		
+		public static const BLESS_FRAMES:int = 300;
+		public static const BLESS_FACTOR:Number = .30;
+		
 		/**
 		 * If an actor is this close, they are already past.
 		 */
@@ -29,7 +32,7 @@ package src {
 		protected var _miniSprite : MiniSprite;
 		
 		protected var _status:int;
-		protected var _hitpoints : int;
+		protected var _hitpoints:Number;
 		
 		protected var isPlayerPiece : Boolean;
 		
@@ -40,8 +43,11 @@ package src {
 		private var fightingTimer:Timer;
 		
 		protected var fading:TweenLite;
-		
 		protected var _isDead:Boolean;
+		
+		protected var willBeBlessed:Boolean;
+		protected var blessCounter:int;
+		
 		
 		public function Actor(playerPiece:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
 		{
@@ -55,6 +61,9 @@ package src {
 			_status = Status.STANDING;
 			
 			_isDead = false;
+			
+			blessCounter = 0;
+			willBeBlessed = false;
 		}
 		
 		public function get sprite():ActorSprite {
@@ -126,14 +135,25 @@ package src {
 			return closest;
 		}
 		
-		public function get hitpoints():int 
-		{
-			return _hitpoints;
+		public function hit(damage:Number):void {
+			if (blessCounter > 0) {
+				_hitpoints -= damage * (1 - BLESS_FACTOR);
+			} else {
+				_hitpoints -= damage;
+			}
 		}
 		
-		public function set hitpoints(value:int):void 
-		{
-			_hitpoints = value;
+		public function preBless():void {
+			willBeBlessed = true;
+		}
+		
+		public function bless():void {
+			blessCounter = BLESS_FRAMES;
+			willBeBlessed = false;
+		}
+		
+		public function get isBlessed():Boolean {
+			return blessCounter > 0 || willBeBlessed;
 		}
 		
 		public function get status():int {
@@ -220,13 +240,13 @@ package src {
 			_status = Status.FIGHTING;
 			_sprite.animate(Status.FIGHTING);
 			
-			other.hitpoints -= damage;
+			other.hit(damage);
 			
 			fightingTimer = new Timer(timeBetweenBlows, 0);
 			fightingTimer.addEventListener(TimerEvent.TIMER, function():void {
 				//Check if we're still in range, and the target is still valid.
 				if (withinRange(other, range) && isValidTarget(other)) {
-					other.hitpoints -= damage;
+					other.hit(damage);
 				} else {
 					_status = Status.STANDING;
 					
@@ -297,6 +317,7 @@ package src {
 		 * If we're dead, sets status and animation to DYING.
 		 */ 
 		public function checkIfDead():void {
+			blessCounter--;
 			if (_hitpoints <= 0) {
 				halt();
 				clean();

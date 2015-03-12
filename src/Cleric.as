@@ -17,7 +17,15 @@ package src
 		
 		private static const DAMAGE:int = 3;
 		
-		private var fightingTimer:Timer;
+		private static const BLESS_RANGE:int = 200;
+		
+		private static const BLESS_COOLDOWN:int = 3000; //milliseconds
+		
+		private static const MIN_UNBLESSED:int = 3;
+		
+		private var blessIsReady:Boolean;
+		private var blessTimer:Timer;
+		private var blessCooldownTimer:Timer;
 		
 		public function Cleric(isPlayerPiece:Boolean) 
 		{
@@ -28,6 +36,7 @@ package src
 			this.speed = 45;
 			this._hitpoints = 30;
 			
+			blessIsReady = true;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
@@ -36,23 +45,102 @@ package src
 				return;
 			}
 			
-			if (_status != Status.FIGHTING) {
+			if (_status != Status.FIGHTING && status != Status.BLESSING) {
 				
-				//Find the closest valid target.
-				var closest : Actor = this.getClosest(enemies, MELEE_RANGE);
+				var finished:Boolean = false;
 				
-				if (closest != null) {
-					this.meleeAttack(closest, MELEE_RANGE, DAMAGE, ClericSprite.timeBetweenBlows());
+				if (blessIsReady) {
+					//Find allies withing bless range.
+					var nearbyAllies:Vector.<Actor> = new Vector.<Actor>();
+					var ally:Actor;
+					
+					for each(ally in allies) {
+						if (withinRange(ally, BLESS_RANGE) )
+							nearbyAllies.push(ally);
+					}
+					
+					//Count how many aren't already blessed.
+					var unblessed:int = 0;
+					for each(ally in nearbyAllies) {
+						if (!ally.isBlessed)
+							unblessed++;
+					}
+					
+					//Bless if there are enough.
+					if (unblessed >= MIN_UNBLESSED) {
+						
+						for each (ally in nearbyAllies) {
+							ally.preBless();
+						}
+						
+						
+						//Start bless animation.
+						this.halt();
+						
+						_status = Status.BLESSING;
+						_sprite.animate(Status.BLESSING, function():void {
+							_status = Status.STANDING;
+						});
+						
+						//Do bless at the "peak" of the animation.
+						blessTimer = new Timer(ClericSprite.timeToBless(), 1);
+						blessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+							for each (var actor:Actor in nearbyAllies) {
+								if (!actor.isDead)
+									actor.bless();
+							}
+							
+							blessTimer = null;
+						});
+						blessTimer.start();
+						
+						//Start cooldown timer for the next bless.
+						blessIsReady = false;
+						blessCooldownTimer = new Timer(BLESS_COOLDOWN, 1);
+						blessCooldownTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+							blessIsReady = true;
+							
+							blessCooldownTimer = null;
+						});
+						blessCooldownTimer.start();
+						
+						finished = true;
+					}
+				}
+				
+				if (!finished) {
+					//Find the closest valid target.
+					var closest : Actor = this.getClosest(enemies, MELEE_RANGE);
+				
+					if (closest != null) {
+						this.meleeAttack(closest, MELEE_RANGE, DAMAGE, ClericSprite.timeBetweenBlows());
 
-				} else {
-					if (_status != Status.MOVING) {
-						this.go();
+					} else {
+						if (_status != Status.MOVING) {
+							this.go();
+						}
 					}
 				}
 			}
 			
 			
 			this.checkIfDead();
+		}
+		
+		override public function clean():void {
+			super.clean();
+			
+			if (blessTimer != null) {
+				//Bless anyone that this cleric was about to bless.
+				blessTimer.dispatchEvent(TimerEvent.TIMER_COMPLETE);
+				blessTimer.stop();
+				blessTimer = null;
+			}
+			
+			if (blessCooldownTimer != null) {
+				blessCooldownTimer.stop();
+				blessCooldownTimer = null;
+			}
 		}
 	}
 

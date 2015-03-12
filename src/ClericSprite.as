@@ -26,12 +26,17 @@ package src
 		private static var summonAnimation:FrameAnimation;
 		private static var summonAnimationReversed:FrameAnimation;
 		
-		private static const FIGHTING_POSITION:int = FRAME_HEIGHT * 2;
+		private static const BLESS_POSITION:int = FRAME_HEIGHT * 2;
+		private static const BLESS_FRAMES:int = 10;
+		private static var blessAnimation:FrameAnimation;
+		private static var blessAnimationReversed:FrameAnimation;
+		
+		private static const FIGHTING_POSITION:int = FRAME_HEIGHT * 3;
 		private static const FIGHTING_FRAMES:int = 9;
 		private static var fightingAnimation:FrameAnimation;
 		private static var fightingAnimationReversed:FrameAnimation;
 		
-		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
+		private static const DYING_POSITION:int = FRAME_HEIGHT * 4;
 		private static const DYING_FRAMES:int = 8;
 		private static const DYING_FRAME_WIDTH:int = 30;
 		private static var dyingAnimation:FrameAnimation;
@@ -61,6 +66,13 @@ package src
 					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			summonAnimationReversed = FrameAnimation.create(clericData,
 					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
+					
+			blessAnimation = FrameAnimation.create(clericData,
+					new Point(0, BLESS_POSITION), FRAME_WIDTH, FRAME_HEIGHT, BLESS_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
+			blessAnimationReversed = FrameAnimation.create(clericData,
+					new Point(0, BLESS_POSITION), FRAME_WIDTH, FRAME_HEIGHT, BLESS_FRAMES,
 					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 					
 			fightingAnimation = FrameAnimation.create(clericData,
@@ -97,7 +109,7 @@ package src
 				move = movementAnimation.copy();
 				summon = summonAnimation.copy();
 				fight = fightingAnimation.copy();
-				//bless = blessAnimation.copy();
+				bless = blessAnimation.copy();
 				die = dyingAnimation.copy();
 				stand = standingAnimation.copy();
 				
@@ -107,7 +119,7 @@ package src
 				move = movementAnimationReversed.copy();
 				summon = summonAnimationReversed.copy();
 				fight = fightingAnimationReversed.copy();
-				//bless = blessAnimationReversed.copy();
+				bless = blessAnimationReversed.copy();
 				die = dyingAnimationReversed.copy();
 				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
 				stand = standingAnimationReversed.copy();
@@ -124,6 +136,10 @@ package src
 			super.animations[Status.SUMMONING] = summon;
 			this.addChild(summon);
 			summon.visible = false;
+			
+			super.animations[Status.BLESSING] = bless;
+			this.addChild(bless);
+			bless.visible = false;
 				
 			super.animations[Status.FIGHTING] = fight;
 			this.addChild(fight);
@@ -144,6 +160,13 @@ package src
 		
 		public static function timeBetweenBlows():Number {
 			// (time/beat) * (beat/frame) * (3 frames)
+			//		?	   *	(2/3)     *  3
+			
+			return Main.getBeat() * 2;
+		}
+		
+		public static function timeToBless():Number {
+			// (time/beat) * (beat/frame) * (3rd frame)
 			//		?	   *	(2/3)     *  3
 			
 			return Main.getBeat() * 2;

@@ -1,4 +1,9 @@
 ---Might do soon.----------
+- wizard towers
+
+- archer punching animation, cleric blessing animation
+
+- some indication of blessedness
 
 
 ---Should do at some point.----------------
@@ -12,15 +17,11 @@
 
 - rewrite test runner class
 
-- make clerics bless surrounding allies
-
 - create better opponent strategies
 
 - archers are overpowered - partially solved?
 
-- wizard towers
-
-- archer punching animation, cleric blessing animation
+- score counter?
 
 
 ---Bugs.-------------------	
@@ -39,6 +40,10 @@
 - create better shield sprite
 
 - change arrow sprite to pixelated rotation - this may be difficult to tune
+
+- pending switch indication
+
+- proper lag handling
 
 ---Completed.---------------
 
@@ -69,3 +74,5 @@
 - create a way to color actor sprites to identify owner
 - sync animations to beat
 - make frame animation adjust scale instead of doing it manually
+- negative effect of bad notes
+- make clerics bless surrounding allies

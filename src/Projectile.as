@@ -76,7 +76,7 @@ package src
 		 * @param	actor the actor to collide with
 		 */
 		public function collide(actor:Actor):void {
-			actor.hitpoints -= DAMAGE;
+			actor.hit(DAMAGE);
 			
 			_finished = true;
 			
