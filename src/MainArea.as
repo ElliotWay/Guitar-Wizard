@@ -133,22 +133,33 @@ package src
 		
 		public function hardCode():void {
 			
-			for (var j:int = 0; j < 1; j++) {
-				var opponentActor:Actor = new Assassin(false);
-				opponentSummon(opponentActor);
+			var index:int;
+			var actor:Actor;
+			
+			for (index = 0; index < 0; index++) {
+				actor = new Archer(false);
+				opponentSummon(actor);
 			}
-			for (var k:int = 0; k < 0; k++) {
-				var opponentAgain:Actor = new Cleric(false);
-				opponentSummon(opponentAgain);
+			for (index = 0; index < 0; index++) {
+				actor = new Assassin(false);
+				opponentSummon(actor);
+			}
+			for (index = 0; index < 0; index++) {
+				actor = new Cleric(false);
+				opponentSummon(actor);
 			}
 			
-			for (var i:int = 0; i < 1; i++) {
-				var playerActor:Actor = new Cleric(true);
-				playerSummon(playerActor);
+			for (index = 0; index < 0; index++) {
+				actor = new Archer(true);
+				playerSummon(actor);
 			}
-			for (var l:int = 0; l < 0; l++) {
-				var playerAgain:Actor = new Archer(true);
-				playerSummon(playerAgain);
+			for (index = 0; index < 0; index++) {
+				actor = new Assassin(true);
+				playerSummon(actor)
+			}
+			for (index = 0; index < 0; index++) {
+				actor = new Cleric(true);
+				playerSummon(actor);
 			}
 			
 		}
@@ -224,7 +235,7 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor):void {
-			var position : Number = Math.random() * SHIELD_POSITION;
+			var position : Number = Math.random() * (SHIELD_POSITION - 80) + 50;
 			arena.addChild(actor.sprite);
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			
@@ -238,7 +249,7 @@ package src
 		}
 		
 		public function opponentSummon(actor : Actor):void {
-			var position : Number = ARENA_WIDTH - Math.random() * SHIELD_POSITION;
+			var position : Number = ARENA_WIDTH - (Math.random() * (SHIELD_POSITION - 80) + 50);
 			arena.addChild(actor.sprite);
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			

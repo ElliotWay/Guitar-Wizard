@@ -74,11 +74,10 @@ package src
 				
 					this.halt();
 					
-					var landedX:Number = targetPositionAfterJump +
-							(isPlayerPiece ? -30 : 30) -
-							AssassinSprite.CENTER.x;
-							
-					jumpTarget = landedX;
+					var landedX:Number = _sprite.x +
+							(isPlayerPiece ?
+									targetAfterJumpDistance - MELEE_RANGE :
+									-targetAfterJumpDistance + MELEE_RANGE);
 						
 					_status = Status.ASSASSINATING;
 						
@@ -88,8 +87,7 @@ package src
 					
 					landedTimer = new Timer(AssassinSprite.timeToLand(), 1);
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-						if (Math.abs(self.getPosition().x - closest.getPosition().x)
-								< MELEE_RANGE)
+						if (withinRange(closest, MELEE_RANGE*1.1))//A little extra leeway on assassination.
 							closest.hit(2*damage); //Double damage on assassination
 							
 						landedTimer = null;

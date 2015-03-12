@@ -85,10 +85,10 @@ package src
 			
 			dyingAnimation = FrameAnimation.create(assassinData,
 					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
-					FrameAnimation.FOUR_PER_BEAT, 0x0000FF, false);
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
 			dyingAnimationReversed = FrameAnimation.create(assassinData,
 					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
-					FrameAnimation.FOUR_PER_BEAT, 0xFF0000, true);
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 			
 			standingAnimation = FrameAnimation.create(assassinData,
 					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,

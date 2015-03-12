@@ -1,6 +1,5 @@
 ---Might do soon.----------
-- stop assassins from jumping through shields
-
+- wizard killing
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag
@@ -19,11 +18,11 @@
 
 - score counter?
 
-- wizard killing
-
 - wizard end of summoning animation
 
 - remove initialize static methods
+
+- guarantee that assassins can't jump through shields
 
 
 ---Bugs.-------------------	
@@ -80,3 +79,4 @@
 - wizard towers
 - archer punching animation, cleric blessing animation
 - some indication of blessedness
+- stop assassins from jumping through shields - bug with targeting using unrelative center
