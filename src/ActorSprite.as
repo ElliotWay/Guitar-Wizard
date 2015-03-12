@@ -1,5 +1,7 @@
 package src {
 	import com.greensock.core.Animation;
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -11,17 +13,41 @@ package src {
 	 */
 	public class ActorSprite extends Sprite 
 	{
+		[Embed(source = "../assets/blessing.png")]
+		private static const BlessImage:Class;
 		
 		protected var animations:Object;
 		
 		protected var currentAnimation:FrameAnimation;
 		protected var defaultAnimation:FrameAnimation;
 		
+		private static const BLESS_EFFECT:BitmapData = (new BlessImage() as Bitmap).bitmapData;
+		
+		private var blessedEffect:Bitmap;
+		
 		public function ActorSprite() 
 		{
 			animations = new Object();
 			
 			currentAnimation = null;
+			
+			blessedEffect = new Bitmap(BLESS_EFFECT);
+			this.addChild(blessedEffect);
+			blessedEffect.visible = false;
+		}
+		
+		public function alignEffects(relativeCenter:Point):void {
+			blessedEffect.x = relativeCenter.x - BLESS_EFFECT.width / 2;
+			blessedEffect.y = 0;
+		}
+		
+		public function showBlessed():void {
+			
+			blessedEffect.visible = true;
+		}
+		
+		public function hideBlessed():void {
+			blessedEffect.visible = false;
 		}
 		
 		/**
@@ -30,6 +56,8 @@ package src {
 		 * @param	onComplete a function to run once we're past the last frame
 		 */
 		public function animate(status:int, onComplete:Function = null):void {
+			if (status == Status.DYING)
+				hideBlessed();
 			
 			var animation:FrameAnimation;
 			var value:* = animations[status];

@@ -68,7 +68,7 @@ package src
 						go();
 						
 				} else if (withinRange(closest, MELEE_RANGE)) {
-					this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE, ClericSprite.timeBetweenBlows());
+					this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE, ArcherSprite.timeBetweenBlows());
 					
 				} else if (this.isBehindShield()) {
 					if (_status != Status.MOVING)

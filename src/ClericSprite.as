@@ -45,7 +45,7 @@ package src
 		private static var standingAnimation:FrameAnimation;
 		private static var standingAnimationReversed:FrameAnimation;
 		
-		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
+		public static const CENTER:Point = new Point(16, 32);
 		public static const HIT_BOX:Rectangle = new Rectangle(10, 10, 11, 30);
 		
 		private var relativeCenter:Point;
@@ -121,11 +121,13 @@ package src
 				fight = fightingAnimationReversed.copy();
 				bless = blessAnimationReversed.copy();
 				die = dyingAnimationReversed.copy();
-				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
+				die.x = FrameAnimation.SCALE*(FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
 				stand = standingAnimationReversed.copy();
 				
-				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
-				relativeHitBox = new Rectangle(FRAME_WIDTH - HIT_BOX.x - HIT_BOX.width, HIT_BOX.y,
+				relativeCenter = new Point(
+						FrameAnimation.SCALE*FRAME_WIDTH - CENTER.x, CENTER.y);
+				relativeHitBox = new Rectangle(
+						FrameAnimation.SCALE*FRAME_WIDTH - HIT_BOX.x - HIT_BOX.width, HIT_BOX.y,
 						HIT_BOX.width, HIT_BOX.height);
 			}
 				
@@ -156,6 +158,8 @@ package src
 			currentAnimation = stand;
 			
 			super.defaultAnimation = stand;
+			
+			alignEffects(relativeCenter);
 		}
 		
 		public static function timeBetweenBlows():Number {

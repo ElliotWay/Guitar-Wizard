@@ -16,7 +16,7 @@ package src {
 	public class Actor
 	{
 		
-		public static const Y_POSITION:int = 300;
+		public static const Y_POSITION:int = 357;
 		
 		public static const MINI_Y_POSITION:int = 35;
 		
@@ -148,6 +148,7 @@ package src {
 		}
 		
 		public function bless():void {
+			_sprite.showBlessed();
 			blessCounter = BLESS_FRAMES;
 			willBeBlessed = false;
 		}
@@ -318,6 +319,11 @@ package src {
 		 */ 
 		public function checkIfDead():void {
 			blessCounter--;
+			if (blessCounter == 0) {
+				_sprite.hideBlessed();
+			}
+			
+			
 			if (_hitpoints <= 0) {
 				halt();
 				clean();

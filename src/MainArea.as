@@ -19,13 +19,16 @@ package src
 		[Embed(source = "../assets/tower.png")]
 		private static const TowerImage:Class;
 		
+		[Embed(source = "../assets/tower_fore.png")]
+		private static const TowerForeImage:Class;
+		
 		public static var mainArea:MainArea;
 		
 		public static const WIDTH:int = 600;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
 		public static const ARENA_WIDTH:int = 2000;
-		public static const SHIELD_POSITION:int = 350;
+		public static const SHIELD_POSITION:int = 450;
 		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
@@ -130,7 +133,7 @@ package src
 		
 		public function hardCode():void {
 			
-			for (var j:int = 0; j < 0; j++) {
+			for (var j:int = 0; j < 1; j++) {
 				var opponentActor:Actor = new Assassin(false);
 				opponentSummon(opponentActor);
 			}
@@ -139,7 +142,7 @@ package src
 				opponentSummon(opponentAgain);
 			}
 			
-			for (var i:int = 0; i < 0; i++) {
+			for (var i:int = 0; i < 1; i++) {
 				var playerActor:Actor = new Cleric(true);
 				playerSummon(playerActor);
 			}
@@ -168,8 +171,8 @@ package src
 			opponentShieldIsUp = true;
 			
 			playerWizard = new Wizard(true);
-			playerWizard.sprite.y = Actor.Y_POSITION - 46;
-			playerWizard.sprite.x = 10;
+			playerWizard.sprite.x = 220;
+			playerWizard.sprite.y = 96 - 50;
 			arena.addChild(playerWizard.sprite);
 			minimap.addChild(playerWizard.miniSprite);
 			
@@ -180,6 +183,10 @@ package src
 			var tower:Bitmap = (new TowerImage() as Bitmap);
 			background.addChild(tower);
 			tower.x = 0; tower.y = 0;
+			
+			var towerFore:Bitmap = (new TowerForeImage() as Bitmap);
+			foreground.addChild(towerFore);
+			towerFore.x = 0; towerFore.y = 0;
 			
 			hardCode();
 			

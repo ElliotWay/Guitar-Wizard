@@ -1,9 +1,5 @@
 ---Might do soon.----------
-- wizard towers
-
-- archer punching animation, cleric blessing animation
-
-- some indication of blessedness
+- stop assassins from jumping through shields
 
 
 ---Should do at some point.----------------
@@ -22,6 +18,12 @@
 - archers are overpowered - partially solved?
 
 - score counter?
+
+- wizard killing
+
+- wizard end of summoning animation
+
+- remove initialize static methods
 
 
 ---Bugs.-------------------	
@@ -46,7 +48,6 @@
 - proper lag handling
 
 ---Completed.---------------
-
 - lay out the rest of the screen - mostly done
 - add synchronize function - wasn't necessary
 - projectile animation has issues on the descent? - fixed: bug in checking for down left shots
@@ -76,3 +77,6 @@
 - make frame animation adjust scale instead of doing it manually
 - negative effect of bad notes
 - make clerics bless surrounding allies
+- wizard towers
+- archer punching animation, cleric blessing animation
+- some indication of blessedness

@@ -55,7 +55,7 @@ package src
 					var ally:Actor;
 					
 					for each(ally in allies) {
-						if (withinRange(ally, BLESS_RANGE) )
+						if (withinRange(ally, BLESS_RANGE) && !(ally is Shield))
 							nearbyAllies.push(ally);
 					}
 					
@@ -133,8 +133,7 @@ package src
 			if (blessTimer != null) {
 				//Bless anyone that this cleric was about to bless.
 				blessTimer.dispatchEvent(new TimerEvent(TimerEvent.TIMER_COMPLETE));
-				blessTimer.stop();
-				blessTimer = null;
+				//The event handler also removes the timer.
 			}
 			
 			if (blessCooldownTimer != null) {

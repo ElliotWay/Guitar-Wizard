@@ -34,7 +34,12 @@ package src
 		private static var shootingAnimation:FrameAnimation;
 		private static var shootingAnimationReversed:FrameAnimation;
 		
-		private static const DYING_POSITION:int = FRAME_HEIGHT * 3;
+		private static const FIGHTING_POSITION:int = FRAME_HEIGHT * 3;
+		private static const FIGHTING_FRAMES:int = 4;
+		private static var fightingAnimation:FrameAnimation;
+		private static var fightingAnimationReversed:FrameAnimation;
+		
+		private static const DYING_POSITION:int = FRAME_HEIGHT * 4;
 		private static const DYING_FRAMES:int = 9;
 		private static const DYING_FRAME_WIDTH:int = 35;
 		private static var dyingAnimation:FrameAnimation;
@@ -46,7 +51,7 @@ package src
 		public static const ARROW_TIME:Number = 6000;
 		public static const ARROW_POSITION:Point = new Point(30, 12);
 		
-		public static const CENTER:Point = new Point(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
+		public static const CENTER:Point = new Point(16, 24);
 		public static const HIT_BOX:Rectangle = new Rectangle(10, 10, 11, 30);
 		
 		private var relativeCenter:Point;
@@ -82,6 +87,13 @@ package src
 			shootingAnimationReversed = FrameAnimation.create(archerData,
 					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES,
 					FrameAnimation.THREE_HALVES_PER_BEAT, 0xFF0000, true);
+					
+			fightingAnimation = FrameAnimation.create(archerData,
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
+			fightingAnimationReversed = FrameAnimation.create(archerData,
+					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
+					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
 			
 			dyingAnimation = FrameAnimation.create(archerData,
 					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
@@ -106,13 +118,15 @@ package src
 			//This way there's only one copy of each bitmap frame.
 			
 			var move:FrameAnimation, retreat:FrameAnimation, summon:FrameAnimation;
-			var shoot:FrameAnimation, die:FrameAnimation, stand:FrameAnimation;
+			var shoot:FrameAnimation, fight:FrameAnimation, die:FrameAnimation
+			var stand:FrameAnimation;
 			
 			if (facesRight) {
 				move = movementAnimation.copy();
 				retreat = retreatingAnimation.copy();
 				summon = summonAnimation.copy();
 				shoot = shootingAnimation.copy();
+				fight = fightingAnimation.copy();
 				die = dyingAnimation.copy();
 				stand = standingAnimation.copy();
 				
@@ -123,12 +137,15 @@ package src
 				retreat = retreatingAnimationReversed.copy();
 				summon = summonAnimationReversed.copy();
 				shoot = shootingAnimationReversed.copy();
+				fight = fightingAnimationReversed.copy();
 				die = dyingAnimationReversed.copy();
-				die.x = (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
+				die.x = FrameAnimation.SCALE*(FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
 				stand = standingAnimationReversed.copy();
 				
-				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
-				relativeArrowPosition = new Point(FRAME_WIDTH - ARROW_POSITION.x, ARROW_POSITION.y);
+				relativeCenter = new Point(
+						FrameAnimation.SCALE*FRAME_WIDTH - CENTER.x, CENTER.y);
+				relativeArrowPosition = new Point(
+						FrameAnimation.SCALE*FRAME_WIDTH - ARROW_POSITION.x, ARROW_POSITION.y);
 			}
 				
 			super.animations[Status.MOVING] = move;
@@ -146,6 +163,10 @@ package src
 			super.animations[Status.SHOOTING] = shoot;
 			this.addChild(shoot);
 			shoot.visible = false;
+			
+			super.animations[Status.FIGHTING] = fight;
+			this.addChild(fight);
+			fight.visible = false;
 				
 			super.animations[Status.DYING] = die;
 			this.addChild(die);
@@ -158,13 +179,22 @@ package src
 			currentAnimation = stand;
 			
 			super.defaultAnimation = stand;
+			
+			alignEffects(relativeCenter);
 		}
 		
 		public static function timeUntilFired():Number {
-			// (time/beat) * (beat/frame) * (4th frame)
-			//		?	   *	(2/3)     *  4
+			// (time/beat) * (beat/frame) * (5th frame)
+			//		?	   *	(2/3)     *  5
 			
 			return Main.getBeat() * (10.0 / 3.0);
+		}
+		
+		public static function timeBetweenBlows():Number {
+			// (time/beat) * (beat/frame) * (4 frames)
+			//		?	   *	(1/2)     *  4
+			
+			return Main.getBeat() * (2.0);
 		}
 			
 		override public function get center():Point {
