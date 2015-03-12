@@ -16,6 +16,9 @@ package src
 	public class MainArea extends Sprite 
 	{
 		
+		[Embed(source = "../assets/tower.png")]
+		private static const TowerImage:Class;
+		
 		public static var mainArea:MainArea;
 		
 		public static const WIDTH:int = 600;
@@ -47,7 +50,11 @@ package src
 		
 		private var projectiles:Vector.<Projectile>;
 		
+		private var background:Sprite;
 		private var arena : Sprite;
+		private var foreground:Sprite;
+		
+		private var scrollable:Sprite;
 		private var scroller:TweenLite;
 		
 		private var minimap:Sprite;
@@ -71,15 +78,24 @@ package src
 			projectiles = new Vector.<Projectile>();
 			
 			//prep arena
+			scrollable = new Sprite();
+			this.addChild(scrollable);
+			
+			background = new Sprite();
+			scrollable.addChild(background);
+			
 			arena = new Sprite();
-			this.addChild(arena);
+			scrollable.addChild(arena);
 			
-			arena.graphics.beginFill(0xB0D090);
-			arena.graphics.drawRect(0, 0, ARENA_WIDTH, HEIGHT);
-			arena.graphics.endFill();
+			foreground = new Sprite();
+			scrollable.addChild(foreground);
 			
-			arena.graphics.beginFill(0x909000);
-			arena.graphics.drawRect(0, Actor.Y_POSITION, ARENA_WIDTH, 3);
+			background.graphics.beginFill(0xB0D090);
+			background.graphics.drawRect(0, 0, ARENA_WIDTH, HEIGHT);
+			background.graphics.endFill();
+			
+			background.graphics.beginFill(0x909000);
+			background.graphics.drawRect(0, Actor.Y_POSITION, ARENA_WIDTH, 3);
 			
 			//minimap
 			minimap = new Sprite();
@@ -157,9 +173,13 @@ package src
 			arena.addChild(playerWizard.sprite);
 			minimap.addChild(playerWizard.miniSprite);
 			
-			
 			playerActors.push(playerShield);
 			opponentActors.push(opponentShield);
+			
+			//Set up background/foreground.
+			var tower:Bitmap = (new TowerImage() as Bitmap);
+			background.addChild(tower);
+			tower.x = 0; tower.y = 0;
 			
 			hardCode();
 			
@@ -330,11 +350,11 @@ package src
 			if (scroller == null) {
 				var distance:Number;
 				if (right) {
-					distance = arena.x - (-(ARENA_WIDTH - WIDTH));
-					scroller = new TweenLite(arena, distance / SCROLL_SPEED, { x : -(ARENA_WIDTH - WIDTH), ease:Linear.easeInOut, onComplete:stopScrolling } );
+					distance = scrollable.x - (-(ARENA_WIDTH - WIDTH));
+					scroller = new TweenLite(scrollable, distance / SCROLL_SPEED, { x : -(ARENA_WIDTH - WIDTH), ease:Linear.easeInOut, onComplete:stopScrolling } );
 				} else {
-					distance = -arena.x;
-					scroller = new TweenLite(arena, distance / SCROLL_SPEED, { x : 0, ease:Linear.easeInOut, onComplete:stopScrolling} );
+					distance = -scrollable.x;
+					scroller = new TweenLite(scrollable, distance / SCROLL_SPEED, { x : 0, ease:Linear.easeInOut, onComplete:stopScrolling} );
 				}
 			}
 		}

@@ -132,7 +132,7 @@ package src
 			
 			if (blessTimer != null) {
 				//Bless anyone that this cleric was about to bless.
-				blessTimer.dispatchEvent(TimerEvent.TIMER_COMPLETE);
+				blessTimer.dispatchEvent(new TimerEvent(TimerEvent.TIMER_COMPLETE));
 				blessTimer.stop();
 				blessTimer = null;
 			}
