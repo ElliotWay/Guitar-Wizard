@@ -31,10 +31,10 @@ package src
 		
 		private var damage:Number;
 		
-		public function Assassin(isPlayerPiece:Boolean) 
+		public function Assassin(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
 			super(isPlayerPiece,
-					new AssassinSprite(isPlayerPiece),
+					new AssassinSprite(isPlayerPiece, facesRight),
 					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
 			
 			this.speed = 150;

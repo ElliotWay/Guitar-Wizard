@@ -9,8 +9,7 @@ package src
 	import flash.utils.ByteArray;
 	
 	/**
-	 * ...
-	 * @author ...
+	 * An animation consisting of several frames, that are moved through on the beat.
 	 */
 	public class FrameAnimation extends Sprite
 	{
@@ -120,11 +119,14 @@ package src
 			
 			output.frames[0].visible = true;
 			
+			output.visible = false;
+			
 			return output;
 		}
 		
 		/**
-		 * Copy a frame animation without creating new bitmaps
+		 * Copy a frame animation without creating new bitmaps.
+		 * The animation will start with visible = false.
 		 * @param	animation the animation to copy
 		 * @return  a FrameAnimation that acts the same as the original
 		 */
@@ -134,6 +136,8 @@ package src
 			var numFrames:int = animation.frames.length;
 			
 			output.frames = new Vector.<Bitmap>(numFrames);
+			
+			output.visible = false;
 			
 			for (var index:int = 0; index < numFrames; index++) {
 				output.frames[index] = new Bitmap(animation.frames[index].bitmapData);

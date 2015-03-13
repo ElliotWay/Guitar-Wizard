@@ -4,6 +4,7 @@ package src
 	import flash.display.BitmapData;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	
 	/**
 	 * ...
 	 * @author ...
@@ -13,40 +14,24 @@ package src
 		
 		[Embed(source="../assets/archer.png")]
 		private static const ArcherImage:Class;
+		private static const ARCHER_DATA:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
+		
 		
 		private static const FRAME_WIDTH:int = 18;
 		private static const FRAME_HEIGHT:int = 24;
 		
-		private static const MOVEMENT_POSITION:int = 0;
-		private static const MOVEMENT_FRAMES:int = 4;
-		private static var movementAnimation:FrameAnimation;
-		private static var movementAnimationReversed:FrameAnimation;
-		private static var retreatingAnimation:FrameAnimation;
-		private static var retreatingAnimationReversed:FrameAnimation;
-		
-		private static const SUMMON_POSITION:int = FRAME_HEIGHT;
-		private static const SUMMON_FRAMES:int = 7;
-		private static var summonAnimation:FrameAnimation;
-		private static var summonAnimationReversed:FrameAnimation;
-		
-		private static const SHOOTING_POSITION:int = FRAME_HEIGHT * 2;
-		private static const SHOOTING_FRAMES:int = 6;
-		private static var shootingAnimation:FrameAnimation;
-		private static var shootingAnimationReversed:FrameAnimation;
-		
-		private static const FIGHTING_POSITION:int = FRAME_HEIGHT * 3;
-		private static const FIGHTING_FRAMES:int = 4;
-		private static var fightingAnimation:FrameAnimation;
-		private static var fightingAnimationReversed:FrameAnimation;
-		
-		private static const DYING_POSITION:int = FRAME_HEIGHT * 4;
-		private static const DYING_FRAMES:int = 9;
 		private static const DYING_FRAME_WIDTH:int = 35;
-		private static var dyingAnimation:FrameAnimation;
-		private static var dyingAnimationReversed:FrameAnimation;
 		
-		private static var standingAnimation:FrameAnimation;
-		private static var standingAnimationReversed:FrameAnimation;
+		
+		public static const ANIMATIONS:AnimationCollection =
+		new AnimationCollection(ARCHER_DATA, FRAME_WIDTH, FRAME_HEIGHT,
+		//status, 				yposition, num frames, frames per beat,	(true, different width)
+		Status.MOVING, 					0, 	4, FrameAnimation.TWO_PER_BEAT,
+		Status.SUMMONING, 	 FRAME_HEIGHT, 	7, FrameAnimation.TWO_PER_BEAT,
+		Status.SHOOTING, FRAME_HEIGHT * 2, 	6, FrameAnimation.THREE_HALVES_PER_BEAT,
+		Status.FIGHTING, FRAME_HEIGHT * 3, 	4, FrameAnimation.TWO_PER_BEAT,
+		Status.DYING, 	 FRAME_HEIGHT * 4, 	9, FrameAnimation.TWO_PER_BEAT, true, DYING_FRAME_WIDTH,
+		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT);
 		
 		public static const ARROW_TIME:Number = 6000;
 		public static const ARROW_POSITION:Point = new Point(30, 12);
@@ -57,128 +42,44 @@ package src
 		private var relativeCenter:Point;
 		private var relativeArrowPosition:Point;
 		
-		public static function initializeAnimations():void {
-			var archerData:BitmapData = (new ArcherImage() as Bitmap).bitmapData;
-			
-			movementAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
-			movementAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
-					
-			retreatingAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0x0000FF, true);
-			retreatingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MOVEMENT_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0xFF0000, false);
-			
-			summonAnimation = FrameAnimation.create(archerData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
-			summonAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, SUMMON_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SUMMON_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
-					
-			shootingAnimation = FrameAnimation.create(archerData,
-					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES,
-					FrameAnimation.THREE_HALVES_PER_BEAT, 0x0000FF, false);
-			shootingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, SHOOTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, SHOOTING_FRAMES,
-					FrameAnimation.THREE_HALVES_PER_BEAT, 0xFF0000, true);
-					
-			fightingAnimation = FrameAnimation.create(archerData,
-					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
-			fightingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, FIGHTING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, FIGHTING_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
-			
-			dyingAnimation = FrameAnimation.create(archerData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0x0000FF, false);
-			dyingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, DYING_POSITION), DYING_FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
-					FrameAnimation.TWO_PER_BEAT, 0xFF0000, true);
-			
-			standingAnimation = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
-					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0000FF, false);
-			standingAnimationReversed = FrameAnimation.create(archerData,
-					new Point(0, MOVEMENT_POSITION), FRAME_WIDTH, FRAME_HEIGHT, 1,
-					FrameAnimation.ONE_THIRD_PER_BEAT, 0xFF0000, true);
-		}
-		
-		public function ArcherSprite(color:uint, facesRight:Boolean) 
+		public function ArcherSprite(isPlayerUnit:Boolean, facesRight:Boolean) 
 		{
-			super();
 			
-			//Copy these animations instead of using the animations themselves.
-			//This way there's only one copy of each bitmap frame.
+			ANIMATIONS.initializeMap(super.animations,
+					isPlayerUnit ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
+					facesRight ? ActorSprite.RIGHT_FACING : ActorSprite.LEFT_FACING);
+					
+			//Retreating is special because it doesn't have a dedicated animation;
+			//it's just the movement animation facing the other direction.
+			super.animations[Status.RETREATING] = ANIMATIONS.find(Status.MOVING,
+					isPlayerUnit ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
+					facesRight ? ActorSprite.LEFT_FACING : ActorSprite.RIGHT_FACING).copy();
 			
-			var move:FrameAnimation, retreat:FrameAnimation, summon:FrameAnimation;
-			var shoot:FrameAnimation, fight:FrameAnimation, die:FrameAnimation
-			var stand:FrameAnimation;
+			this.addChild(super.animations[Status.MOVING]);
+			this.addChild(super.animations[Status.RETREATING]);
+			this.addChild(super.animations[Status.SUMMONING]);
+			this.addChild(super.animations[Status.SHOOTING]);			
+			this.addChild(super.animations[Status.FIGHTING]);
+			this.addChild(super.animations[Status.DYING]);
+			this.addChild(super.animations[Status.STANDING]);
+			
+			var stand:FrameAnimation = super.animations[Status.STANDING];
+			
+			stand.visible = true;
+			currentAnimation = stand;
+			super.defaultAnimation = stand;
 			
 			if (facesRight) {
-				move = movementAnimation.copy();
-				retreat = retreatingAnimation.copy();
-				summon = summonAnimation.copy();
-				shoot = shootingAnimation.copy();
-				fight = fightingAnimation.copy();
-				die = dyingAnimation.copy();
-				stand = standingAnimation.copy();
-				
 				relativeCenter = CENTER;
 				relativeArrowPosition = ARROW_POSITION;
 			} else {
-				move = movementAnimationReversed.copy();
-				retreat = retreatingAnimationReversed.copy();
-				summon = summonAnimationReversed.copy();
-				shoot = shootingAnimationReversed.copy();
-				fight = fightingAnimationReversed.copy();
-				die = dyingAnimationReversed.copy();
-				die.x = FrameAnimation.SCALE*(FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
-				stand = standingAnimationReversed.copy();
+				super.animations[Status.DYING].x = FrameAnimation.SCALE * (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
 				
 				relativeCenter = new Point(
 						FrameAnimation.SCALE*FRAME_WIDTH - CENTER.x, CENTER.y);
 				relativeArrowPosition = new Point(
 						FrameAnimation.SCALE*FRAME_WIDTH - ARROW_POSITION.x, ARROW_POSITION.y);
 			}
-				
-			super.animations[Status.MOVING] = move;
-			this.addChild(move);
-			move.visible = false;
-				
-			super.animations[Status.RETREATING] = retreat;
-			this.addChild(retreat);
-			retreat.visible = false;
-				
-			super.animations[Status.SUMMONING] = summon;
-			this.addChild(summon);
-			summon.visible = false;
-				
-			super.animations[Status.SHOOTING] = shoot;
-			this.addChild(shoot);
-			shoot.visible = false;
-			
-			super.animations[Status.FIGHTING] = fight;
-			this.addChild(fight);
-			fight.visible = false;
-				
-			super.animations[Status.DYING] = die;
-			this.addChild(die);
-			die.visible = false;
-				
-			super.animations[Status.STANDING] = stand;
-			this.addChild(stand);
-			stand.visible = true;
-			
-			currentAnimation = stand;
-			
-			super.defaultAnimation = stand;
 			
 			alignEffects(relativeCenter);
 		}

@@ -34,10 +34,11 @@ package src
 		private var range:Number; //Range should decrease below skirmish distance.
 		private var skirmishDistance:Number;
 		
-		public function Archer(isPlayerPiece:Boolean) 
+		public function Archer(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
+				
 			super(isPlayerPiece,
-					new	ArcherSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020), isPlayerPiece),
+					new	ArcherSprite(isPlayerPiece, facesRight),
 					new SmallTriangleSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020)));
 			
 			this.speed = 70;

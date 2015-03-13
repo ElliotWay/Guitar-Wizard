@@ -146,28 +146,28 @@ package src
 			var actor:Actor;
 			
 			for (index = 0; index < 0; index++) {
-				actor = new Archer(false);
+				actor = new Archer(false, false);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 12; index++) {
-				actor = new Assassin(false);
+			for (index = 0; index < 2; index++) {
+				actor = new Assassin(false, false);
 				opponentSummon(actor);
 			}
 			for (index = 0; index < 0; index++) {
-				actor = new Cleric(false);
+				actor = new Cleric(false, false);
 				opponentSummon(actor);
 			}
 			
 			for (index = 0; index < 0; index++) {
-				actor = new Archer(true);
+				actor = new Archer(true, true);
 				playerSummon(actor);
 			}
 			for (index = 0; index < 0; index++) {
-				actor = new Assassin(true);
+				actor = new Assassin(true, true);
 				playerSummon(actor)
 			}
 			for (index = 0; index < 0; index++) {
-				actor = new Cleric(true);
+				actor = new Cleric(true, true);
 				playerSummon(actor);
 			}
 			
@@ -176,14 +176,14 @@ package src
 		public function go():void {
 			
 
-			var playerShield:Shield = new Shield(true);
+			var playerShield:Shield = new Shield(true, true);
 			playerShield.position();
 			arena.addChild(playerShield.sprite);
 			minimap.addChild(playerShield.miniSprite);
 			
 			playerShieldIsUp = true;
 			
-			var opponentShield:Shield = new Shield(false);
+			var opponentShield:Shield = new Shield(false, false);
 			opponentShield.position();
 			arena.addChild(opponentShield.sprite);
 			minimap.addChild(opponentShield.miniSprite);

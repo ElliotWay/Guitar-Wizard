@@ -340,11 +340,11 @@ package src {
 			var actor:Actor;
 			
 			if (currentTrack == Main.HIGH)
-				actor = new highActorType(true);
+				actor = new highActorType(true, true);
 			else if (currentTrack == Main.MID)
-				actor = new midActorType(true);
+				actor = new midActorType(true, true);
 			else
-				actor = new lowActorType(true);
+				actor = new lowActorType(true, true);
 				
 			mainArea.playerSummon(actor);
 		}

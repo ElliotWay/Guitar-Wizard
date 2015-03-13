@@ -24,16 +24,16 @@ package src
 			//Basic strategy of summon one DefaultActor.
 			
 			var out:Vector.<Actor> = new Vector.<Actor>();
-			return out;
+			//return out;
 			
 			var type:Number = Math.random() * 3;
 			
 			if (type < 1)
-				out.push(new Assassin(false));
+				out.push(new Assassin(false, false));
 			else if (type < 2)
-				out.push(new Archer(false));
+				out.push(new Archer(false, false));
 			else
-				out.push(new Cleric(false));
+				out.push(new Cleric(false, false));
 			
 			return out;
 		}

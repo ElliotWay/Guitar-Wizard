@@ -9,10 +9,10 @@ package src
 	public class Shield extends Actor 
 	{
 		
-		public function Shield(playerPiece:Boolean) 
+		public function Shield(playerPiece:Boolean, facesRight:Boolean) 
 		{
 			super(playerPiece,
-					new ShieldSprite(playerPiece),
+					new ShieldSprite(playerPiece, facesRight),
 					new ThinLineSprite(0x00FFFF));
 			
 			this.speed = 0;

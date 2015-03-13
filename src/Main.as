@@ -83,10 +83,6 @@ package src
 		}
 		
 		public static function loadStatics():void {
-			ArcherSprite.initializeAnimations();
-			AssassinSprite.initializeAnimations();
-			ClericSprite.initializeAnimations();
-			ShieldSprite.initializeAnimations();
 			WizardSprite.initializeAnimations();
 		}
 		

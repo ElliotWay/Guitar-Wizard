@@ -27,10 +27,10 @@ package src
 		private var blessTimer:Timer;
 		private var blessCooldownTimer:Timer;
 		
-		public function Cleric(isPlayerPiece:Boolean) 
+		public function Cleric(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
 			super(isPlayerPiece,
-					new ClericSprite(isPlayerPiece),
+					new ClericSprite(isPlayerPiece, facesRight),
 					new SmallCircleSprite(isPlayerPiece ? 0x0040FF : 0xFF4000));
 			
 			this.speed = 45;

@@ -13,6 +13,17 @@ package src {
 	 */
 	public class ActorSprite extends Sprite 
 	{
+		public static const PLAYER_COLOR:uint = 0x0000FF;
+		public static const OPPONENT_COLOR:uint = 0xFF0000;
+		
+		public static const PLAYER:int = 0;
+		public static const OPPONENT:int = 1;
+		
+		public static const RIGHT_FACING:int = 0;
+		public static const LEFT_FACING:int = 1;
+		
+		
+		
 		[Embed(source = "../assets/blessing.png")]
 		private static const BlessImage:Class;
 		
@@ -24,6 +35,8 @@ package src {
 		private static const BLESS_EFFECT:BitmapData = (new BlessImage() as Bitmap).bitmapData;
 		
 		private var blessedEffect:Bitmap;
+		
+		
 		
 		public function ActorSprite() 
 		{

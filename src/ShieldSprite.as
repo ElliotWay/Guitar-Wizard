@@ -12,68 +12,41 @@ package src
 	{
 		[Embed(source = "../assets/shield.png")]
 		private static const ShieldData:Class;
+		private static const SHIELD_DATA:BitmapData = (new ShieldData() as Bitmap).bitmapData;
 		
 		public static const FRAME_WIDTH:int = 56;
 		public static const FRAME_HEIGHT:int = 150;
 		
-		private static const DYING_POSITION:int = 0;
-		private static const DYING_FRAMES:int = 5;
-		private static var dyingAnimation:FrameAnimation;
-		private static var dyingAnimationReversed:FrameAnimation;
-		
-		private static var standingAnimation:FrameAnimation;
-		private static var standingAnimationReversed:FrameAnimation;
+		private static const ANIMATIONS:AnimationCollection =
+		new AnimationCollection(SHIELD_DATA, FRAME_WIDTH, FRAME_HEIGHT,
+		//status, 		yposition, num frames, frames per beat,
+		Status.DYING, 			0,			5, FrameAnimation.FOUR_PER_BEAT,
+		Status.STANDING,		0,			1, FrameAnimation.ONE_THIRD_PER_BEAT);
 		
 		public static const CENTER:Point = new Point(43, 57);
 		
 		private var relativeCenter:Point;
 		
-		public static function initializeAnimations():void {
-			var shieldData:BitmapData = (new ShieldData() as Bitmap).bitmapData;
-			
-			dyingAnimation = FrameAnimation.create(shieldData,
-					new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
-					FrameAnimation.ONE_PER_BEAT, 0x0, false);
-			dyingAnimationReversed = FrameAnimation.create(shieldData,
-					new Point(0, DYING_POSITION), FRAME_WIDTH, FRAME_HEIGHT, DYING_FRAMES,
-					FrameAnimation.ONE_PER_BEAT, 0x0, true);
-			
-			standingAnimation = FrameAnimation.create(shieldData,
-					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1, 
-					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0, false);
-			standingAnimationReversed = FrameAnimation.create(shieldData,
-					new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT, 1,
-					FrameAnimation.ONE_THIRD_PER_BEAT, 0x0, true);
-		}
-		
-		public function ShieldSprite(isPlayerPiece:Boolean) 
+		public function ShieldSprite(isPlayerUnit:Boolean, facesRight:Boolean) 
 		{
-			super();
+			ANIMATIONS.initializeMap(super.animations,
+					isPlayerUnit ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
+					facesRight ? ActorSprite.RIGHT_FACING : ActorSprite.LEFT_FACING);
 			
-			var die:FrameAnimation, stand:FrameAnimation;
+			this.addChild(super.animations[Status.DYING]);
+			this.addChild(super.animations[Status.STANDING]);
 			
-			if (isPlayerPiece) {
-				die = dyingAnimation.copy();
-				stand = standingAnimation.copy();
-				
+			var stand:FrameAnimation = super.animations[Status.STANDING];
+			
+			stand.visible = true;
+			currentAnimation = stand;
+			super.defaultAnimation = stand;
+					
+			if (facesRight) {
 				relativeCenter = CENTER;
 			} else {
-				die = dyingAnimationReversed.copy();
-				stand = standingAnimationReversed.copy();
-				
 				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
 			}
-			
-			this.addChild(die);
-			die.visible = false;
-			super.animations[Status.DYING] = die;
-			
-			this.addChild(stand);
-			stand.visible = true;
-			super.animations[Status.STANDING] = stand;
-			
-			super.currentAnimation = stand;
-			super.defaultAnimation = stand;
 		}
 		
 		override public function get center():Point {
