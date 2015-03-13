@@ -29,7 +29,7 @@ package src
 		
 		public function Cleric(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
-			super(isPlayerPiece,
+			super(isPlayerPiece, facesRight,
 					new ClericSprite(isPlayerPiece, facesRight),
 					new SmallCircleSprite(isPlayerPiece ? 0x0040FF : 0xFF4000));
 			

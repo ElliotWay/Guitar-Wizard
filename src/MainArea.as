@@ -149,7 +149,7 @@ package src
 				actor = new Archer(false, false);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 2; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = new Assassin(false, false);
 				opponentSummon(actor);
 			}
@@ -292,15 +292,29 @@ package src
 		 * @param	actor
 		 */
 		public function wizardKillMode(actor:Actor):void {
-			trace("Kill!!!!");
+			arena.removeChild(actor.sprite);
+			minimap.removeChild(actor.miniSprite);
+			
+			var actorClass:Class;
+			if (actor is Archer)
+				actorClass = Archer;
+			else if (actor is Assassin)
+				actorClass = Assassin;
+			else
+				actorClass = Cleric;
+			
+			var wizardKiller:Actor = new actorClass(actor.isPlayerActor, !actor.isPlayerActor);
+			
 			if (actor.isPlayerActor) {
-				playerWizardKiller = actor;
+				playerWizardKiller = wizardKiller;
 			} else {
-				opponentWizardKiller = actor;
+				opponentWizardKiller = wizardKiller;
 			}
 			
-			actor.sprite.y = WIZARD_HEIGHT - actor.sprite.height;
-			actor.retreat();
+			wizardKiller.sprite.y = WIZARD_HEIGHT - actor.sprite.height;
+			wizardKiller.go();
+			
+			arena.addChild(wizardKiller.sprite);
 		}
 		
 		/**
@@ -350,8 +364,8 @@ package src
 				}
 			} else {
 				wizardList = new Vector.<Actor>(1, true);
-				wizardList[0] = playerWizard;
-				//playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+				wizardList[0] = opponentWizard;
+				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
 			}
 			
 			if (opponentWizardKiller == null) {
@@ -366,8 +380,8 @@ package src
 				}
 			} else {
 				wizardList = new Vector.<Actor>(1, true);
-				wizardList[0] = opponentWizard;
-				//opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+				wizardList[0] = playerWizard;
+				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
 			}
 		}
 		

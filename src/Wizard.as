@@ -9,7 +9,7 @@ package src
 		
 		public function Wizard(playerPiece:Boolean) 
 		{
-			super(playerPiece,
+			super(playerPiece, playerPiece,
 					new WizardSprite(playerPiece),
 					new SmallTriangleSprite(0x000060));
 					

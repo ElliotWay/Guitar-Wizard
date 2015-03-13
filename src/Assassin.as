@@ -33,7 +33,7 @@ package src
 		
 		public function Assassin(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
-			super(isPlayerPiece,
+			super(isPlayerPiece, facesRight,
 					new AssassinSprite(isPlayerPiece, facesRight),
 					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
 			
@@ -47,7 +47,6 @@ package src
 				return;
 			}
 			
-			
 			//Do other stuff.
 			
 			if (_status != Status.ASSASSINATING && _status != Status.FIGHTING) {
@@ -56,8 +55,7 @@ package src
 			
 			//Find the closest valid target.
 			var closest:Actor = this.getClosest(enemies, MAX_JUMP_DISTANCE * 2);
-			
-			var self:Assassin = this; //For use inside enclosures.
+
 			
 			if (closest != null && (_status == Status.MOVING || _status == Status.STANDING)) {
 					
@@ -75,7 +73,7 @@ package src
 					this.halt();
 					
 					var landedX:Number = _sprite.x +
-							(isPlayerPiece ?
+							(_facesRight ?
 									targetAfterJumpDistance - MELEE_RANGE :
 									-targetAfterJumpDistance + MELEE_RANGE);
 						
@@ -120,7 +118,7 @@ package src
 				if ((1 - jumping.progress()) * AssassinSprite.timeToLand() < time) {
 					return new Point(jumpTarget, _sprite.y);
 				} else {
-					if (isPlayerPiece)
+					if (_facesRight)
 						return new Point(_sprite.x + time * APPROX_JUMPING_SPEED, _sprite.y);
 					else {
 						return new Point(_sprite.x - time * APPROX_JUMPING_SPEED, _sprite.y);

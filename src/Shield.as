@@ -11,7 +11,7 @@ package src
 		
 		public function Shield(playerPiece:Boolean, facesRight:Boolean) 
 		{
-			super(playerPiece,
+			super(playerPiece, facesRight,
 					new ShieldSprite(playerPiece, facesRight),
 					new ThinLineSprite(0x00FFFF));
 			

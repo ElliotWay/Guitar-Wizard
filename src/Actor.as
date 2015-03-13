@@ -35,6 +35,7 @@ package src {
 		protected var _hitpoints:Number;
 		
 		protected var isPlayerPiece : Boolean;
+		protected var _facesRight:Boolean;
 		
 		protected var speed : Number; // pxl/s
 		
@@ -49,13 +50,14 @@ package src {
 		protected var blessCounter:int;
 		
 		
-		public function Actor(playerPiece:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		public function Actor(playerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
 		{
 			_sprite = sprite;
 			_miniSprite = miniSprite;
 			
 			_hitpoints = 10;
 			isPlayerPiece = playerPiece;
+			this._facesRight = facesRight;
 			speed = 50;
 			
 			_status = Status.STANDING;
@@ -101,7 +103,7 @@ package src {
 			if (other._status == Status.DYING)
 				return false;
 			
-			if (isPlayerPiece) {
+			if (facesRight) {
 				return other.getPosition().x - this.getPosition().x > TOO_CLOSE;
 			} else {
 				return this.getPosition().x - other.getPosition().x > TOO_CLOSE;
@@ -165,6 +167,11 @@ package src {
 			return _status;
 		}
 		
+		public function get facesRight():Boolean 
+		{
+			return _facesRight;
+		}
+		
 		
 		/**
 		 * Gets the point at the center of the actor.
@@ -196,7 +203,7 @@ package src {
 		public function predictPosition(time:Number):Point {
 			var position:Point = this.getPosition();
 			if (_status == Status.MOVING) {
-				if (isPlayerPiece) {
+				if (_facesRight) {
 					return new Point(
 							Math.min(position.x + (time * speed / 1000), MainArea.ARENA_WIDTH),
 							position.y);
@@ -206,7 +213,7 @@ package src {
 							position.y);
 				}
 			} else if (_status == Status.RETREATING) {
-				if (isPlayerPiece) {
+				if (_facesRight) {
 					return new Point(
 							Math.max(position.x - (time * speed / 1000), 0),
 							position.y);
@@ -287,7 +294,7 @@ package src {
 			_sprite.animate(Status.MOVING);
 			
 			var distance:Number;
-			if (isPlayerPiece) {
+			if (_facesRight) {
 				distance = MainArea.ARENA_WIDTH - _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x:MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
 			} else {
@@ -302,20 +309,18 @@ package src {
 		 */
 		public function retreat():void {
 			halt();
-			trace(this + " " + _sprite.x + " " + MainArea.ARENA_WIDTH);
 				
 			_status = Status.RETREATING;
 			_sprite.animate(Status.RETREATING);
 			
 			var distance:Number;
-			if (!isPlayerPiece) {
+			if (!_facesRight) {
 				distance = MainArea.ARENA_WIDTH - _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
 			} else {
 				distance = _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
 			}
-			trace(movement);
 		}
 		
 		/**

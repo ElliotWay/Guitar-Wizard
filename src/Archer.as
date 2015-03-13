@@ -37,7 +37,7 @@ package src
 		public function Archer(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
 				
-			super(isPlayerPiece,
+			super(isPlayerPiece, facesRight,
 					new	ArcherSprite(isPlayerPiece, facesRight),
 					new SmallTriangleSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020)));
 			
