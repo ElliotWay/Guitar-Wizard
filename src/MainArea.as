@@ -30,6 +30,10 @@ package src
 		public static const ARENA_WIDTH:int = 2000;
 		public static const SHIELD_POSITION:int = 450;
 		
+		public static const WIZARD_HEIGHT:int = 100;
+		
+		public static const END_POINT:int = 20;
+		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
 		
@@ -41,11 +45,16 @@ package src
 		// (1 / BPM) * 60 * 1000, 500 is 120BPM
 		public static const MILLISECONDS_PER_BEAT:int = 500;
 		
+		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
+		
 		private var playerActors : Vector.<Actor>;
 		private var opponentActors : Vector.<Actor>;
 		
 		private var playerWizard:Wizard;
 		private var opponentWizard:Wizard;
+		
+		private var playerWizardKiller:Actor;
+		private var opponentWizardKiller:Actor;
 		
 		//TODO do this better
 		public static var playerShieldIsUp:Boolean;
@@ -140,7 +149,7 @@ package src
 				actor = new Archer(false);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 12; index++) {
 				actor = new Assassin(false);
 				opponentSummon(actor);
 			}
@@ -183,21 +192,28 @@ package src
 			
 			playerWizard = new Wizard(true);
 			playerWizard.sprite.x = 220;
-			playerWizard.sprite.y = 96 - 50;
+			playerWizard.sprite.y = WIZARD_HEIGHT - playerWizard.sprite.height;
 			arena.addChild(playerWizard.sprite);
-			minimap.addChild(playerWizard.miniSprite);
+			
+			opponentWizard = new Wizard(false);
+			opponentWizard.sprite.y = ARENA_WIDTH - 180;
+			opponentWizard.sprite.y = WIZARD_HEIGHT - opponentWizard.sprite.height;
+			arena.addChild(playerWizard.sprite);
+			
+			playerWizardKiller = null;
+			opponentWizardKiller = null;
 			
 			playerActors.push(playerShield);
 			opponentActors.push(opponentShield);
 			
 			//Set up background/foreground.
-			var tower:Bitmap = (new TowerImage() as Bitmap);
-			background.addChild(tower);
-			tower.x = 0; tower.y = 0;
+			var playerTower:Bitmap = (new TowerImage() as Bitmap);
+			background.addChild(playerTower);
+			playerTower.x = 0; playerTower.y = 0;
 			
-			var towerFore:Bitmap = (new TowerForeImage() as Bitmap);
-			foreground.addChild(towerFore);
-			towerFore.x = 0; towerFore.y = 0;
+			var playerTowerFore:Bitmap = (new TowerForeImage() as Bitmap);
+			foreground.addChild(playerTowerFore);
+			playerTowerFore.x = 0; playerTowerFore.y = 0;
 			
 			hardCode();
 			
@@ -232,6 +248,15 @@ package src
 				projectile.forceFinish();
 			}
 			projectiles = new Vector.<Projectile>();
+			
+			arena.removeChild(playerWizard.sprite);
+			playerWizard = null;
+			
+			arena.removeChild(opponentWizard.sprite);
+			opponentWizard = null;
+			
+			playerWizardKiller = null;
+			opponentWizardKiller = null;
 		}
 		
 		public function playerSummon(actor : Actor):void {
@@ -260,6 +285,22 @@ package src
 				
 				actor.go();
 			});
+		}
+		
+		/**
+		 * Prepare this actor for killing a wizard, namely, move it into position behind the wizard.
+		 * @param	actor
+		 */
+		public function wizardKillMode(actor:Actor):void {
+			trace("Kill!!!!");
+			if (actor.isPlayerActor) {
+				playerWizardKiller = actor;
+			} else {
+				opponentWizardKiller = actor;
+			}
+			
+			actor.sprite.y = WIZARD_HEIGHT - actor.sprite.height;
+			actor.retreat();
 		}
 		
 		/**
@@ -293,6 +334,41 @@ package src
 			
 			filterDead(opponentActors);
 			opponentActors = opponentActors.filter(checkAlive, this);
+			
+			//Check wizard killing status.
+			var index:int;
+			var wizardList:Vector.<Actor>;
+			if (playerWizardKiller == null) {
+				index = 0;
+				while (index < playerActors.length) {
+					if (playerActors[index].getPosition().x > ARENA_WIDTH - END_POINT) {
+						wizardKillMode(playerActors[index]);
+						playerActors.splice(index - 1, 1);
+						break;
+					}
+					index++;
+				}
+			} else {
+				wizardList = new Vector.<Actor>(1, true);
+				wizardList[0] = playerWizard;
+				//playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+			}
+			
+			if (opponentWizardKiller == null) {
+				index = 0;
+				while (index < opponentActors.length) {
+					if (opponentActors[index].getPosition().x < END_POINT) {
+						wizardKillMode(opponentActors[index]);
+						opponentActors.splice(index, 1);
+						break;
+					}
+					index++;
+				}
+			} else {
+				wizardList = new Vector.<Actor>(1, true);
+				wizardList[0] = opponentWizard;
+				//opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+			}
 		}
 		
 		private function updateMinimap():void {

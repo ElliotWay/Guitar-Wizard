@@ -74,6 +74,10 @@ package src {
 			return _miniSprite;
 		}
 		
+		public function get isPlayerActor():Boolean {
+			return isPlayerPiece;
+		}
+		
 		/**
 		 * Override this method.
 		 * @param	others target actor
@@ -285,10 +289,10 @@ package src {
 			var distance:Number;
 			if (isPlayerPiece) {
 				distance = MainArea.ARENA_WIDTH - _sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
+				movement = new TweenLite(sprite, distance / speed, { x:MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
 			} else {
-				distance = _sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
+				distance = _sprite.x + 30;
+				movement = new TweenLite(sprite, distance / speed, { x:-30, ease:Linear.easeInOut} );
 			}
 		}
 		
@@ -298,10 +302,10 @@ package src {
 		 */
 		public function retreat():void {
 			halt();
+			trace(this + " " + _sprite.x + " " + MainArea.ARENA_WIDTH);
 				
 			_status = Status.RETREATING;
 			_sprite.animate(Status.RETREATING);
-			
 			
 			var distance:Number;
 			if (!isPlayerPiece) {
@@ -311,6 +315,7 @@ package src {
 				distance = _sprite.x;
 				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
 			}
+			trace(movement);
 		}
 		
 		/**

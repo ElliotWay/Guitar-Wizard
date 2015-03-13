@@ -24,6 +24,8 @@
 
 - guarantee that assassins can't jump through shields
 
+- replace actor lists with linked lists
+
 
 ---Bugs.-------------------	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
