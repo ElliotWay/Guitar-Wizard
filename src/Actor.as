@@ -248,7 +248,6 @@ package src {
 		 */
 		public function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number):void {
 			halt();
-			
 			_status = Status.FIGHTING;
 			_sprite.animate(Status.FIGHTING);
 			
@@ -268,7 +267,7 @@ package src {
 					//The fighting animation ideally continues smoothly if there
 					//is another target in range.
 				}
-			}, false, 0, true);
+			});
 					
 			fightingTimer.start();
 		}
@@ -346,7 +345,6 @@ package src {
 				_isDead = true;
 				_sprite.animate(Status.DYING, function():void {
 					_sprite.freeze();
-					
 					
 					fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
 						onComplete:function():void {

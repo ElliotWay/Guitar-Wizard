@@ -6,12 +6,15 @@ package src
 	 */
 	public class Wizard extends Actor 
 	{
-		
-		public function Wizard(playerPiece:Boolean) 
-		{
-			super(playerPiece, playerPiece,
-					new WizardSprite(playerPiece),
+		public static function create(isPlayerPiece:Boolean):Wizard {
+			return new Wizard(isPlayerPiece,
+					new WizardSprite(isPlayerPiece),
 					new SmallTriangleSprite(0x000060));
+		}
+		
+		public function Wizard(playerPiece:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		{
+			super(playerPiece, playerPiece, sprite, miniSprite);
 					
 					
 			this._hitpoints = 1;

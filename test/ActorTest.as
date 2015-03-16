@@ -1,10 +1,14 @@
 package test 
 {
 	
+	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.geom.Vector3D;
 	import flash.utils.Timer;
+	import mockolate.partial;
+	import mockolate.prepare;
 	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
@@ -31,10 +35,10 @@ package test
 		private var playerActor:Actor;
 		private var opponentActor:Actor;
 		
-		private var dyingLeft450:Actor, dyingRight550:Actor;
-		private var left450:Actor, right550:Actor;
-		private var left350:Actor, right650:Actor;
-		private var movingActor:Actor;
+		public var dyingLeft450:Actor, dyingRight550:Actor, left450:Actor, right550:Actor;
+		public var left350:Actor, right650:Actor, movingActor:Actor;
+		
+		private static const MASSIVE_DAMAGE:int = 9001;
 		
 		[Mock]
 		public var sprite:ActorSprite;
@@ -64,7 +68,14 @@ package test
 		private var afterFirstBlow:Timer;
 		private var afterSecondBlow:Timer;
 		
-		[Before]
+		[Before(async, timeout = 5000)]
+		public function prepMocks():void {
+			Async.proceedOnEvent(this,
+				prepare(Actor),
+				Event.COMPLETE);
+		}
+		
+		[Before(order = 1)]
 		public function setup():void {
 			spriteCenter = new Point(500, 10);
 			stub(sprite).getter("center").returns(spriteCenter);
@@ -72,30 +83,30 @@ package test
 			stub(sprite).getter("hitBox").returns(spriteHitBox);
 			
 			stub(sprite450).getter("center").returns(new Point(450, 10));
-			dyingLeft450 = new Actor(true, sprite450, miniSprite);
-			dyingLeft450.hitpoints = 0;
+			dyingLeft450 = partial(Actor, "Dying Left 450", [true, true, sprite450, miniSprite]);
+			dyingLeft450.hit(MASSIVE_DAMAGE);
 			dyingLeft450.checkIfDead();
-			left450 = new Actor(true, sprite450, miniSprite);
+			left450 = partial(Actor, "Left 450", [true, true, sprite450, miniSprite]);
 			
 			stub(sprite550).getter("center").returns(new Point(550, 10));
-			dyingRight550 = new Actor(false, sprite550, miniSprite);
-			dyingRight550.hitpoints = 0;
+			dyingRight550 = partial(Actor, "Dying Right 550", [false, false, sprite550, miniSprite]);
+			dyingRight550.hit(MASSIVE_DAMAGE);
 			dyingRight550.checkIfDead();
-			right550 = new Actor(false, sprite550, miniSprite);
+			right550 = partial(Actor, "Right 550", [false, false, sprite550, miniSprite]);
 			
 			stub(sprite350).getter("center").returns(new Point(350, 10));
-			left350 = new Actor(true, sprite350, miniSprite);
+			left350 = partial(Actor, "Left 350", [true, false, sprite350, miniSprite]);
 			
 			stub(sprite650).getter("center").returns(new Point(650, 10));
-			right650 = new Actor(false, sprite650, miniSprite);
+			right650 = partial(Actor, "Right 650", [false, false, sprite650, miniSprite]);
 
-			movingActor = new Actor(false, movingSprite, miniSprite);
+			movingActor = partial(Actor, "Moving Actor", [false, false, movingSprite, miniSprite]);
 			
 			afterFirstBlow = new Timer(1.5 * TIME_BETWEEN_BLOWS, 1);
 			afterSecondBlow = new Timer(2.5 * TIME_BETWEEN_BLOWS, 1);
 			
-			playerActor = new Actor(true, sprite, miniSprite);
-			opponentActor = new Actor(false, sprite, miniSprite);
+			playerActor = new Actor(true, true, sprite, miniSprite);
+			opponentActor = new Actor(false, false, sprite, miniSprite);
 		}
 		
 		[Test(order = 0)]
@@ -112,18 +123,6 @@ package test
 			assertThat(result, spriteHitBox);
 		}
 		
-		[Test(order = 0)]
-		public function hitPointsAcessors():void {
-			playerActor.hitpoints = 5;
-			
-			assertThat(playerActor.hitpoints, 5);
-			
-			playerActor.hitpoints += 10;
-			playerActor.hitpoints -= 3;
-			
-			assertThat(playerActor.hitpoints, 12);
-		}
-		
 		[Test(order = 1)]
 		public function checksWithinRange():void {
 			assertThat(playerActor.withinRange(left450, 100), true);
@@ -133,8 +132,8 @@ package test
 		}
 		
 		[Test(order = 1)]
-		public function diesIfNoHitpoints():void {
-			playerActor.hitpoints = 0;
+		public function diesIfHit():void {
+			playerActor.hit(MASSIVE_DAMAGE);
 			playerActor.checkIfDead();
 			
 			assertThat(playerActor.status, Status.DYING);
@@ -144,8 +143,7 @@ package test
 		}
 		
 		[Test(order = 1)]
-		public function livesIfSomeHitpoints():void {
-			playerActor.hitpoints = 1;
+		public function livesIfNotHit():void {
 			playerActor.checkIfDead();
 			
 			assertThat(playerActor.status, not(Status.DYING));
@@ -249,25 +247,23 @@ package test
 		
 		[Test(order = 4)]
 		public function meleeStartsImmediately():void {
-			right550.hitpoints = 50;
 			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS);
 			
 			assertThat(sprite, received().method("animate").args(Status.FIGHTING));
 			assertThat(playerActor.status, Status.FIGHTING);
-			assertThat(right550.hitpoints, 40);
+			assertThat(right550, received().method("hit").arg(10));
 		}
 		
 		[Test(async, order = 4)]
 		public function hitsAgain():void {
-			right550.hitpoints = 50;
 			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(right550.hitpoints, 30);
+				assertThat(right550, received().method("hit").arg(10).twice());
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(right550.hitpoints, 20);
+				assertThat(right550, received().method("hit").arg(10).thrice());
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);
@@ -280,15 +276,14 @@ package test
 		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetMoves():void {
 			stub(movingSprite).getter("center").returns(new Point(550, 10), new Point(650, 10));
-			movingActor.hitpoints = 50;
 			playerActor.meleeAttack(movingActor, 100, 10, TIME_BETWEEN_BLOWS);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(movingActor.hitpoints, 30);
+				assertThat(movingActor, received().method("hit").arg(10).twice());
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(movingActor.hitpoints, 30);
+				assertThat(movingActor, received().method("hit").arg(10).twice());
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);
@@ -300,17 +295,16 @@ package test
 		
 		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetBecomesInvalid():void {
-			right550.hitpoints = 50;
 			playerActor.meleeAttack(right550, 100, 10, TIME_BETWEEN_BLOWS);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(right550.hitpoints, 30);
-				right550.hitpoints = 0;
+				assertThat(right550, received().method("hit").arg(10).twice());
+				right550.hit(MASSIVE_DAMAGE);
 				right550.checkIfDead();
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(actorMock.hitpoints, 0);
+				assertThat(right550, received().method("hit").arg(10).twice());
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);

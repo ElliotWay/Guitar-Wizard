@@ -1,5 +1,6 @@
 ---Might do soon.----------
-- wizard killing
+- fix bug where actors still stand fighting no one - might be fixed?
+
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag
@@ -18,23 +19,25 @@
 
 - score counter?
 
-- wizard end of summoning animation
-
 - remove initialize static methods
 
 - guarantee that assassins can't jump through shields
 
 - replace actor lists with linked lists
 
+- player wizard death
+
+- opponent wizard death
+
 
 ---Bugs.-------------------	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
 
-- fix bug where actors still stand fighting no one
-
 - fix bug where late switches sometimes switch the music, but not the notes
 
 - fix bug where player archers shoot too high?
+
+- quitting to menu is broken
 
 
 ---Do Later.------------------
@@ -47,6 +50,7 @@
 - pending switch indication
 
 - proper lag handling
+
 
 ---Completed.---------------
 - lay out the rest of the screen - mostly done
@@ -82,3 +86,5 @@
 - archer punching animation, cleric blessing animation
 - some indication of blessedness
 - stop assassins from jumping through shields - bug with targeting using unrelative center
+- wizard killing
+- wizard end of summoning animation

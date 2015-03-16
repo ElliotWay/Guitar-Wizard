@@ -3,10 +3,14 @@ package src
 	import com.greensock.TweenLite;
 	import com.greensock.easing.Linear;
 	import flash.display.Bitmap;
+	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.EventPhase;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
+	import flash.utils.Timer;
 	
 	
 	/**
@@ -22,6 +26,12 @@ package src
 		[Embed(source = "../assets/tower_fore.png")]
 		private static const TowerForeImage:Class;
 		
+		[Embed(source="../assets/tower_flipped.png")]
+		private static const TowerFlippedImage:Class;
+		
+		[Embed(source="../assets/tower_fore_flipped.png")]
+		private static const TowerForeFlippedImage:Class;
+		
 		public static var mainArea:MainArea;
 		
 		public static const WIDTH:int = 600;
@@ -32,7 +42,11 @@ package src
 		
 		public static const WIZARD_HEIGHT:int = 100;
 		
-		public static const END_POINT:int = 20;
+		public static const WIZARD_KILL_DELAY:int = 1000;
+		
+		public static const SUMMONING_LINE_DURATION:int = 300;
+		
+		public static const END_POINT:int = 30;
 		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
@@ -54,7 +68,9 @@ package src
 		private var opponentWizard:Wizard;
 		
 		private var playerWizardKiller:Actor;
+		private var playerWizardKillerTimer:Timer;
 		private var opponentWizardKiller:Actor;
+		private var opponentWizardKillerTimer:Timer;
 		
 		//TODO do this better
 		public static var playerShieldIsUp:Boolean;
@@ -173,7 +189,7 @@ package src
 			
 		}
 		
-		public function go():void {
+		public function go(playerWizard:Wizard, opponentWizard:Wizard):void {
 			
 
 			var playerShield:Shield = new Shield(true, true);
@@ -190,18 +206,20 @@ package src
 			
 			opponentShieldIsUp = true;
 			
-			playerWizard = new Wizard(true);
+			this.playerWizard = playerWizard;
 			playerWizard.sprite.x = 220;
 			playerWizard.sprite.y = WIZARD_HEIGHT - playerWizard.sprite.height;
 			arena.addChild(playerWizard.sprite);
 			
-			opponentWizard = new Wizard(false);
-			opponentWizard.sprite.y = ARENA_WIDTH - 180;
+			this.opponentWizard = opponentWizard;
+			opponentWizard.sprite.x = ARENA_WIDTH - 270;
 			opponentWizard.sprite.y = WIZARD_HEIGHT - opponentWizard.sprite.height;
-			arena.addChild(playerWizard.sprite);
+			arena.addChild(opponentWizard.sprite);
 			
 			playerWizardKiller = null;
+			playerWizardKillerTimer = null;
 			opponentWizardKiller = null;
+			opponentWizardKillerTimer = null;
 			
 			playerActors.push(playerShield);
 			opponentActors.push(opponentShield);
@@ -214,6 +232,14 @@ package src
 			var playerTowerFore:Bitmap = (new TowerForeImage() as Bitmap);
 			foreground.addChild(playerTowerFore);
 			playerTowerFore.x = 0; playerTowerFore.y = 0;
+			
+			var opponentTower:Bitmap = (new TowerFlippedImage() as Bitmap);
+			background.addChild(opponentTower);
+			opponentTower.x = ARENA_WIDTH - opponentTower.width; opponentTower.y = 0;
+			
+			var opponentTowerFore:Bitmap = (new TowerForeFlippedImage() as Bitmap);
+			foreground.addChild(opponentTowerFore);
+			opponentTowerFore.x = ARENA_WIDTH - opponentTowerFore.width; opponentTowerFore.y = 0;
 			
 			hardCode();
 			
@@ -256,13 +282,23 @@ package src
 			opponentWizard = null;
 			
 			playerWizardKiller = null;
+			if (playerWizardKillerTimer != null) {
+				playerWizardKillerTimer.stop();
+				playerWizardKillerTimer = null;
+			}
 			opponentWizardKiller = null;
+			if (opponentWizardKillerTimer != null) {
+				opponentWizardKillerTimer.stop();
+				opponentWizardKillerTimer = null;
+			}
 		}
 		
 		public function playerSummon(actor : Actor):void {
 			var position : Number = Math.random() * (SHIELD_POSITION - 80) + 50;
 			arena.addChild(actor.sprite);
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
+			
+			createSummoningLine(actor, playerWizard);
 			
 			actor.sprite.animate(Status.SUMMONING, function():void {
 				
@@ -278,6 +314,8 @@ package src
 			arena.addChild(actor.sprite);
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			
+			createSummoningLine(actor, opponentWizard);
+			
 			actor.sprite.animate(Status.SUMMONING, function():void {
 				
 				minimap.addChild(actor.miniSprite);
@@ -287,6 +325,27 @@ package src
 			});
 		}
 		
+		private function createSummoningLine(actor:Actor, wizard:Wizard):void {
+			var line:Shape = new Shape();
+			
+			var wizardPoint:Point = wizard.getPosition();
+			var actorPoint:Point = actor.getPosition();
+			
+			line.graphics.lineStyle(3, 0xB5FFFC);
+			line.graphics.moveTo(wizardPoint.x, wizardPoint.y);
+			line.graphics.lineTo(actorPoint.x, actorPoint.y);
+			
+			foreground.addChild(line);
+			
+			var removeLine:Function = function(event:Event):void {
+				foreground.removeChild(line);
+				(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, removeLine);
+			}
+			var timer:Timer = new Timer(SUMMONING_LINE_DURATION, 1);
+			timer.addEventListener(TimerEvent.TIMER_COMPLETE, removeLine);
+			timer.start();
+		}
+		
 		/**
 		 * Prepare this actor for killing a wizard, namely, move it into position behind the wizard.
 		 * @param	actor
@@ -294,6 +353,8 @@ package src
 		public function wizardKillMode(actor:Actor):void {
 			arena.removeChild(actor.sprite);
 			minimap.removeChild(actor.miniSprite);
+			
+			//TODO kill actor?
 			
 			var actorClass:Class;
 			if (actor is Archer)
@@ -305,16 +366,35 @@ package src
 			
 			var wizardKiller:Actor = new actorClass(actor.isPlayerActor, !actor.isPlayerActor);
 			
-			if (actor.isPlayerActor) {
-				playerWizardKiller = wizardKiller;
-			} else {
-				opponentWizardKiller = wizardKiller;
-			}
 			
 			wizardKiller.sprite.y = WIZARD_HEIGHT - actor.sprite.height;
-			wizardKiller.go();
 			
-			arena.addChild(wizardKiller.sprite);
+			if (actor.isPlayerActor) {
+				playerWizardKiller = wizardKiller;
+				wizardKiller.sprite.x = ARENA_WIDTH + 100;
+				
+				playerWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
+				playerWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					arena.addChild(wizardKiller.sprite);
+					wizardKiller.go();
+					
+					playerWizardKillerTimer = null;
+				});
+				playerWizardKillerTimer.start();
+				
+			} else {
+				opponentWizardKiller = wizardKiller;
+				wizardKiller.sprite.x = -100 - wizardKiller.sprite.width;
+				
+				opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
+				opponentWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					arena.addChild(wizardKiller.sprite);
+					wizardKiller.go();
+					
+					opponentWizardKillerTimer = null;
+				});
+				opponentWizardKillerTimer.start();
+			}
 		}
 		
 		/**

@@ -1,6 +1,7 @@
 package test 
 {
 	import flash.events.Event;
+	import flash.geom.Point;
 	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
@@ -10,10 +11,12 @@ package test
 	import org.hamcrest.core.isA;
 	import src.Actor;
 	import src.ActorSprite;
+	import src.Main;
 	import src.MainArea;
 	import src.MiniSprite;
 	import src.Projectile;
 	import src.Status;
+	import src.Wizard;
 	
 	MockolateRunner;
 	/**
@@ -22,6 +25,9 @@ package test
 	public class MainAreaTest 
 	{
 		private var mainArea:MainArea;
+		
+		[Mock]
+		public var wizard:Wizard;
 		
 		[Mock]
 		public var arrow:Projectile;
@@ -46,6 +52,8 @@ package test
 		[Before]
 		public function setup():void {
 			
+			var location:Point = new Point(0, 0);
+			
 			stub(actor).getter("sprite").returns(sprite);
 			stub(sprite).method("animate")
 					.callsWithArguments(function(status:int, func:Function):void {
@@ -53,25 +61,37 @@ package test
 					});
 			
 			stub(actor).getter("miniSprite").returns(miniSprite);
+			stub(actor).method("getPosition").returns(location);
 
 			stub(playerActor1).getter("sprite").returns(sprite);
 			stub(playerActor2).getter("sprite").returns(sprite);
 			stub(opponentActor1).getter("sprite").returns(sprite);
 			stub(opponentActor2).getter("sprite").returns(sprite);
+			stub(wizard).getter("sprite").returns(sprite);
 
 			stub(playerActor1).getter("miniSprite").returns(miniSprite);
 			stub(playerActor2).getter("miniSprite").returns(miniSprite);
 			stub(opponentActor1).getter("miniSprite").returns(miniSprite);
 			stub(opponentActor2).getter("miniSprite").returns(miniSprite);
 			
+			stub(playerActor1).method("getPosition").returns(location);
+			stub(playerActor2).method("getPosition").returns(location);
+			stub(opponentActor1).method("getPosition").returns(location);
+			stub(opponentActor2).method("getPosition").returns(location);
+			stub(wizard).method("getPosition").returns(location);
+			
 			stub(playerArrow).getter("targets").returns(MainArea.OPPONENT_ACTORS);
 			stub(opponentArrow).getter("targets").returns(MainArea.PLAYER_ACTORS);
+			
 
 			mainArea = new MainArea();
+			
+			Main.prepareRegularRuns();
 			
 			//Hopefully the initialization doesn't do anything that
 			//necessarily requires a stage.
 			mainArea.dispatchEvent(new Event(Event.ADDED_TO_STAGE));
+			mainArea.go(wizard, wizard);
 		}
 		
 		[Test]

@@ -129,7 +129,7 @@ package src {
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
 			this.stage.addEventListener(KeyboardEvent.KEY_UP, keyReleaseHandler);
 
-			mainArea.go();
+			mainArea.go(Wizard.create(true), Wizard.create(false));
 			
 			//Let the opponent start summoning.
 			opponentTimer = new Timer(opponent.timeToAct, 0); //0 repeats indefinitely.

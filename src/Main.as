@@ -61,13 +61,9 @@ package src
 			
 			loadStatics();
 			
-			everyFrameRun = new Dictionary(true);
-			this.addEventListener(Event.ENTER_FRAME, frameRunner);
+			prepareRegularRuns();
 			
-			quarterBeatRun = new Dictionary(true);
-			quarterBeatTimer = null;
-			thirdBeatRun = new Dictionary(true);
-			thirdBeatTimer = null;
+			this.addEventListener(Event.ENTER_FRAME, frameRunner);
 			
 			songLoader = new SongLoader();
 			
@@ -80,6 +76,15 @@ package src
 			gameUI.visible = false;
 			
 			switchToGame("../assets/FurElise.gws");
+		}
+		
+		public static function prepareRegularRuns():void {
+			everyFrameRun = new Dictionary(true);
+			
+			quarterBeatRun = new Dictionary(true);
+			quarterBeatTimer = null;
+			thirdBeatRun = new Dictionary(true);
+			thirdBeatTimer = null;
 		}
 		
 		public static function loadStatics():void {

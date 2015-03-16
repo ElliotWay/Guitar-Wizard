@@ -11,9 +11,9 @@ package test
 	public class Extension_Actor extends Actor 
 	{
 		
-		public function Extension_Actor(playerPiece:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		public function Extension_Actor(playerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
 		{
-			super(playerPiece, sprite, miniSprite);
+			super(playerPiece, facesRight, sprite, miniSprite);
 			
 		}
 		
