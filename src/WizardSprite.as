@@ -7,49 +7,54 @@ package src
 	 * ...
 	 * @author ...
 	 */
-	public class WizardSprite extends SteppedActorSprite 
+	public class WizardSprite extends ActorSprite
 	{
 		
 		[Embed(source = "../assets/wizard.png")]
 		private static const WizardImage:Class;
+		private static const WIZARD_DATA:BitmapData = (new WizardImage() as Bitmap).bitmapData;
 		
 		private static const FRAME_WIDTH:int = 25;
 		private static const FRAME_HEIGHT:int = 25;
 		
-		private static const MID_POSITION:int = 0;
-		private static const MID_FRAMES:int = 14;
-		private static var midAnimation:FrameAnimation;
-		private static var midAnimationReversed:FrameAnimation;
+		private static const DYING_FRAME_WIDTH:int = 40;
 		
-		public static function initializeAnimations():void {
-			var wizardData:BitmapData = (new WizardImage() as Bitmap).bitmapData;
-			
-			midAnimation = FrameAnimation.create(wizardData,
-					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES,
-					FrameAnimation.ONE_PER_BEAT, 0x0, false);
-			midAnimationReversed = FrameAnimation.create(wizardData,
-					new Point(0, MID_POSITION), FRAME_WIDTH, FRAME_HEIGHT, MID_FRAMES,
-					FrameAnimation.ONE_PER_BEAT,0xFF0000, true);
-		}
+		public static const ANIMATIONS:AnimationCollection =
+		new AnimationCollection(WIZARD_DATA, FRAME_WIDTH, FRAME_HEIGHT,
+		//status, 				yposition, num frames, frames per beat,	(true, different width)
+		Status.PLAY_HIGH,				0,  14, FrameAnimation.ONE_PER_BEAT,
+		Status.PLAY_MID,				0,  14, FrameAnimation.ONE_PER_BEAT,
+		Status.DYING,		  FRAME_WIDTH,	11, FrameAnimation.TWO_PER_BEAT, true, DYING_FRAME_WIDTH,
+		Status.STANDING,                0,   1, FrameAnimation.ONE_THIRD_PER_BEAT);
+		
+		ANIMATIONS.find(Status.PLAY_MID, ActorSprite.PLAYER, ActorSprite.RIGHT_FACING)
+				.setFramesPerBeat(FrameAnimation.ON_STEP);
 		
 		public function WizardSprite(isPlayerPiece:Boolean) 
 		{
-			super();
 			
-			var playMid:FrameAnimation;
+			ANIMATIONS.initializeMap(super.animations,
+					isPlayerPiece ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
+					isPlayerPiece ? ActorSprite.RIGHT_FACING : ActorSprite.LEFT_FACING);
+			
+			this.addChild(super.animations[Status.PLAY_MID]);
+			this.addChild(super.animations[Status.PLAY_HIGH]);
+			this.addChild(super.animations[Status.DYING]);
+			this.addChild(super.animations[Status.STANDING]);
+			
+			var mid:FrameAnimation = super.animations[Status.PLAY_MID];
+			
+			mid.visible = true;
+			
+			super.defaultAnimation = super.animations[Status.STANDING];
 			
 			if (isPlayerPiece) {
-				playMid = midAnimation;
+				//This branch included for similarity to other sprite classes.
 			} else {
-				playMid = midAnimationReversed;
+				super.animations[Status.DYING].x = FrameAnimation.SCALE * (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
 			}
 			
-			this.addChild(playMid);
-			playMid.visible = true;
-			super.animations[Status.PLAY_MID] = playMid;
-			
-			super.currentAnimation = playMid;
-			super.defaultAnimation = playMid;
+			//No effects on wizards.
 		}
 		
 	}

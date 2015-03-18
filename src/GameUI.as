@@ -509,16 +509,13 @@ package src {
 					notePressHandler(Note.NOTE_A);
 					break;
 					
-				//Now the arrow keys.
-				case Keyboard.UP:
-					//TODO create up & down handler
-					break;
-				case Keyboard.DOWN:
-					break;
+				//Now the scrolling keys.
 				case Keyboard.LEFT:
+				case Keyboard.U:
 					scrollHandler(false);
 					break;
 				case Keyboard.RIGHT:
+				case Keyboard.O:
 					scrollHandler(true);
 					break;
 					
@@ -552,16 +549,12 @@ package src {
 					break;
 					
 				//Now the arrow keys.
-				case Keyboard.UP:
-					//TODO create up & down handler
-					break;
-				case Keyboard.DOWN:
-					//lkj
-					break;
 				case Keyboard.LEFT:
+				case Keyboard.U:
 					stopScrolling();
 					break;
 				case Keyboard.RIGHT:
+				case Keyboard.O:
 					stopScrolling();
 					break;
 					

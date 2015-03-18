@@ -18,6 +18,9 @@ package src
 					
 					
 			this._hitpoints = 1;
+			
+			_status = Status.PLAY_MID;
+			_sprite.animate(Status.PLAY_MID);
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
@@ -25,7 +28,9 @@ package src
 		}
 		
 		public function play():void {
-			(_sprite as SteppedActorSprite).step();
+			if (_status == Status.PLAY_MID) {
+				_sprite.step();
+			}
 		}
 		
 	}

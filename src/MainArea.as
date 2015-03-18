@@ -57,7 +57,7 @@ package src
 		public static const OPPONENT_ACTORS:int = 2;
 		
 		// (1 / BPM) * 60 * 1000, 500 is 120BPM
-		public static const MILLISECONDS_PER_BEAT:int = 500;
+		public static const MILLISECONDS_PER_BEAT:int = 450; //500
 		
 		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
 		
@@ -207,12 +207,12 @@ package src
 			opponentShieldIsUp = true;
 			
 			this.playerWizard = playerWizard;
-			playerWizard.sprite.x = 220;
+			playerWizard.sprite.x = 170;
 			playerWizard.sprite.y = WIZARD_HEIGHT - playerWizard.sprite.height;
 			arena.addChild(playerWizard.sprite);
 			
 			this.opponentWizard = opponentWizard;
-			opponentWizard.sprite.x = ARENA_WIDTH - 270;
+			opponentWizard.sprite.x = ARENA_WIDTH - 220;
 			opponentWizard.sprite.y = WIZARD_HEIGHT - opponentWizard.sprite.height;
 			arena.addChild(opponentWizard.sprite);
 			
@@ -442,10 +442,20 @@ package src
 					}
 					index++;
 				}
-			} else {
+			} else if (!opponentWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = opponentWizard;
 				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+				
+				opponentWizard.checkIfDead();
+				if (opponentWizard.isDead) {
+					SoundPlayer.playScream();
+					
+					opponentWizard.sprite.animate(Status.DYING,
+							function():void { opponentWizard.sprite.freeze(); } );
+					
+					playerWizardKiller.sprite.animate(Status.STANDING);
+				}
 			}
 			
 			if (opponentWizardKiller == null) {
@@ -458,10 +468,20 @@ package src
 					}
 					index++;
 				}
-			} else {
+			} else if (!playerWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = playerWizard;
 				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+				
+				playerWizard.checkIfDead();
+				if (playerWizard.isDead) {
+					SoundPlayer.playScream();
+					
+					playerWizard.sprite.animate(Status.DYING,
+							function():void { playerWizard.sprite.freeze(); } );
+							
+					playerWizardKiller.sprite.animate(Status.STANDING);
+				}
 			}
 		}
 		

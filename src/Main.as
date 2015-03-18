@@ -59,8 +59,6 @@ package src
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
-			loadStatics();
-			
 			prepareRegularRuns();
 			
 			this.addEventListener(Event.ENTER_FRAME, frameRunner);
@@ -85,10 +83,6 @@ package src
 			quarterBeatTimer = null;
 			thirdBeatRun = new Dictionary(true);
 			thirdBeatTimer = null;
-		}
-		
-		public static function loadStatics():void {
-			WizardSprite.initializeAnimations();
 		}
 		
 		public static function fileLoaded():void {

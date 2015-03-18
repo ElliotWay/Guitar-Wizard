@@ -1,6 +1,13 @@
 ---Might do soon.----------
 - fix bug where actors still stand fighting no one - might be fixed?
 
+- remove initialize static methods - almost done
+
+- rewrite test runner class
+
+- opponent wizard death - partially done
+
+- auto-scrolling - maybe create a scroller class?
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag
@@ -11,15 +18,11 @@
 
 - make music switches happen just before the switch point so it has time to switch - hmm
 
-- rewrite test runner class
-
 - create better opponent strategies
 
 - archers are overpowered - partially solved?
 
 - score counter?
-
-- remove initialize static methods
 
 - guarantee that assassins can't jump through shields
 
@@ -27,7 +30,9 @@
 
 - player wizard death
 
-- opponent wizard death
+- handle finished song
+
+- remove actors that fall off screen
 
 
 ---Bugs.-------------------	
@@ -38,6 +43,8 @@
 - fix bug where player archers shoot too high?
 
 - quitting to menu is broken
+
+- tempo is off?
 
 
 ---Do Later.------------------

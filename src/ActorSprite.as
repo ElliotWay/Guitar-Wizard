@@ -108,6 +108,14 @@ package src {
 		}
 		
 		/**
+		 * Tell the current animation to advance to the next frame immediately.
+		 * This is more effective if the animations frame rate is slow or only on step.
+		 */
+		public function step():void {
+			currentAnimation.nextFrame();
+		}
+		
+		/**
 		 * Animate the default animation.
 		 */
 		public function animateDefault():void {

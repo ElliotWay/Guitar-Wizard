@@ -24,6 +24,7 @@ package src
 		public static const THREE_HALVES_PER_BEAT:int = -5;
 		public static const ONE_HALF_PER_BEAT:int = -6;
 		public static const ONE_THIRD_PER_BEAT:int = -7;
+		public static const ON_STEP:int = -8;
 		
 		private var frames:Vector.<Bitmap>;
 		
@@ -167,6 +168,21 @@ package src
 			onComplete = func;
 		}
 		
+		/**
+		 * Change this animation's frame rate. This can be changed while stopped or playing.
+		 * Remember to use FrameAnimation constants.
+		 * @param	framesPerBeat how frequently to advance frames, expressed in FrameAnimation constants
+		 */
+		public function setFramesPerBeat(framesPerBeat:int):void {
+			if (runner != null) {
+				this.stop();
+				this.framesPerBeat = framesPerBeat;
+				this.go();
+			} else {
+				this.framesPerBeat = framesPerBeat;
+			}
+		}
+		
 		public function go():void {
 			if (frameIndex >= 0) {
 				frames[frameIndex].visible = false;
@@ -201,6 +217,9 @@ package src
 				case ONE_THIRD_PER_BEAT:
 					countMax = 9;
 					break;
+				case ON_STEP:
+					//Wait for the user to call nextFrame()
+					return;
 			}
 			
 			if (runner != null)
