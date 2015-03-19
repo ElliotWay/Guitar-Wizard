@@ -51,7 +51,6 @@ package src
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
 		public static const MINIMAP_HEIGHT:int = 50;
 		
-		public static const SCROLL_SPEED:Number = 600; //pixels per second
 		
 		public static const PLAYER_ACTORS:int = 1;
 		public static const OPPONENT_ACTORS:int = 2;
@@ -60,6 +59,9 @@ package src
 		public static const MILLISECONDS_PER_BEAT:int = 450; //500
 		
 		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
+		
+		private static const AUTO_SCROLL_DELAY:int = 3000;
+		private static const REPEATED_SCROLL_DELAY:int = 3000;
 		
 		private var playerActors : Vector.<Actor>;
 		private var opponentActors : Vector.<Actor>;
@@ -82,8 +84,9 @@ package src
 		private var arena : Sprite;
 		private var foreground:Sprite;
 		
-		private var scrollable:Sprite;
-		private var scroller:TweenLite;
+		private var scrollable:ScrollArea;
+		private var autoScrollTimer:Timer;
+		private var repeatedScrollTimer:Timer;
 		
 		private var minimap:Sprite;
 		
@@ -106,7 +109,7 @@ package src
 			projectiles = new Vector.<Projectile>();
 			
 			//prep arena
-			scrollable = new Sprite();
+			scrollable = new ScrollArea(ARENA_WIDTH - WIDTH);
 			this.addChild(scrollable);
 			
 			background = new Sprite();
@@ -136,8 +139,23 @@ package src
 			minimap.x = WIDTH;
 			minimap.y = 0;
 			
-			scroller = null;
+			autoScrollTimer = new Timer(AUTO_SCROLL_DELAY, 1);
+			autoScrollTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+				trace("beginning autoscroll");
+				repeatedScrollTimer.start();
+			});
 			
+			repeatedScrollTimer = new Timer(REPEATED_SCROLL_DELAY, 0);
+			repeatedScrollTimer.addEventListener(TimerEvent.TIMER, function():void {
+				trace("autoscrolling");
+				var rightMost:Number = 0;
+				for each (var actor:Actor in playerActors) {
+					if (!(actor is Shield) && actor.sprite.x > rightMost)
+						rightMost = actor.sprite.x;
+				}
+				
+				scrollable.scrollTo(rightMost - WIDTH / 3);
+			});
 		}
 		
 		/**
@@ -190,7 +208,6 @@ package src
 		}
 		
 		public function go(playerWizard:Wizard, opponentWizard:Wizard):void {
-			
 
 			var playerShield:Shield = new Shield(true, true);
 			playerShield.position();
@@ -243,6 +260,8 @@ package src
 			
 			hardCode();
 			
+			autoScrollTimer.start();
+			
 			Main.setBeat(MILLISECONDS_PER_BEAT);
 			
 			Main.runEveryFrame(step);
@@ -291,6 +310,9 @@ package src
 				opponentWizardKillerTimer.stop();
 				opponentWizardKillerTimer = null;
 			}
+			
+			autoScrollTimer.stop();
+			repeatedScrollTimer.stop();
 		}
 		
 		public function playerSummon(actor : Actor):void {
@@ -451,6 +473,11 @@ package src
 				if (opponentWizard.isDead) {
 					SoundPlayer.playScream();
 					
+					scrollable.jumpRight();
+					repeatedScrollTimer.reset();
+					autoScrollTimer.reset();
+					autoScrollTimer.start();
+					
 					opponentWizard.sprite.animate(Status.DYING,
 							function():void { opponentWizard.sprite.freeze(); } );
 					
@@ -477,10 +504,15 @@ package src
 				if (playerWizard.isDead) {
 					SoundPlayer.playScream();
 					
+					scrollable.jumpLeft();
+					repeatedScrollTimer.reset();
+					autoScrollTimer.reset();
+					autoScrollTimer.start();
+					
 					playerWizard.sprite.animate(Status.DYING,
 							function():void { playerWizard.sprite.freeze(); } );
 							
-					playerWizardKiller.sprite.animate(Status.STANDING);
+					opponentWizardKiller.sprite.animate(Status.STANDING);
 				}
 			}
 		}
@@ -554,23 +586,27 @@ package src
 			return !actor.isDead;
 		}
 		
-		public function scroll(right:Boolean):void {
-			if (scroller == null) {
-				var distance:Number;
-				if (right) {
-					distance = scrollable.x - (-(ARENA_WIDTH - WIDTH));
-					scroller = new TweenLite(scrollable, distance / SCROLL_SPEED, { x : -(ARENA_WIDTH - WIDTH), ease:Linear.easeInOut, onComplete:stopScrolling } );
-				} else {
-					distance = -scrollable.x;
-					scroller = new TweenLite(scrollable, distance / SCROLL_SPEED, { x : 0, ease:Linear.easeInOut, onComplete:stopScrolling} );
-				}
+		private var scrollDirection:int = 0;
+		
+		public function forceScroll(scrollRight:Boolean):void {
+			autoScrollTimer.reset();
+			repeatedScrollTimer.reset();
+			
+			if (scrollRight) {
+				scrollable.scrollRight();
+				scrollDirection = 1;
+			} else {
+				scrollable.scrollLeft();
+				scrollDirection = 2;
 			}
 		}
 		
-		public function stopScrolling():void {
-			if (scroller != null) {
-				scroller.kill();
-				scroller = null;
+		public function stopScroll(scrollRight:Boolean):void {
+			autoScrollTimer.start();
+			
+			if (scrollRight && scrollDirection == 1 || !scrollRight && scrollDirection == 2) {
+				scrollable.stopScrolling();
+				scrollDirection = 0;
 			}
 		}
 		

@@ -387,11 +387,11 @@ package src {
 		}
 		
 		public function scrollHandler(isRight:Boolean):void {
-			mainArea.scroll(isRight);
+			mainArea.forceScroll(isRight);
 		}
 		
-		public function stopScrolling():void {
-			mainArea.stopScrolling();
+		public function stopScrolling(isRight:Boolean):void {
+			mainArea.stopScroll(isRight);
 		}
 		
 		/**
@@ -551,11 +551,11 @@ package src {
 				//Now the arrow keys.
 				case Keyboard.LEFT:
 				case Keyboard.U:
-					stopScrolling();
+					stopScrolling(false);
 					break;
 				case Keyboard.RIGHT:
 				case Keyboard.O:
-					stopScrolling();
+					stopScrolling(true);
 					break;
 					
 				//Q to quit to menu.

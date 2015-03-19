@@ -1,13 +1,10 @@
 ---Might do soon.----------
 - fix bug where actors still stand fighting no one - might be fixed?
 
-- remove initialize static methods - almost done
-
 - rewrite test runner class
 
 - opponent wizard death - partially done
 
-- auto-scrolling - maybe create a scroller class?
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag
@@ -95,3 +92,5 @@
 - stop assassins from jumping through shields - bug with targeting using unrelative center
 - wizard killing
 - wizard end of summoning animation
+- remove initialize static methods
+- auto-scrolling - created a scroller class
