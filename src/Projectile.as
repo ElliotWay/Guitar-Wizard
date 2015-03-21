@@ -17,7 +17,7 @@ package src
 		[Embed(source="../assets/arrow.png")]
 		private static const ArrowImage:Class;
 		
-		public static const DAMAGE:Number = 1;
+		public static const DAMAGE:Number = 1.5;
 		
 		
 		public static const VELOCITY:Number = 400; // pxl/s

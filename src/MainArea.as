@@ -11,6 +11,9 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import mx.controls.List;
+	import util.LinkedList;
+	import util.ListIterator;
 	
 	
 	/**
@@ -58,13 +61,13 @@ package src
 		// (1 / BPM) * 60 * 1000, 500 is 120BPM
 		public static const MILLISECONDS_PER_BEAT:int = 450; //500
 		
-		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
+		private static const EMPTY_ACTOR_LIST:LinkedList = new LinkedList(Actor);
 		
 		private static const AUTO_SCROLL_DELAY:int = 3000;
 		private static const REPEATED_SCROLL_DELAY:int = 3000;
 		
-		private var playerActors : Vector.<Actor>;
-		private var opponentActors : Vector.<Actor>;
+		private var playerActors:LinkedList;
+		private var opponentActors:LinkedList;
 		
 		private var playerWizard:Wizard;
 		private var opponentWizard:Wizard;
@@ -103,8 +106,8 @@ package src
 			this.graphics.drawRect(0, 0, WIDTH, HEIGHT);
 			this.graphics.endFill();
 			
-			playerActors = new Vector.<Actor>();
-			opponentActors = new Vector.<Actor>();
+			playerActors = new LinkedList(Actor);
+			opponentActors = new LinkedList(Actor);
 			
 			projectiles = new Vector.<Projectile>();
 			
@@ -141,15 +144,17 @@ package src
 			
 			autoScrollTimer = new Timer(AUTO_SCROLL_DELAY, 1);
 			autoScrollTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-				trace("beginning autoscroll");
 				repeatedScrollTimer.start();
 			});
 			
 			repeatedScrollTimer = new Timer(REPEATED_SCROLL_DELAY, 0);
 			repeatedScrollTimer.addEventListener(TimerEvent.TIMER, function():void {
-				trace("autoscrolling");
 				var rightMost:Number = 0;
-				for each (var actor:Actor in playerActors) {
+				
+				var actor:Actor;
+				var iter:ListIterator = playerActors.head();
+				while (iter.hasNext()) {
+					actor = iter.next();
 					if (!(actor is Shield) && actor.sprite.x > rightMost)
 						rightMost = actor.sprite.x;
 				}
@@ -227,11 +232,13 @@ package src
 			playerWizard.sprite.x = 170;
 			playerWizard.sprite.y = WIZARD_HEIGHT - playerWizard.sprite.height;
 			arena.addChild(playerWizard.sprite);
+			playerWizard.playTrack(Main.MID);
 			
 			this.opponentWizard = opponentWizard;
 			opponentWizard.sprite.x = ARENA_WIDTH - 220;
 			opponentWizard.sprite.y = WIZARD_HEIGHT - opponentWizard.sprite.height;
 			arena.addChild(opponentWizard.sprite);
+			opponentWizard.playTrack(Main.MID);
 			
 			playerWizardKiller = null;
 			playerWizardKillerTimer = null;
@@ -273,19 +280,25 @@ package src
 			
 			var actor:Actor;
 			
-			for each (actor in playerActors) {
+			var iter:ListIterator = playerActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
+				
 				actor.clean();
 				arena.removeChild(actor.sprite);
 				minimap.removeChild(actor.miniSprite);
 			}
-			playerActors = new Vector.<Actor>();
+			playerActors = new LinkedList(Actor);
 			
-			for each (actor in opponentActors) {
+			iter = opponentActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
+				
 				actor.clean();
 				arena.removeChild(actor.sprite);
 				minimap.removeChild(actor.miniSprite);
 			}
-			opponentActors = new Vector.<Actor>();
+			opponentActors = new LinkedList(Actor);
 			
 			var projectile:Projectile;
 			
@@ -373,6 +386,7 @@ package src
 		 * @param	actor
 		 */
 		public function wizardKillMode(actor:Actor):void {
+			trace(actor.isDead);
 			arena.removeChild(actor.sprite);
 			minimap.removeChild(actor.miniSprite);
 			
@@ -433,11 +447,18 @@ package src
 		public function step():void {
 			var actor:Actor;
 			
-			for each (actor in playerActors) {
+			//trace("player: " + playerActors);
+			//trace("opponent: " + opponentActors);
+			
+			var iter:ListIterator = playerActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
 				actor.act(playerActors, opponentActors);
 			}
 			
-			for each (actor in opponentActors) {
+			iter = opponentActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
 				actor.act(opponentActors, playerActors);
 			}
 			
@@ -445,28 +466,65 @@ package src
 			updateMinimap();
 			
 			//Collect the dead.
-			filterDead(playerActors);
-			playerActors = playerActors.filter(checkAlive, this);
-			
-			filterDead(opponentActors);
-			opponentActors = opponentActors.filter(checkAlive, this);
-			
-			//Check wizard killing status.
-			var index:int;
-			var wizardList:Vector.<Actor>;
-			if (playerWizardKiller == null) {
-				index = 0;
-				while (index < playerActors.length) {
-					if (playerActors[index].getPosition().x > ARENA_WIDTH - END_POINT) {
-						wizardKillMode(playerActors[index]);
-						playerActors.splice(index - 1, 1);
-						break;
-					}
-					index++;
+			iter = playerActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
+				if (actor.isDead) {
+					minimap.removeChild(actor.miniSprite);
+					
+					iter.remove();
 				}
-			} else if (!opponentWizard.isDead) {
-				wizardList = new Vector.<Actor>(1, true);
-				wizardList[0] = opponentWizard;
+			}
+			
+			iter = opponentActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
+				if (actor.isDead) {
+					minimap.removeChild(actor.miniSprite);
+					
+					iter.remove();
+				}
+			}
+			
+			//Collect actors that have reached the edge.
+			iter = playerActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
+				
+				if (actor.getPosition().x > ARENA_WIDTH - END_POINT) {
+					iter.remove();
+					
+					//The first actor to do this attempts to kill the wizard.
+					if (playerWizardKiller == null) {
+						wizardKillMode(actor);
+					} else {
+						arena.removeChild(actor.sprite);
+						minimap.removeChild(actor.miniSprite);
+					}
+				}
+			}
+			
+			iter = opponentActors.head();
+			while (iter.hasNext()) {
+				actor = iter.next();
+				
+				if (actor.getPosition().x < END_POINT) {
+					iter.remove();
+					
+					if (opponentWizardKiller == null) {
+						wizardKillMode(actor);
+					} else {
+						arena.removeChild(actor.sprite);
+						minimap.removeChild(actor.miniSprite);
+					}
+				}
+			}
+			
+			//Tell the wizard killers to act.
+			var wizardList:LinkedList;
+			if (playerWizardKiller != null && !opponentWizard.isDead) {
+				wizardList = new LinkedList(Actor);
+				wizardList.push(opponentWizard);
 				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
 				
 				opponentWizard.checkIfDead();
@@ -485,19 +543,9 @@ package src
 				}
 			}
 			
-			if (opponentWizardKiller == null) {
-				index = 0;
-				while (index < opponentActors.length) {
-					if (opponentActors[index].getPosition().x < END_POINT) {
-						wizardKillMode(opponentActors[index]);
-						opponentActors.splice(index, 1);
-						break;
-					}
-					index++;
-				}
-			} else if (!playerWizard.isDead) {
-				wizardList = new Vector.<Actor>(1, true);
-				wizardList[0] = playerWizard;
+			if (opponentWizardKiller != null && !playerWizard.isDead) {
+				wizardList = new LinkedList(Actor);
+				wizardList.push(playerWizard);
 				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
 				
 				playerWizard.checkIfDead();
@@ -519,12 +567,14 @@ package src
 		
 		private function updateMinimap():void {
 			var actor:Actor;
-			for each (actor in playerActors) {
-				actor.updateMiniMap();
+			var iter:ListIterator = playerActors.head();
+			while (iter.hasNext()) {
+				(iter.next() as Actor).updateMiniMap();
 			}
 			
-			for each (actor in opponentActors) {
-				actor.updateMiniMap();
+			iter = opponentActors.head();
+			while (iter.hasNext()) {
+				(iter.next() as Actor).updateMiniMap();
 			}
 		}
 		
@@ -534,10 +584,13 @@ package src
 		private function checkProjectiles():void {
 			var projectile:Projectile;
 			var target:Actor;
+			var iter:ListIterator;
 			
 			for each (projectile in projectiles) {
 				if ((projectile.targets & PLAYER_ACTORS) > 0) {
-					for each (target in playerActors) {
+					iter = playerActors.head();
+					while (iter.hasNext()) {
+						target = iter.next();
 						if (projectile.hitTest(target)) {
 							projectile.collide(target);
 						}
@@ -545,7 +598,9 @@ package src
 				}
 				
 				if ((projectile.targets & OPPONENT_ACTORS) > 0) {
-					for each (target in opponentActors) {
+					iter = opponentActors.head();
+					while (iter.hasNext()) {
+						target = iter.next();
 						if (projectile.hitTest(target)) {
 							projectile.collide(target);
 						}
@@ -560,30 +615,6 @@ package src
 			projectiles = projectiles.filter(function(projectile:Projectile, index:int, vector:Vector.<Projectile>):Boolean {
 				return !projectile.finished;
 			});
-		}
-		
-		/**
-		 * Finds the dead actors in the list, and removes them.
-		 * That consists of removing them from the arena, removing them
-		 * from the minimap, and stopping any ongoing animations.
-		 * Unfortunately, because I can't pass by reference, I can't
-		 * remove the dead from the list, so be sure to do that after
-		 * calling this method.
-		 * @param	actorList the list of actors to check
-		 */
-		private function filterDead(actorList:Vector.<Actor>):void {
-			
-			for each (var actor:Actor in actorList.filter(checkDead, this)) {
-				minimap.removeChild(actor.miniSprite);
-			}
-		}
-		
-		private function checkDead(actor : Actor , index : int, vector : Vector.<Actor>) : Boolean {
-			return actor.isDead;
-		}
-		
-		private function checkAlive(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
-			return !actor.isDead;
 		}
 		
 		private var scrollDirection:int = 0;

@@ -6,6 +6,8 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import util.LinkedList;
+	import util.ListIterator;
 	/**
 	 * ...
 	 * @author ...
@@ -39,7 +41,7 @@ package src
 			blessIsReady = true;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:LinkedList, enemies:LinkedList):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -54,7 +56,10 @@ package src
 					var nearbyAllies:Vector.<Actor> = new Vector.<Actor>();
 					var ally:Actor;
 					
-					for each(ally in allies) {
+					var iter:ListIterator = allies.head();
+					while (iter.hasNext()) {
+						ally = iter.next();
+						
 						if (withinRange(ally, BLESS_RANGE) && !(ally is Shield))
 							nearbyAllies.push(ally);
 					}

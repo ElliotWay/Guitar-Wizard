@@ -1,9 +1,9 @@
 ---Might do soon.----------
 - fix bug where actors still stand fighting no one - might be fixed?
 
-- rewrite test runner class
+- quitting to menu is broken - can't reproduce, but it'll come back up
 
-- opponent wizard death - partially done
+- replace projectile list with linked list
 
 
 ---Should do at some point.----------------
@@ -23,13 +23,17 @@
 
 - guarantee that assassins can't jump through shields
 
-- replace actor lists with linked lists
+- player wizard death   )
+- opponent wizard death > related
+- handle finished song  )
 
-- player wizard death
+- edit test runner plugin - import strings of class names
 
-- handle finished song
+- combos? lightning effect?
 
-- remove actors that fall off screen
+- create better shield sprite
+
+- replace various appropriate vectors with linked lists
 
 
 ---Bugs.-------------------	
@@ -39,15 +43,11 @@
 
 - fix bug where player archers shoot too high?
 
-- quitting to menu is broken
-
 - tempo is off?
 
 
 ---Do Later.------------------
 - smooth summoning meter animations
-
-- create better shield sprite
 
 - change arrow sprite to pixelated rotation - this may be difficult to tune
 
@@ -94,3 +94,6 @@
 - wizard end of summoning animation
 - remove initialize static methods
 - auto-scrolling - created a scroller class
+- rewrite test runner class -sorta
+- remove actors that fall off screen
+- replace actor lists with linked lists

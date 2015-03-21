@@ -8,6 +8,8 @@ package src {
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
+	import util.LinkedList;
+	import util.ListIterator;
 	
 	/**
 	 * ...
@@ -84,7 +86,7 @@ package src {
 		 * Override this method.
 		 * @param	others target actor
 		 */
-		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		public function act(allies:LinkedList, enemies:LinkedList):void {
 			//TODO create new error class
 			throw new GWError("Unimplemented abstract method.");
 		}
@@ -116,27 +118,28 @@ package src {
 		 * @param	others  the list of other actors to search
 		 * @param	maxDistance  the maximum distance away the other actor can be
 		 */
-		public function getClosest(others:Vector.<Actor>, maxDistance:Number):Actor {
-			if (others.length == 0)
+		public function getClosest(others:LinkedList, maxDistance:Number):Actor {
+			if (others.isEmpty())
 				return null;
 			
 			var closest:Actor = null;
-			var closeDistance : Number = Number.MAX_VALUE;
+			var closeDistance : Number = maxDistance;
 			var distance : Number;
 			
-			for each(var other:Actor in others) {
+			var iter:ListIterator = others.head();
+			var other:Actor;
+			while (iter.hasNext()) {
+				other = iter.next();
+				
 				if (isValidTarget(other)) {
 					distance = Math.abs(other.getPosition().x - this.getPosition().x);
 					
-					if (distance < closeDistance) {
+					if (distance <= closeDistance) {
 						closest = other;
 						closeDistance = distance;
 					}
 				}
 			}
-			
-			if (closeDistance > maxDistance)
-				closest = null;
 			
 			return closest;
 		}

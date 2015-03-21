@@ -7,6 +7,7 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import util.LinkedList;
 	/**
 	 * ...
 	 * @author ...
@@ -41,7 +42,7 @@ package src
 			this.damage = 3;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:LinkedList, enemies:LinkedList):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;

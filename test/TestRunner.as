@@ -1,10 +1,16 @@
 package test
 {
 import flash.display.Sprite;
+import flash.display.StageAlign;
+import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.system.System;
+import noiseandheat.flexunit.visuallistener.VisualListener;
 import org.flexunit.internals.TraceListener;
+import org.flexunit.listeners.UIListener;
+import org.flexunit.listeners.VisualDebuggerListener;
 import org.flexunit.runner.FlexUnitCore;
+import org.fluint.uiImpersonation.VisualTestEnvironmentBuilder;
 
 /**
  * Generated test runner class.
@@ -13,34 +19,44 @@ import org.flexunit.runner.FlexUnitCore;
 public class TestRunner extends Sprite
 {
 
-   private static var testCore:FlexUnitCore;
+	private var core:FlexUnitCore;
+	private var listener:VisualListener;
 
-   public function TestRunner()
+	public function TestRunner()
 	{
-		runTests();
+		core = new FlexUnitCore();
+        VisualTestEnvironmentBuilder.getInstance(this);
 
-		this.addEventListener(Event.ADDED_TO_STAGE, init);
-   }
-	public function init(e:Event):void {
+		listener = new VisualListener(800, 600);
+        addChild(listener);
+        core.addListener(listener);
 
-	    testCore.addListener(new AfterTestClose());
-	}
+		core.addListener(new TraceListener());
+		
+	    //core.addListener(new AfterTestClose());
 
-	public static function runTests() : void {
-	    testCore  = new FlexUnitCore();
-	    testCore.addListener(new TraceListener());
+		core.run(ActorTest);
+		core.run(GameUI_FindHitTest);
+		core.run(GameUI_MissUntilTest);
+		core.run(GameUI_SwitchTrackTest);
+		core.run(MainAreaTest);
+		core.run(MusicPlayerTest);
+		core.run(NoteSpriteTest);
+		core.run(NoteTest);
+		core.run(SongLoaderTest);
+		core.run(Song_ParseNotesTest);
+		core.run(TestTest);
 
-		testCore.run(ActorTest);
-		testCore.run(GameUI_FindHitTest);
-		testCore.run(GameUI_MissUntilTest);
-		testCore.run(GameUI_SwitchTrackTest);
-		testCore.run(MainAreaTest);
-		testCore.run(MusicPlayerTest);
-		testCore.run(NoteSpriteTest);
-		testCore.run(NoteTest);
-		testCore.run(SongLoaderTest);
-		testCore.run(Song_ParseNotesTest);
-		testCore.run(TestTest);
+        addEventListener(Event.ADDED_TO_STAGE, addedToStage);
+    }
+
+    protected function addedToStage(event:Event):void
+    {
+        removeEventListener(Event.ADDED_TO_STAGE, addedToStage);
+		
+        stage.align = StageAlign.TOP_LEFT;
+        stage.scaleMode = StageScaleMode.NO_SCALE;
+
 	}
 }
 

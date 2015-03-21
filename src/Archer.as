@@ -6,6 +6,7 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import util.LinkedList;
 	
 	/**
 	 * ...
@@ -16,7 +17,7 @@ package src
 		
 		private static const NO_RETREAT_DISTANCE:Number = 50;
 		
-		private static const BASE_SKIRMISH_DISTANCE:Number = 150;
+		private static const BASE_SKIRMISH_DISTANCE:Number = 200;
 		private static const SKIRMISH_VARIABILITY:Number = 100;
 		
 		private static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - 50;
@@ -49,7 +50,7 @@ package src
 			skirmishDistance = BASE_SKIRMISH_DISTANCE + (Math.random() * SKIRMISH_VARIABILITY) - (SKIRMISH_VARIABILITY / 2);
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:LinkedList, enemies:LinkedList):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -59,7 +60,6 @@ package src
 			
 			//If we're shooting, we need to finish shooting before doing anything else.
 			if (_status != Status.SHOOTING && _status != Status.FIGHTING) {
-				
 				
 				//Find the closest valid target.
 				var closest:Actor = this.getClosest(enemies, range);

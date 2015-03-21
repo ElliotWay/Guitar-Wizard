@@ -2,6 +2,7 @@ package src
 {
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
+	import util.LinkedList;
 	/**
 	 * ...
 	 * @author ...
@@ -19,7 +20,7 @@ package src
 			this._hitpoints = 200;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:LinkedList, enemies:LinkedList):void {
 			//Do nothing.
 			
 			checkIfDead();
