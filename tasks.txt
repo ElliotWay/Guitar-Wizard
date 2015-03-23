@@ -3,37 +3,27 @@
 
 - quitting to menu is broken - can't reproduce, but it'll come back up
 
-- replace projectile list with linked list
+- sigh...ugly though it'll be, replace the actor lists with vectors again
+
+- edit test runner plugin - import strings of class names
 
 
 ---Should do at some point.----------------
-- fix miss/hit detection, possibly related to lag
+- fix miss/hit detection, possibly related to lag - ?
 
 - make hitting notes after switching blocks more robust
 
-- restrict actors in same position?
-
 - make music switches happen just before the switch point so it has time to switch - hmm
 
-- create better opponent strategies
-
-- archers are overpowered - partially solved?
-
 - score counter?
-
-- guarantee that assassins can't jump through shields
 
 - player wizard death   )
 - opponent wizard death > related
 - handle finished song  )
 
-- edit test runner plugin - import strings of class names
-
 - combos? lightning effect?
 
 - create better shield sprite
-
-- replace various appropriate vectors with linked lists
 
 
 ---Bugs.-------------------	
@@ -54,6 +44,8 @@
 - pending switch indication
 
 - proper lag handling
+
+- create better opponent strategies
 
 
 ---Completed.---------------
@@ -97,3 +89,6 @@
 - rewrite test runner class -sorta
 - remove actors that fall off screen
 - replace actor lists with linked lists
+- archers are overpowered - underpowered now, I'll do some balancing later
+- guarantee that assassins can't jump through shields
+- smooth audio transitions by fading in/out

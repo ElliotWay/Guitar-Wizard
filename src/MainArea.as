@@ -307,10 +307,12 @@ package src
 			}
 			projectiles = new Vector.<Projectile>();
 			
-			arena.removeChild(playerWizard.sprite);
+			if (!playerWizard.isDead)
+				arena.removeChild(playerWizard.sprite);
 			playerWizard = null;
 			
-			arena.removeChild(opponentWizard.sprite);
+			if (!opponentWizard.isDead)
+				arena.removeChild(opponentWizard.sprite);
 			opponentWizard = null;
 			
 			playerWizardKiller = null;

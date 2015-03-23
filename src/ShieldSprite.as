@@ -23,7 +23,7 @@ package src
 		Status.DYING, 			0,			5, FrameAnimation.FOUR_PER_BEAT,
 		Status.STANDING,		0,			1, FrameAnimation.ONE_THIRD_PER_BEAT);
 		
-		public static const CENTER:Point = new Point(43, 57);
+		public static const CENTER:Point = new Point(86, 114);
 		
 		private var relativeCenter:Point;
 		

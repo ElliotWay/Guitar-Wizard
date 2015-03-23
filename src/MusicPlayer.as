@@ -1,7 +1,14 @@
 package  src
 {
+	import com.greensock.TweenLite;
+	import com.greensock.plugins.TweenPlugin;
+	import com.greensock.plugins.VolumePlugin;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
+	
+	TweenPlugin.activate([VolumePlugin]);
+	
 	/**
 	 * Controls music playback. Plays the base music at the same time as the track,
 	 * and allows for switching between tracks.
@@ -24,6 +31,10 @@ package  src
 		
 		private var startingTrack:int;
 		private var currentTrack:int;
+		private var trackStopped:Boolean;
+		
+		private var fadingIn:TweenLite;
+		private var fadingOut:TweenLite;
 		
 		/**
 		 * Approximate time between calling play and the music actually starting.
@@ -32,12 +43,20 @@ package  src
 		public static const STARTUP_LAG:Number = 40;
 		
 		/**
+		 * Time in seconds to fade out the last track and fade in the new one.
+		 */
+		public static const TRACK_SWITCH_TIME:Number = 0.1;
+		
+		/**
 		 * Construct a new player
 		 * @param	startingTrack the starting track (probably mid)
 		 */
 		public function MusicPlayer(startingTrack:int) 
 		{
 			this.startingTrack = startingTrack;
+			
+			fadingIn = null;
+			fadingOut = null;
 		}
 		
 		/**
@@ -62,58 +81,97 @@ package  src
 			
 			baseChannel = baseMusic.play();
 			
-			resumeTrack(false);
+			if (startingTrack == Main.HIGH)
+				highChannel = highMusic.play();
+			else									//This starts the track muted.
+				highChannel = highMusic.play(0, 0, new SoundTransform(0));
+			
+			if (startingTrack == Main.MID)
+				midChannel = midMusic.play();
+			else
+				midChannel = midMusic.play(0, 0, new SoundTransform(0));
+			
+			if (startingTrack == Main.LOW)
+				lowChannel = lowMusic.play();
+			else
+				lowChannel = lowMusic.play(0, 0, new SoundTransform(0));
+				
+			trackStopped = false;
 		}
 		
 		/**
 		 * Switches tracks. Use the Main constants to select the track.
 		 * If we've started playing, this will switch tracks on the fly,
 		 * otherwise it will simply switch which track to start later.
-		 * Assumes that
 		 * @param	track the track to switch to
 		 */
 		public function switchTrack(track:int):void {
-			if (baseChannel != null)
-				stopTrack();
+			var newTrack:int = track;
 			
-			currentTrack = track;
+			if (baseChannel != null && currentTrack != newTrack && !trackStopped) {
+				//It should never occur that tracks are switched before one track has a chance to
+				//fade out, but we need to handle it if it does.
+				if (fadingOut != null) {
+					(fadingOut.target as SoundTransform).volume = 0;
+					fadingOut.kill();
+				}
+				if (fadingIn != null) {
+					fadingIn.kill();
+				}
+				var currentChannel:SoundChannel, newChannel:SoundChannel;
+				if (currentTrack == Main.HIGH)
+					currentChannel = highChannel;
+				else if (currentTrack == Main.MID)
+					currentChannel = midChannel;
+				else if (currentTrack == Main.LOW)
+					currentChannel = lowChannel;
+					
+				if (newTrack == Main.HIGH)
+					newChannel = highChannel;
+				else if (newTrack == Main.MID)
+					newChannel = midChannel;
+				else if (newTrack == Main.LOW)
+					newChannel = lowChannel;
+				
+				trace("old channel " + currentChannel + ", new channel " + newChannel);
+				fadingOut = new TweenLite(currentChannel, TRACK_SWITCH_TIME, { volume:0,
+						onComplete:function():void { fadingOut.kill(); fadingOut = null; } } );
+						
+				fadingIn = new TweenLite(newChannel, TRACK_SWITCH_TIME, { volume:1,
+						onComplete:function():void { fadingIn.kill(); fadingIn = null; } } );
+			}
 			
-			if (baseChannel != null)
-				resumeTrack();
+			currentTrack = newTrack;
 		}
 		
 		/**
 		 * Stops the current track from playing, but not the base part.
 		 */
 		public function stopTrack():void {
-			if (lowChannel != null) {
-				lowChannel.stop();
-				lowChannel = null;
-			}
-			if (midChannel != null) {
-				midChannel.stop();
-				midChannel = null;
-			}
-			if (highChannel != null) {
-				highChannel.stop();
-				highChannel = null;
-			}
+			if (currentTrack == Main.HIGH)
+				highChannel.soundTransform.volume = 0;
+			else if (currentTrack == Main.MID)
+				midChannel.soundTransform.volume = 0;
+			else if (currentTrack == Main.LOW)
+				lowChannel.soundTransform.volume = 0;
+				
+			trackStopped = true;
 		}
 		
 		/**
 		 * Resumes the track at the current time of the base part.
 		 * This should not be called if the base part is not currently playing.
-		 * @param useLag Whether to start the track late to give it time to start.
 		 */
-		public function resumeTrack(useLag:Boolean = true):void {
-			var optionalDelay:Number = useLag ? STARTUP_LAG : 0.0;
-			//Tracks are already going if not null.
-			if (currentTrack == Main.HIGH && highChannel == null)
-				highChannel = highMusic.play(baseChannel.position + optionalDelay);
-			if (currentTrack == Main.MID && midChannel == null)
-				midChannel = midMusic.play(baseChannel.position + optionalDelay);
-			if (currentTrack == Main.LOW && lowChannel == null)
-				lowChannel = lowMusic.play(baseChannel.position + optionalDelay);
+		public function resumeTrack():void {
+			if (currentTrack == Main.HIGH) {
+				highChannel.soundTransform.volume = 1;
+			} else if (currentTrack == Main.MID) {
+				midChannel.soundTransform.volume = 1;
+			} else if (currentTrack == Main.LOW) {
+				lowChannel.soundTransform.volume = 1;
+			}
+			
+			trackStopped = false;
 		}
 		
 		/**
@@ -122,10 +180,18 @@ package  src
 		 * with load song.
 		 */
 		public function stop():void {
-			stopTrack();
 			if (baseChannel != null) {
 				baseChannel.stop();
 				baseChannel = null;
+				
+				highChannel.stop();
+				highChannel = null;
+				
+				midChannel.stop();
+				midChannel = null;
+				
+				lowChannel.stop();
+				lowChannel = null;
 			}
 		}
 		
@@ -144,39 +210,6 @@ package  src
 				return baseChannel.position;
 			else
 				return -1;
-		}
-		
-		/**
-		 * Returns the playhead of the currently playing track part,
-		 * or -1 if no track part is currently playing.
-		 * Used for checking if the base part is out of sync.
-		 * @return track playhead
-		 */
-		public function getTrackTime():Number {
-			if (currentTrack == Main.HIGH && highChannel != null)
-				return highChannel.position;
-			else if (currentTrack == Main.MID && midChannel != null)
-				return midChannel.position;
-			else if (currentTrack == Main.LOW && lowChannel != null)
-				return lowChannel.position;
-			else
-				return -1;
-		}
-		
-		/**
-		 * Stop playback and wipe the loaded music.
-		 */
-		public function eject():void {
-			stop();
-			
-			lowChannel = null;
-			lowMusic = null;
-			midChannel = null;
-			midMusic = null;
-			highChannel = null;
-			highMusic = null;
-			baseChannel = null;
-			baseMusic = null;
 		}
 		
 	}

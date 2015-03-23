@@ -62,6 +62,20 @@ package src
 					
 				var targetPositionAfterJump:Number =
 						closest.predictPosition(AssassinSprite.timeToLand()).x;
+				
+				if (isPlayerPiece) {
+					if (MainArea.opponentShieldIsUp) {
+						targetPositionAfterJump = Math.max(
+								targetPositionAfterJump,
+								MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION);
+					}
+				} else {
+					if (MainArea.playerShieldIsUp) {
+						targetPositionAfterJump = Math.min(
+								targetPositionAfterJump,
+								MainArea.SHIELD_POSITION);
+					}
+				}
 						
 				var targetAfterJumpDistance:Number =
 						Math.abs(targetPositionAfterJump - this.getPosition().x);
