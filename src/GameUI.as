@@ -293,7 +293,7 @@ package src {
 //				trace("base : " + mainTime + ", track : " + trackTime + ", difference : " + (mainTime - trackTime));
 			}*/
 			//TODO if slowdown occurs, make this function only every 5 or so frames
-			var cutOffTime:Number = musicPlayer.getTime() - HIT_TOLERANCE - 200;
+			var cutOffTime:Number = musicPlayer.getTime() - HIT_TOLERANCE - 50; //Extra, just to be sure.
 			
 			updateBlockIndex();
 			
@@ -359,7 +359,6 @@ package src {
 			}
 			
 			updateBlockIndex();
-			trace("hit check while in " + currentBlock);
 				
 			var rightNow:Number = musicPlayer.getTime();
 			
@@ -548,6 +547,8 @@ package src {
 			musicArea.switchNotes(track, switchIndex);
 			shiftBlocks(track, switchIndex);
 			
+			cutBlock(switchIndex - 1);
+			
 			
 			//The music needs to be switched later, at the exact switch time.
 			if (switchTimer == null || earlySwitch) {
@@ -592,6 +593,78 @@ package src {
 			
 			switchTime = advanceSwitchTime;
 			advanceSwitchTime = -1;
+		}
+		
+		private function cutBlock(blockIndex:int):void {
+			if (blockIndex == song.blocks.length || blockQueue[blockIndex].length == 0)
+				return;
+			
+			var foundF:Boolean = false;
+			var foundD:Boolean = false;
+			var foundS:Boolean = false;
+			var foundA:Boolean = false;
+			
+			var found:Boolean = false;
+			
+			var index:int = 0;
+			var maxEndTime:Number = song.blocks[blockIndex];
+			
+			const MIN_HOLD_SIZE:int = 300;
+			
+			while (!(foundF && foundD && foundS && foundA) && index < blockQueue[blockIndex].length) {
+				var note:Note = blockQueue[blockIndex][index];
+				
+				found = false;
+				
+				switch (note.letter) {
+					case Note.NOTE_F:
+						if (!foundF && note.endtime > maxEndTime) {
+							foundF = true;
+							
+							found = true;
+						}
+						break;
+					case Note.NOTE_D:
+						if (!foundD && note.endtime > maxEndTime) {
+							foundD = true;
+							
+							found = true;
+						}
+						break;
+					case Note.NOTE_S:
+						if (!foundS && note.endtime > maxEndTime) {
+							foundS = true;
+							
+							found = true;
+						}
+						break;
+					case Note.NOTE_A:
+						if (!foundA && note.endtime > maxEndTime) {
+							foundA = true;
+							
+							found = true;
+						}
+						break;
+				}
+				
+				if (found) {
+					var betterEndTime:Number = maxEndTime - HIT_TOLERANCE;
+							
+					if (betterEndTime - note.time < MIN_HOLD_SIZE) {
+						note.isHold = false;
+						note.endtime = note.time;
+						
+						note.sprite.refresh();
+					} else {
+						note.endtime = betterEndTime;
+						
+						note.sprite.refresh();
+					}
+				}
+				
+				
+				index++;
+			}
 		}
 		
 		/**

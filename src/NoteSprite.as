@@ -52,6 +52,12 @@ package  src
 		public function init(e:Event):void {
 			associatedNote.setSprite(this);
 			
+			createImage();
+			
+			_isHit = 0;
+		}
+		
+		private function createImage():void {
 			var noteColor:uint = 0x0;
 			if (associatedNote.letter == Note.NOTE_F)
 				noteColor = F_COLOR;
@@ -88,8 +94,12 @@ package  src
 			this.addChild(letter);
 			letter.x = -NOTE_SIZE * .35;
 			letter.y = -NOTE_SIZE * .6;
+		}
+		
+		public function refresh():void {
+			this.graphics.clear();
 			
-			_isHit = 0;
+			createImage();
 		}
 		
 		/**

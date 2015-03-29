@@ -14,7 +14,7 @@ package src
 		public static const NOTE_F:int = 3;
 		
 		private var _letter:int;
-		private var _time:Number;	//TODO make these private again later
+		private var _time:Number;
 		private var _isHold:Boolean;
 		private var _endtime:Number;
 		
@@ -72,6 +72,9 @@ package src
 		public function set time(value:Number):void 
 		{
 			_time = value;
+			
+			if (!isHold)
+				_endtime = value;
 		}
 		
 		public function set letter(value:int):void 

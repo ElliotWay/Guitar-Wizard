@@ -8,8 +8,6 @@ package src {
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
-	import util.LinkedList;
-	import util.ListIterator;
 	
 	
 	TweenPlugin.activate([TintPlugin]);
@@ -21,7 +19,7 @@ package src {
 	public class Actor
 	{
 		protected static var player_buff:Number = 1.0;
-		private static var buff_change:Number = 0.01;
+		private static var buff_change:Number = 0.0125;
 		
 		public static const Y_POSITION:int = 357;
 		

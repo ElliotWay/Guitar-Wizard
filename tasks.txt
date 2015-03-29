@@ -3,8 +3,6 @@
 
 - quitting to menu is broken - partially fixed, probably still broken
 
-- change miss checker time in gameui
-
 - cut holds that extend over blocks
 
 
@@ -19,7 +17,7 @@
 
 - have wizard killing archers get closer
 
-- refactor switches in GameUI and possibly MusicArea
+- refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object
 
 
 ---Bugs.-------------------	
