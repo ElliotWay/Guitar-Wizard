@@ -35,6 +35,25 @@ public class TestRunner extends Sprite
 		
 	    //core.addListener(new AfterTestClose());
 
+		var classNames:Vector.<Class> = new Vector.<Class>();
+		
+		//#### Populate classNames here.
+		classNames.push(ActorTest);
+		classNames.push(GameUI_FindHitTest);
+		classNames.push(GameUI_MissUntilTest);
+		classNames.push(GameUI_SwitchTrackTest);
+		classNames.push(MainAreaTest);
+		classNames.push(MusicPlayerTest);
+		classNames.push(NoteSpriteTest);
+		classNames.push(NoteTest);
+		classNames.push(SongLoaderTest);
+		classNames.push(Song_ParseNotesTest);
+		classNames.push(TestTest);
+//%%%%		
+		for each (var clazz:Class in classNames) {
+			core.run(clazz);
+		}
+		/*
 		core.run(ActorTest);
 		core.run(GameUI_FindHitTest);
 		core.run(GameUI_MissUntilTest);
@@ -45,7 +64,7 @@ public class TestRunner extends Sprite
 		core.run(NoteTest);
 		core.run(SongLoaderTest);
 		core.run(Song_ParseNotesTest);
-		core.run(TestTest);
+		core.run(TestTest);*/
 
         addEventListener(Event.ADDED_TO_STAGE, addedToStage);
     }

@@ -13,9 +13,9 @@ package  src
 	{
 		public static const MUSIC_FILE_DIRECTORY:String = "../assets/";
 		
-		private var _lowPart:Vector.<Note>;
-		private var _midPart:Vector.<Note>;
-		private var _highPart:Vector.<Note>;
+		private var _lowPart:Vector.<Vector.<Note>>;
+		private var _midPart:Vector.<Vector.<Note>>;
+		private var _highPart:Vector.<Vector.<Note>>;
 		
 		private var _blocks:Vector.<Number>;
 
@@ -44,17 +44,24 @@ package  src
 		
 		public function unload():void {
 			var note:Note;
+			var block:Vector.<Note>;
 			
-			for each (note in _lowPart) {
-				note.dissociate();
+			for each (block in _lowPart) {
+				for each (note in block) {
+					note.dissociate();
+				}
 			}
 			_lowPart = null;
-			for each (note in _midPart) {
-				note.dissociate();
+			for each (block in _midPart) {
+				for each (note in block) {
+					note.dissociate();
+				}
 			}
 			_midPart = null;
-			for each (note in _highPart) {
-				note.dissociate();
+			for each (block in _highPart) {
+				for each (note in block) {
+					note.dissociate();
+				}
 			}
 			_highPart = null;
 			
@@ -94,24 +101,24 @@ package  src
 			var midNoteString:String = lines[5];
 			var lowNoteString:String = lines[6];
 			
-			_highPart = new Vector.<Note>();
-			_midPart = new Vector.<Note>();
-			_lowPart = new Vector.<Note>();
+			_highPart = new Vector.<Vector.<Note>>();
+			_midPart = new Vector.<Vector.<Note>>();
+			_lowPart = new Vector.<Vector.<Note>>();
 			
 			var blockString:String = lines[7];
 			
 			_blocks = new Vector.<Number>();
 			
 			try {
-				parseNotes(_highPart, highNoteString);
-				parseNotes(_midPart, midNoteString);
-				parseNotes(_lowPart, lowNoteString);
 				parseBlocks(_blocks, blockString);
+				
+				parseNotes(_highPart, _blocks, highNoteString);
+				parseNotes(_midPart, _blocks, midNoteString);
+				parseNotes(_lowPart, _blocks, lowNoteString);
 			} catch (error:Error) {
 				trace(error.message);
 				Main.showError(error.message);
 			}
-			
 			
 			Main.fileLoaded();
 		}
@@ -137,7 +144,7 @@ package  src
 		 * @param	noteList the list to add the notes to
 		 * @param	str the string out of which to parse the notes
 		 */
-		public static function parseNotes(noteList:Vector.<Note>, str:String):void {
+		public static function parseNotes(noteList:Vector.<Vector.<Note>>, blocks:Vector.<Number>, str:String):void {
 			
 			if (noteList == null) {
 				throw new GWError("Error: parse notes called with null vector");
@@ -151,6 +158,9 @@ package  src
 			var note:Note = null;
 			var lastTime:Number = -1;
 			var lastLetter:String;
+			
+			var currentBlock:Vector.<Note> = new Vector.<Note>();
+			var blockIndex:int = 0;
 			
 			var index:int = 0;
 			while (index < tokens.length) {
@@ -229,11 +239,21 @@ package  src
 					
 					lastLetter = letter;
 					
-					noteList.push(note);
+					while (blockIndex < blocks.length && time > blocks[blockIndex]) {
+						noteList.push(currentBlock);
+						
+						currentBlock = new Vector.<Note>();
+						
+						blockIndex++;
+					}
+					
+					currentBlock.push(note);
 				}
 				
 				index++;
 			}
+			
+			noteList.push(currentBlock);
 		}
 		
 		/**
@@ -279,19 +299,27 @@ package  src
 			}
 		}
 		
-		public function get lowPart():Vector.<Note> 
+		public function get lowPart():Vector.<Vector.<Note>> 
 		{
 			return _lowPart;
 		}
 		
-		public function get midPart():Vector.<Note> 
+		public function get midPart():Vector.<Vector.<Note>>
 		{
 			return _midPart;
 		}
 		
-		public function get highPart():Vector.<Note> 
+		public function get highPart():Vector.<Vector.<Note>>
 		{
 			return _highPart;
+		}
+		
+		/**
+		 * The number of separated blocks in this song.
+		 * Each part has this number of elements, blocks has this - 1 elements.
+		 */
+		public function get numBlocks():int {
+			return _midPart.length;
 		}
 		
 		public function get blocks():Vector.<Number>

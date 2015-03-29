@@ -45,7 +45,7 @@ package src
 			if (facesRight) {
 				relativeCenter = CENTER;
 			} else {
-				relativeCenter = new Point(FRAME_WIDTH - CENTER.x, CENTER.y);
+				relativeCenter = new Point(FRAME_WIDTH * FrameAnimation.SCALE - CENTER.x, CENTER.y);
 			}
 		}
 		

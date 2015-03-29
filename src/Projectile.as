@@ -17,8 +17,6 @@ package src
 		[Embed(source="../assets/arrow.png")]
 		private static const ArrowImage:Class;
 		
-		public static const DAMAGE:Number = 1.5;
-		
 		
 		public static const VELOCITY:Number = 400; // pxl/s
 		
@@ -30,11 +28,12 @@ package src
 		 */
 		public static const TRAJECTORY_CONSTANT:Number = (VELOCITY * VELOCITY) / GRAVITY; //pxl
 		
-		public static const ERROR:Number = .2; //.1 radians
+		public static const ERROR:Number = .15; //.1 radians
 		
 		
 		private var _targetPosition:Point;
 		
+		private var _damage:Number
 		private var _targets:int;
 		private var _finished:Boolean;
 		
@@ -47,8 +46,10 @@ package src
 		 * @param	targets bit mask of possible targets
 		 * @param	targetPosition x position of intended target
 		 */
-		public function Projectile(targets:int, targetPosition:Point) 
+		public function Projectile(damage:Number, targets:int, targetPosition:Point) 
 		{
+			_damage = damage;
+			
 			_targets = targets;
 			
 			_finished = false;
@@ -76,7 +77,7 @@ package src
 		 * @param	actor the actor to collide with
 		 */
 		public function collide(actor:Actor):void {
-			actor.hit(DAMAGE);
+			actor.hit(_damage);
 			
 			_finished = true;
 			

@@ -3,6 +3,7 @@ package  src
 	import com.greensock.TweenLite;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.plugins.VolumePlugin;
+	import flash.events.Event;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
@@ -36,6 +37,11 @@ package  src
 		private var fadingIn:TweenLite;
 		private var fadingOut:TweenLite;
 		
+		private var gameUI:GameUI;
+		
+		private static const MUTE:SoundTransform = new SoundTransform(0);
+		private static const UNMUTE:SoundTransform = new SoundTransform(1);
+		
 		/**
 		 * Approximate time between calling play and the music actually starting.
 		 * Value is in milliseconds.
@@ -51,8 +57,10 @@ package  src
 		 * Construct a new player
 		 * @param	startingTrack the starting track (probably mid)
 		 */
-		public function MusicPlayer(startingTrack:int) 
+		public function MusicPlayer(startingTrack:int, gameUI:GameUI) 
 		{
+			this.gameUI = gameUI;
+			
 			this.startingTrack = startingTrack;
 			
 			fadingIn = null;
@@ -81,20 +89,25 @@ package  src
 			
 			baseChannel = baseMusic.play();
 			
+			baseChannel.addEventListener(Event.SOUND_COMPLETE, function():void {
+				gameUI.songFinished();
+				stop();
+			});
+			
 			if (startingTrack == Main.HIGH)
 				highChannel = highMusic.play();
-			else									//This starts the track muted.
-				highChannel = highMusic.play(0, 0, new SoundTransform(0));
+			else
+				highChannel = highMusic.play(0, 0, MUTE);
 			
 			if (startingTrack == Main.MID)
 				midChannel = midMusic.play();
 			else
-				midChannel = midMusic.play(0, 0, new SoundTransform(0));
+				midChannel = midMusic.play(0, 0, MUTE);
 			
 			if (startingTrack == Main.LOW)
 				lowChannel = lowMusic.play();
 			else
-				lowChannel = lowMusic.play(0, 0, new SoundTransform(0));
+				lowChannel = lowMusic.play(0, 0, MUTE);
 				
 			trackStopped = false;
 		}
@@ -133,7 +146,6 @@ package  src
 				else if (newTrack == Main.LOW)
 					newChannel = lowChannel;
 				
-				trace("old channel " + currentChannel + ", new channel " + newChannel);
 				fadingOut = new TweenLite(currentChannel, TRACK_SWITCH_TIME, { volume:0,
 						onComplete:function():void { fadingOut.kill(); fadingOut = null; } } );
 						
@@ -148,12 +160,14 @@ package  src
 		 * Stops the current track from playing, but not the base part.
 		 */
 		public function stopTrack():void {
-			if (currentTrack == Main.HIGH)
-				highChannel.soundTransform.volume = 0;
-			else if (currentTrack == Main.MID)
-				midChannel.soundTransform.volume = 0;
-			else if (currentTrack == Main.LOW)
-				lowChannel.soundTransform.volume = 0;
+			if (isPlaying) {
+				if (currentTrack == Main.HIGH)
+					highChannel.soundTransform = MUTE;
+				else if (currentTrack == Main.MID)
+					midChannel.soundTransform = MUTE;
+				else if (currentTrack == Main.LOW)
+					lowChannel.soundTransform = MUTE;
+			}
 				
 			trackStopped = true;
 		}
@@ -163,12 +177,14 @@ package  src
 		 * This should not be called if the base part is not currently playing.
 		 */
 		public function resumeTrack():void {
-			if (currentTrack == Main.HIGH) {
-				highChannel.soundTransform.volume = 1;
-			} else if (currentTrack == Main.MID) {
-				midChannel.soundTransform.volume = 1;
-			} else if (currentTrack == Main.LOW) {
-				lowChannel.soundTransform.volume = 1;
+			if (isPlaying) {
+				if (currentTrack == Main.HIGH) {
+					highChannel.soundTransform = UNMUTE;
+				} else if (currentTrack == Main.MID) {
+					midChannel.soundTransform = UNMUTE;
+				} else if (currentTrack == Main.LOW) {
+					lowChannel.soundTransform = UNMUTE;
+				}
 			}
 			
 			trackStopped = false;
@@ -212,6 +228,9 @@ package  src
 				return -1;
 		}
 		
+		public function get isPlaying():Boolean {
+			return baseChannel != null;
+		}
 	}
 
 }

@@ -54,6 +54,12 @@ package src
 			progress = 0;
 		}
 		
+		public function reset():void {
+			progress = 0;
+			
+			uncover.x = 2;
+		}
+		
 		public function increase(amount:Number):void {
 			
 			progress += amount;

@@ -3,12 +3,15 @@ package test
 	
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
 	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.mock;
 	import mockolate.stub;
 	import mockolate.verify;
 	import org.hamcrest.assertThat;
+	import org.hamcrest.CustomMatcher;
+	import org.hamcrest.Matcher;
 	import org.hamcrest.number.lessThan;
 	import src.Main;
 	import src.MusicPlayer;
@@ -38,6 +41,13 @@ package test
 		
 		private var player:MusicPlayer;
 		
+		private function isMutedSoundTransform():Matcher {
+			return new CustomMatcher("Muted SoundTransform", 
+				function(item:Object):Boolean {
+					return (item is SoundTransform) && (SoundTransform(item).volume == 0);
+				});
+		}
+		
 		[Before]
 		public function createSong():void {
 			mock(song).getter("baseMusic").returns(baseMusic);
@@ -53,7 +63,7 @@ package test
 			stub(midMusic).method("play").returns(channel);
 			stub(lowMusic).method("play").returns(channel);
 			
-			player = new MusicPlayer(Main.HIGH);
+			player = new MusicPlayer(Main.HIGH, null);
 		}
 		
 		[Test]
@@ -69,10 +79,10 @@ package test
 			
 			player.go();
 			
-			assertThat(baseMusic, received().method("play"));
-			assertThat(highMusic, received().method("play"));
-			assertThat(midMusic, received().method("play").never());
-			assertThat(lowMusic, received().method("play").never());
+			assertThat(baseMusic, received().method("play").noArgs());
+			assertThat(highMusic, received().method("play").noArgs());
+			assertThat(midMusic, received().method("play").args(0, 0, isMutedSoundTransform()));
+			assertThat(lowMusic, received().method("play").args(0, 0, isMutedSoundTransform()));
 		}
 		
 		[Test]
@@ -87,20 +97,23 @@ package test
 			assertThat(highMusic, received().method("play").once());
 		}
 		
-		//Can't test stopTrack
+		//Can't test resume and stop track anymore, since that happens entirely internally.
 		
 		[Test]
-		public function resumesTrack():void {
+		public function isPlayingIsCorrect():void {
 			player.loadMusic(song);
 			player.go();
-			player.stopTrack();
 			
-			player.resumeTrack();
+			assertThat(player.isPlaying);
 			
-			assertThat(highMusic, received().method("play").twice());
+			player.stop();
+			
+			assertThat(!player.isPlaying);
+			
+			player.go();
+			
+			assertThat(player.isPlaying);
 		}
-		
-		//Can't test stop.
 		
 		//Can't properly test getTime, but can test the failure case.
 		[Test]

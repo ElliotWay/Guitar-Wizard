@@ -4,8 +4,10 @@ package src {
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.TimerEvent;
+	import flash.text.TextField;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
+	
 	/**
 	 * ...
 	 * @author Elliot Way
@@ -30,6 +32,8 @@ package src {
 		//Other output parts
 		protected var musicPlayer:MusicPlayer;
 		
+		protected var victoryScreen:Sprite;
+		protected var losingScreen:Sprite;
 		
 		private var song:Song;
 		
@@ -44,12 +48,15 @@ package src {
 		private var expectingHold:Vector.<Boolean>;
 		private var currentHolds:Vector.<Note>;
 		
-		private var highNotesRemaining:Vector.<Note>;
-		private var midNotesRemaining:Vector.<Note>;
-		private var lowNotesRemaining:Vector.<Note>;
+		private var highNoteBlocks:Vector.<Vector.<Note>>;
+		private var midNoteBlocks:Vector.<Vector.<Note>>;
+		private var lowNoteBlocks:Vector.<Vector.<Note>>;
+		private var blockQueue:Vector.<Vector.<Note>>;
+		
+		private var currentBlock:int;
 		
 		private var highSummonAmount:Number = 8;
-		private var midSummonAmount:Number = 9;
+		private var midSummonAmount:Number = 8;
 		private var lowSummonAmount:Number = 8;
 		
 		private var highActorType:Class;
@@ -61,6 +68,9 @@ package src {
 		
 		private var recentQuitAttempt:Boolean;
 		private var quitTimer:Timer;
+		
+		private var songIsFinished:Boolean;
+		private var opponentIsDefeated:Boolean;
 		
 		public function GameUI() 
 		{
@@ -80,12 +90,12 @@ package src {
 			advanceSwitchTimer = null;
 			advanceSwitchTime = -1;
 			
-			musicPlayer = new MusicPlayer(Main.MID);
+			musicPlayer = new MusicPlayer(Main.MID, this);
 			
 			expectingHold = new <Boolean>[false, false, false, false];
 			currentHolds = new <Note>[null, null, null, null];
 			
-			mainArea = new MainArea();
+			mainArea = new MainArea(this);
 			this.addChild(mainArea);
 			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
 			
@@ -99,13 +109,33 @@ package src {
 			infoArea.x = MainArea.WIDTH;
 			infoArea.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT + SummoningMeter.HEIGHT;
 			
+			victoryScreen = new Sprite();
+			this.addChild(victoryScreen);
+			victoryScreen.graphics.beginFill(0x0);
+			victoryScreen.graphics.drawRect(0, 0, Main.WIDTH, Main.HEIGHT);
+			victoryScreen.graphics.endFill();
+			var victory:TextField = new TextField();
+			victory.text = "You won!\nQ to return to the menu.";
+			victory.textColor = 0xFFFFFF;
+			victoryScreen.addChild(victory);
+			victoryScreen.visible = false;
+			
+			losingScreen = new Sprite();
+			this.addChild(losingScreen);
+			losingScreen.graphics.beginFill(0x0);
+			losingScreen.graphics.drawRect(0, 0, Main.WIDTH, Main.HEIGHT);
+			losingScreen.graphics.endFill();
+			var losing:TextField = new TextField();
+			losing.text = "You lost!\nQ to return to the menu.";
+			losing.textColor = 0xFFFFFF;
+			losingScreen.addChild(losing);
+			losingScreen.visible = false;
+			
 			highActorType = Assassin;
 			midActorType = Archer;
 			lowActorType = Cleric;
 			
 			opponent = new DefaultOpponent();
-			
-			recentQuitAttempt = false;
 		}
 		
 		/**
@@ -119,17 +149,40 @@ package src {
 			musicArea.loadNotes(song);
 			musicPlayer.loadMusic(song);
 			
-			highNotesRemaining = (Vector.<Note>(song.highPart)).reverse();
-			midNotesRemaining = (Vector.<Note>(song.midPart)).reverse();
-			lowNotesRemaining = (Vector.<Note>(song.lowPart)).reverse();
+			highNoteBlocks = new Vector.<Vector.<Note>>(song.numBlocks, true);
+			midNoteBlocks = new Vector.<Vector.<Note>>(song.numBlocks, true);
+			lowNoteBlocks = new Vector.<Vector.<Note>>(song.numBlocks, true);
+			
+			var index:int;
+			for (index = 0; index < highNoteBlocks.length; index++) {
+				highNoteBlocks[index] = song.highPart[index].reverse();
+				midNoteBlocks[index] = song.midPart[index].reverse();
+				lowNoteBlocks[index] = song.lowPart[index].reverse();
+			}
+			
+			blockQueue = midNoteBlocks.concat(); //Concat without args creates a shallow copy.
+			currentBlock = 0;
 		}
 		
 		public function go():void {
 			//Start listening to the keyboard
 			this.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyboardHandler);
 			this.stage.addEventListener(KeyboardEvent.KEY_UP, keyReleaseHandler);
+			
+			victoryScreen.visible = false;
+			losingScreen.visible = false;
+			
+			recentQuitAttempt = false;
+			
+			summoningMeter.reset();
 
 			mainArea.go(Wizard.create(true), Wizard.create(false));
+			
+			currentTrack = Main.MID;
+			nextTrack = Main.MID;
+			
+			songIsFinished = false;
+			opponentIsDefeated = false;
 			
 			//Let the opponent start summoning.
 			opponentTimer = new Timer(opponent.timeToAct, 0); //0 repeats indefinitely.
@@ -167,6 +220,58 @@ package src {
 			Main.stopRunningEveryFrame(missChecker);
 		}
 		
+		public function songFinished():void {
+			if (opponentIsDefeated) {
+				victoryScreen.visible = true;
+			
+				musicPlayer.stop();
+			
+				recentQuitAttempt = true;
+			} else {
+			
+				infoArea.displayText("Uh-oh...");
+				
+				opponentTimer.stop();
+				mainArea.killShields();
+			
+				var mashButtonsTimer:Timer = new Timer(1500, 1);
+				mashButtonsTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					infoArea.displayText("Mash buttons!");
+					songIsFinished = true;
+				} );
+			
+				mashButtonsTimer.start();
+			}
+		}
+		
+		public function playerWizardDead():void {
+			trace("Player dead.");
+			infoArea.displayText("You died.");
+			losingScreen.visible = true;
+			
+			musicPlayer.stop();
+			
+			recentQuitAttempt = true;
+		}
+		
+		public function opponentWizardDead():void {
+			trace("Opponent dead.");
+			if (songIsFinished) {
+				victoryScreen.visible = true;
+			
+				musicPlayer.stop();
+			
+				recentQuitAttempt = true;
+			} else {
+				infoArea.displayText("Victory! Press Q to finish, or finish the song.");
+				recentQuitAttempt = true;
+				
+				opponentTimer.stop();
+				
+				opponentIsDefeated = true;
+			}
+		}
+		
 		private var frames:int = 0;
 		
 		/**
@@ -190,22 +295,13 @@ package src {
 			//TODO if slowdown occurs, make this function only every 5 or so frames
 			var cutOffTime:Number = musicPlayer.getTime() - HIT_TOLERANCE - 200;
 			
-			if (currentTrack == Main.HIGH) {
-				missNotesUntil(highNotesRemaining, cutOffTime);
-				
-				clearNotesUntil(midNotesRemaining, cutOffTime);
-				clearNotesUntil(lowNotesRemaining, cutOffTime);
-			} else if (currentTrack == Main.MID) {
-				missNotesUntil(midNotesRemaining, cutOffTime);
-				
-				clearNotesUntil(highNotesRemaining, cutOffTime);
-				clearNotesUntil(lowNotesRemaining, cutOffTime);
-			} else {
-				missNotesUntil(lowNotesRemaining, cutOffTime);
-				
-				clearNotesUntil(highNotesRemaining, cutOffTime);
-				clearNotesUntil(midNotesRemaining, cutOffTime);
-			}
+			updateBlockIndex();
+			
+			missNotesUntil(blockQueue[currentBlock], cutOffTime);
+			
+			//It's possibly we're right on the boundary between blocks.
+			if (currentBlock + 1 < blockQueue.length)
+				missNotesUntil(blockQueue[currentBlock + 1], cutOffTime);
 		}
 		
 		/**
@@ -234,12 +330,12 @@ package src {
 		 * @param	noteList vector of notes to parse through
 		 * @param	cutoffTime time after which to stop removing notes
 		 */
-		public static function clearNotesUntil(noteList:Vector.<Note>, cutOff:Number):void {
+		/*public static function clearNotesUntil(noteList:Vector.<Note>, cutOff:Number):void {
 			while (noteList.length > 0 &&
 					noteList[noteList.length - 1].time < cutOff) {
 				var nextNote:Note = noteList.pop();
 			}
-		}
+		}*/
 		
 		/**
 		 * Handler for pressing A, S, D, or F. Checks if a note is there, then hits it or
@@ -256,19 +352,20 @@ package src {
 				
 			mainArea.updateWizard();
 			
-			var notesToSearch:Vector.<Note>;
+			//If the song is over, the play can mash buttons to buff their units.
+			if (songIsFinished) {
+				Actor.buffPlayers();
+				return;
+			}
 			
-			if (currentTrack == Main.HIGH)
-				notesToSearch = highNotesRemaining;
-			if (currentTrack == Main.MID)
-				notesToSearch = midNotesRemaining;
-			if (currentTrack == Main.LOW)
-				notesToSearch = lowNotesRemaining;
-				
+			updateBlockIndex();
+			trace("hit check while in " + currentBlock);
 				
 			var rightNow:Number = musicPlayer.getTime();
 			
-			var note:Note = findFirstHit(notesToSearch, noteLetter, rightNow);
+			var note:Note = findFirstHit(blockQueue[currentBlock], noteLetter, rightNow);
+			if (note == null && currentBlock + 1 < blockQueue.length)
+				note = findFirstHit(blockQueue[currentBlock + 1], noteLetter, rightNow);
 			
 			if (note != null) {
 				note.hit();
@@ -411,57 +508,79 @@ package src {
 			if (nextTrack == track)
 				return;
 				
-			nextTrack = track;
+			trace("switching track");
 				
-			var rightNow:Number, switchPoint:Number;
+			updateBlockIndex();
+				
+			nextTrack = track;
 			
-			rightNow = musicPlayer.getTime();
-			switchPoint = musicArea.switchNotes(rightNow, track);
+			var rightNow:Number = musicPlayer.getTime();
 			
-			if (switchTimer == null) {
+			var switchPoint:Number;
+			var switchIndex:int;
+			
+			var earlySwitch:Boolean = true;
+			
+			//2 major situations can occur here:
+			//we can switch in the next block OR
+			//it's too late and we can switch in the block after that.
+			//
+			//In either case, we may already be at the end, and can't switch at all.
+			
+			if (currentBlock < song.numBlocks &&
+					song.blocks[currentBlock] - rightNow > MusicArea.SWITCH_ADVANCE_TIME) {
+				switchIndex = currentBlock + 1;
+				switchPoint = song.blocks[currentBlock];
+			} else if (currentBlock + 1 < song.numBlocks) {
+				//song.blocks[currentBlock + 1] - rightNow > MusicArea.SWITCH_ADVANCE_TIME
+				//is necessarily true.
+				
+				switchIndex = currentBlock + 2;
+				switchPoint = song.blocks[currentBlock + 1];
+				
+				earlySwitch = false;
+			} else {
+				switchIndex = currentBlock + 1;
+				switchPoint = Number.MAX_VALUE;
+			}
+			
+			
+			musicArea.switchNotes(track, switchIndex);
+			shiftBlocks(track, switchIndex);
+			
+			
+			//The music needs to be switched later, at the exact switch time.
+			if (switchTimer == null || earlySwitch) {
+
+				if (switchTimer != null)
+					switchTimer.stop();
+				
 				switchTimer = new Timer(switchPoint - rightNow, 1);
 				switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					switchLater(track);
 				});
 				switchTimer.start();
 				
-				switchTime = switchPoint - MusicPlayer.STARTUP_LAG;
-				
+				switchTime = switchPoint;
+					
+				trace("normal switch");
 			} else {
-				//var error:Error = new Error();
-				//trace(error.getStackTrace());
-				//switch time is the time of the existing switch.
-				if (switchTime - rightNow < MusicArea.SWITCH_ADVANCE_TIME) {
 					
-					//We're in the space where it's too late to switch the next block,
-					//but we haven't switched yet.
-					if (advanceSwitchTimer != null) {
-						advanceSwitchTimer.stop();
-					}
-					
-					advanceSwitchTimer = new Timer(switchPoint - rightNow, 1);
-					advanceSwitchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-						switchLater(track);
-					});
-					advanceSwitchTimer.start();
-					
-					advanceSwitchTime = switchPoint;
-				} else {
-					
-					switchTimer.stop();
-					switchTimer = new Timer(switchPoint - rightNow, 1);
-					switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-						switchLater(track);
-					});
-					switchTimer.start();
-					
-					switchTime = switchPoint;
+				//We're in the space where it's too late to switch the next block,
+				//but we haven't switched yet.
+				if (advanceSwitchTimer != null) {
+					advanceSwitchTimer.stop();
 				}
+				
+				advanceSwitchTimer = new Timer(switchPoint - rightNow, 1);
+				advanceSwitchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					switchLater(track);
+				});
+				advanceSwitchTimer.start();
+				
+				advanceSwitchTime = switchPoint;
+				trace("advance switch");
 			}
-		}
-		
-		private function prepareTrackSwitch(rightNow:Number, switchTime:Number):void {
-			
 		}
 		
 		private function switchLater(track:int):void {
@@ -473,6 +592,41 @@ package src {
 			
 			switchTime = advanceSwitchTime;
 			advanceSwitchTime = -1;
+		}
+		
+		/**
+		 * Shifts the blocks of notes that will be hit to the track, after the specified index.
+		 * If the index is greater than index of the last block, nothing happens.
+		 * @param	track the track to shift blocks to
+		 * @param	index the index including and after which to switch blocks
+		 */
+		private function shiftBlocks(track:int, index:int):void {
+			trace("blocks after and including " + index + " switched to " + track);
+			
+			if (track == Main.HIGH) {
+				for (index; index < blockQueue.length; index++) {
+					blockQueue[index] = highNoteBlocks[index];
+				}
+			} else if (track == Main.MID) {
+				for (index; index < blockQueue.length; index++) {
+					blockQueue[index] = midNoteBlocks[index];
+				}
+			} else {
+				for (index; index < blockQueue.length; index++) {
+					blockQueue[index] = lowNoteBlocks[index];
+				}
+			}
+		}
+		
+		/**
+		 * Makes sure that currentBlock refers to the correct block.
+		 */
+		private function updateBlockIndex():void {
+			var blocks:Vector.<Number> = song.blocks;
+			var rightNow:Number = musicPlayer.getTime();
+			
+			while (currentBlock < blocks.length && rightNow > blocks[currentBlock])
+				currentBlock++;
 		}
 		
 		public function quitHandler():void {

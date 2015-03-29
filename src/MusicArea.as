@@ -74,36 +74,24 @@ package  src
 		}
 		
 		/**
-		 * Change the visibility of note block based on the current time.
-		 * @param	currentTime time from the start of the music, in milliseconds
+		 * Change the visibility of note blocks.
 		 * @param	track the track to switch to
+		 * @param   blockIndex the index of the block including and after which to change block visibility
 		 * @return  time of the next block switch
 		 */
-		public function switchNotes(currentTime:Number, track:int):Number {
-			//Find the index of the current block.
-			var targetIndex:int = 0;
-			while (targetIndex < blocks.length &&
-					blocks[targetIndex] - currentTime < SWITCH_ADVANCE_TIME) {
-				targetIndex++;
-			}
+		public function switchNotes(track:int, blockIndex:int):void {
 			
-			if (targetIndex >= blocks.length) {
-				return Number.MAX_VALUE; //Can't switch if we're on the last block.
-			} else {
-				switch (track) {
-					case Main.HIGH:
-						setHighNotes(targetIndex + 1);
-						break;
-					case Main.MID:
-						setMidNotes(targetIndex + 1);
-						break;
-					case Main.LOW:
-						setLowNotes(targetIndex + 1);
-						break;
-				}
+			switch (track) {
+				case Main.HIGH:
+					setHighNotes(blockIndex);
+					break;
+				case Main.MID:
+					setMidNotes(blockIndex);
+					break;
+				case Main.LOW:
+					setLowNotes(blockIndex);
+					break;
 			}
-			
-			return blocks[targetIndex];
 		}
 		
 		/**
@@ -147,9 +135,9 @@ package  src
 		public function loadNotes(song:Song):void {
 			notesLayer = new Sprite();
 			
-			lowNotes = createNotesImage(song.lowPart, song.blocks);
-			midNotes = createNotesImage(song.midPart, song.blocks);
-			highNotes = createNotesImage(song.highPart, song.blocks);
+			lowNotes = createNotesImage(song.lowPart);
+			midNotes = createNotesImage(song.midPart);
+			highNotes = createNotesImage(song.highPart);
 			
 			blocks = song.blocks;
 			
@@ -180,50 +168,38 @@ package  src
 		 * @param   blocks a vector of times about which to separate the notes into blocks
 		 * @return the image of notes
 		 */
-		public static function createNotesImage(notes:Vector.<Note>, blocks:Vector.<Number>):Vector.<Sprite> {
+		public static function createNotesImage(notes:Vector.<Vector.<Note>>):Vector.<Sprite> {
 			var noteBlocks:Vector.<Sprite> = new Vector.<Sprite>();
 
-			var notesImage:Sprite = new Sprite();
+			var notesImage:Sprite;
 			
-			var blockIndex:int = 0;
-			noteBlocks[0] = notesImage;
-			
-			var separator:Number = (blocks.length > 0) ? blocks[0] : Number.MAX_VALUE;
-			
-			for each(var note:Note in notes) {
-				//Check whether to move onto the next block.
-				//We may have to skip multiple blocks, if a block contains no notes.
-				while (note.time > separator) {
-					blockIndex++;
+			for each (var block:Vector.<Note> in notes) 
+			{
+				notesImage = new Sprite();
+				
+				for each(var note:Note in block) {
 					
-					if (blocks.length > blockIndex) {
-						separator = blocks[blockIndex];
-					} else {
-						separator = Number.MAX_VALUE;
-					}
+					//Create note image
+					var noteSprite:NoteSprite = new NoteSprite(note);
 					
-					notesImage = new Sprite();
-					noteBlocks[blockIndex] = notesImage;
+					//Choose which line
+					var yPosition:int = 0;
+					if (note.letter == Note.NOTE_F)
+						yPosition = (1 / 5) * HEIGHT;
+					if (note.letter == Note.NOTE_D)
+						yPosition = (2 / 5) * HEIGHT;
+					if (note.letter == Note.NOTE_S)
+						yPosition = (3 / 5) * HEIGHT;
+					if (note.letter == Note.NOTE_A)
+						yPosition = (4 / 5) * HEIGHT;
+					
+					//Place the note
+					notesImage.addChild(noteSprite);
+					noteSprite.x = note.time * POSITION_SCALE;
+					noteSprite.y = yPosition;
 				}
 				
-				//Create note image
-				var noteSprite:NoteSprite = new NoteSprite(note);
-				
-				//Choose which line
-				var yPosition:int = 0;
-				if (note.letter == Note.NOTE_F)
-					yPosition = (1 / 5) * HEIGHT;
-				if (note.letter == Note.NOTE_D)
-					yPosition = (2 / 5) * HEIGHT;
-				if (note.letter == Note.NOTE_S)
-					yPosition = (3 / 5) * HEIGHT;
-				if (note.letter == Note.NOTE_A)
-					yPosition = (4 / 5) * HEIGHT;
-				
-				//Place the note
-				notesImage.addChild(noteSprite);
-				noteSprite.x = note.time * POSITION_SCALE;
-				noteSprite.y = yPosition;
+				noteBlocks.push(notesImage);
 			}
 			
 			return noteBlocks;

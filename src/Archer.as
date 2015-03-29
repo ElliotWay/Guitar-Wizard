@@ -6,7 +6,6 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	import util.LinkedList;
 	
 	/**
 	 * ...
@@ -19,6 +18,8 @@ package src
 		
 		private static const BASE_SKIRMISH_DISTANCE:Number = 200;
 		private static const SKIRMISH_VARIABILITY:Number = 100;
+		
+		private static const ARROW_DAMAGE:int = 3;
 		
 		private static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - 50;
 		private static const RANGE_VARIABILITY:Number = 75;
@@ -50,7 +51,7 @@ package src
 			skirmishDistance = BASE_SKIRMISH_DISTANCE + (Math.random() * SKIRMISH_VARIABILITY) - (SKIRMISH_VARIABILITY / 2);
 		}
 		
-		override public function act(allies:LinkedList, enemies:LinkedList):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -69,8 +70,12 @@ package src
 						go();
 						
 				} else if (withinRange(closest, MELEE_RANGE)) {
-					this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE, ArcherSprite.timeBetweenBlows());
-					
+					if (isPlayerPiece)
+						this.meleeAttack(closest, MELEE_RANGE,
+								MELEE_DAMAGE * player_buff, ArcherSprite.timeBetweenBlows());
+					else
+						this.meleeAttack(closest, MELEE_RANGE,
+								MELEE_DAMAGE, ArcherSprite.timeBetweenBlows());
 				} else if (this.isBehindShield()) {
 					if (_status != Status.MOVING)
 						go();
@@ -95,6 +100,7 @@ package src
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 							
 							var arrow:Projectile = new Projectile(
+									ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0),
 									(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
 									closest.predictPosition(LEAD_TIME));
 						

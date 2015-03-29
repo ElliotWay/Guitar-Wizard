@@ -7,7 +7,6 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	import util.LinkedList;
 	/**
 	 * ...
 	 * @author ...
@@ -23,14 +22,13 @@ package src
 				((MAX_JUMP_DISTANCE + MIN_JUMP_DISTANCE) / 2) /
 				1200; //Approx time to land
 		
+		public static const MELEE_DAMAGE:int = 3;
 		public static const MELEE_RANGE:int = 30;
 		
 		private var jumping:TweenLite;
 		
 		private var landedTimer:Timer;
 		private var jumpTarget:Number;
-		
-		private var damage:Number;
 		
 		public function Assassin(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
@@ -39,10 +37,9 @@ package src
 					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
 			
 			this.speed = 150;
-			this.damage = 3;
 		}
 		
-		override public function act(allies:LinkedList, enemies:LinkedList):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -101,7 +98,7 @@ package src
 					landedTimer = new Timer(AssassinSprite.timeToLand(), 1);
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						if (withinRange(closest, MELEE_RANGE*1.1))//A little extra leeway on assassination.
-							closest.hit(2*damage); //Double damage on assassination
+							closest.hit(2*MELEE_DAMAGE*(isPlayerPiece ? player_buff : 1.0)); //Double damage on assassination
 							
 						landedTimer = null;
 					});
@@ -110,7 +107,13 @@ package src
 					jumping = new TweenLite(_sprite, AssassinSprite.timeToLand() / 1000,
 							{ x:landedX, ease:Linear.easeInOut } );
 				} else if (this.withinRange(closest, MELEE_RANGE)) {
-					this.meleeAttack(closest, MELEE_RANGE, damage, AssassinSprite.timeBetweenStabs());
+					if (isPlayerActor)
+						this.meleeAttack(closest, MELEE_RANGE,
+								MELEE_DAMAGE * player_buff, AssassinSprite.timeBetweenStabs());
+					else
+						this.meleeAttack(closest, MELEE_RANGE,
+								MELEE_DAMAGE, AssassinSprite.timeBetweenStabs());
+					
 				} else {
 					if (_status != Status.MOVING) {
 						this.go();

@@ -1,6 +1,6 @@
 package src 
 {
-	import util.LinkedList;
+	import com.greensock.TweenLite;
 	/**
 	 * ...
 	 * @author ...
@@ -21,7 +21,7 @@ package src
 			this._hitpoints = 1;
 		}
 		
-		override public function act(allies:LinkedList, enemies:LinkedList):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			throw new Error("Error: wizards shouldn't be in the acting list");
 		}
 		
@@ -46,6 +46,32 @@ package src
 				
 				_sprite.animate(_status);
 			}
+		}
+		
+		override public function checkIfDead():void {
+			if (_hitpoints < 0)
+				_isDead = true;
+		}
+		
+		public function die(callback:Function):void {
+			halt();
+			clean();
+			
+			_sprite.moveToBottom();
+			
+			_status = Status.DYING;
+			_isDead = true;
+			_sprite.animate(Status.DYING, function():void {
+				_sprite.freeze();
+				
+				fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
+				onComplete:function():void {
+						_sprite.parent.removeChild(_sprite);
+						clean();
+						
+						callback.call();
+				} } );
+			} );
 		}
 		
 	}

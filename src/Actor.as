@@ -11,12 +11,17 @@ package src {
 	import util.LinkedList;
 	import util.ListIterator;
 	
+	
+	TweenPlugin.activate([TintPlugin]);
+	
 	/**
 	 * ...
 	 * @author Elliot Way
 	 */
 	public class Actor
 	{
+		protected static var player_buff:Number = 1.0;
+		private static var buff_change:Number = 0.01;
 		
 		public static const Y_POSITION:int = 357;
 		
@@ -50,6 +55,14 @@ package src {
 		
 		protected var willBeBlessed:Boolean;
 		protected var blessCounter:int;
+		
+		public static function resetPlayerBuff():void {
+			player_buff = 1.0;
+		}
+		public static function buffPlayers():void {
+			player_buff += buff_change;
+			trace("current buff: " + player_buff);
+		}
 		
 		
 		public function Actor(playerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
@@ -86,7 +99,7 @@ package src {
 		 * Override this method.
 		 * @param	others target actor
 		 */
-		public function act(allies:LinkedList, enemies:LinkedList):void {
+		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//TODO create new error class
 			throw new GWError("Unimplemented abstract method.");
 		}
@@ -118,18 +131,16 @@ package src {
 		 * @param	others  the list of other actors to search
 		 * @param	maxDistance  the maximum distance away the other actor can be
 		 */
-		public function getClosest(others:LinkedList, maxDistance:Number):Actor {
-			if (others.isEmpty())
+		public function getClosest(others:Vector.<Actor>, maxDistance:Number):Actor {
+			if (others.length <= 0)
 				return null;
 			
 			var closest:Actor = null;
 			var closeDistance : Number = maxDistance;
 			var distance : Number;
 			
-			var iter:ListIterator = others.head();
 			var other:Actor;
-			while (iter.hasNext()) {
-				other = iter.next();
+			for each (other in others) {
 				
 				if (isValidTarget(other)) {
 					distance = Math.abs(other.getPosition().x - this.getPosition().x);
@@ -246,7 +257,7 @@ package src {
 		 * Attacks immediately, then may repeatedly if the actor is within range and a valid target when the next blow occurs.
 		 * @param	other the actor to attack
 		 * @param	range the melee range for this attack
-		 * @param	damage the damage to the other's hitpoints each blow should do
+		 * @param	damage the damage after buff to the other's hitpoints each blow should do
 		 * @param	timeBetweenBlows time before the next range comparison and attack
 		 */
 		public function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number):void {
@@ -292,16 +303,20 @@ package src {
 		public function go() : void {
 			halt();
 			
+			var realSpeed:Number = speed;
+			if (isPlayerActor)
+				realSpeed *= player_buff;
+			
 			_status = Status.MOVING;
 			_sprite.animate(Status.MOVING);
 			
 			var distance:Number;
 			if (_facesRight) {
 				distance = MainArea.ARENA_WIDTH - _sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x:MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
+				movement = new TweenLite(sprite, distance / realSpeed, { x:MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
 			} else {
 				distance = _sprite.x + 30;
-				movement = new TweenLite(sprite, distance / speed, { x:-30, ease:Linear.easeInOut} );
+				movement = new TweenLite(sprite, distance / realSpeed, { x:-30, ease:Linear.easeInOut} );
 			}
 		}
 		
@@ -311,6 +326,10 @@ package src {
 		 */
 		public function retreat():void {
 			halt();
+			
+			var realSpeed:Number = speed;
+			if (isPlayerActor)
+				realSpeed *= player_buff;
 				
 			_status = Status.RETREATING;
 			_sprite.animate(Status.RETREATING);
@@ -318,10 +337,10 @@ package src {
 			var distance:Number;
 			if (!_facesRight) {
 				distance = MainArea.ARENA_WIDTH - _sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x : MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
+				movement = new TweenLite(sprite, distance / realSpeed, { x : MainArea.ARENA_WIDTH, ease:Linear.easeInOut } );
 			} else {
 				distance = _sprite.x;
-				movement = new TweenLite(sprite, distance / speed, { x : 0, ease:Linear.easeInOut} );
+				movement = new TweenLite(sprite, distance / realSpeed, { x : 0, ease:Linear.easeInOut} );
 			}
 		}
 		
@@ -340,7 +359,6 @@ package src {
 				halt();
 				clean();
 				
-				TweenPlugin.activate([TintPlugin]);
 				
 				_sprite.moveToBottom();
 				

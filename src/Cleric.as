@@ -6,8 +6,6 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	import util.LinkedList;
-	import util.ListIterator;
 	/**
 	 * ...
 	 * @author ...
@@ -41,7 +39,7 @@ package src
 			blessIsReady = true;
 		}
 		
-		override public function act(allies:LinkedList, enemies:LinkedList):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -56,10 +54,7 @@ package src
 					var nearbyAllies:Vector.<Actor> = new Vector.<Actor>();
 					var ally:Actor;
 					
-					var iter:ListIterator = allies.head();
-					while (iter.hasNext()) {
-						ally = iter.next();
-						
+					for each (ally in allies) {
 						if (withinRange(ally, BLESS_RANGE) && !(ally is Shield))
 							nearbyAllies.push(ally);
 					}
@@ -118,7 +113,13 @@ package src
 					var closest : Actor = this.getClosest(enemies, MELEE_RANGE);
 				
 					if (closest != null) {
-						this.meleeAttack(closest, MELEE_RANGE, DAMAGE, ClericSprite.timeBetweenBlows());
+						if (isPlayerActor)
+							this.meleeAttack(closest, MELEE_RANGE,
+									DAMAGE * player_buff, ClericSprite.timeBetweenBlows());
+						else
+							this.meleeAttack(closest, MELEE_RANGE,
+									DAMAGE, ClericSprite.timeBetweenBlows());
+						
 
 					} else {
 						if (_status != Status.MOVING) {

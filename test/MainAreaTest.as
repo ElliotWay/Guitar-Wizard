@@ -43,7 +43,7 @@ package test
 		[Mock]
 		public var opponentActor1:Extension_Actor, opponentActor2:Extension_Actor;
 		
-		[Mock]
+		[Mock] //You'll need multiple sprites if you want to test removal on multiple actors.
 		public var sprite:Extension_ActorSprite;
 		
 		[Mock]
@@ -52,7 +52,8 @@ package test
 		[Before]
 		public function setup():void {
 			
-			var location:Point = new Point(0, 0);
+			var leftSide:Point = new Point(0, 0);
+			var rightSide:Point = new Point(MainArea.ARENA_WIDTH, 0);
 			
 			stub(actor).getter("sprite").returns(sprite);
 			stub(sprite).method("animate")
@@ -61,7 +62,7 @@ package test
 					});
 			
 			stub(actor).getter("miniSprite").returns(miniSprite);
-			stub(actor).method("getPosition").returns(location);
+			stub(actor).method("getPosition").returns(leftSide);
 
 			stub(playerActor1).getter("sprite").returns(sprite);
 			stub(playerActor2).getter("sprite").returns(sprite);
@@ -74,17 +75,23 @@ package test
 			stub(opponentActor1).getter("miniSprite").returns(miniSprite);
 			stub(opponentActor2).getter("miniSprite").returns(miniSprite);
 			
-			stub(playerActor1).method("getPosition").returns(location);
-			stub(playerActor2).method("getPosition").returns(location);
-			stub(opponentActor1).method("getPosition").returns(location);
-			stub(opponentActor2).method("getPosition").returns(location);
-			stub(wizard).method("getPosition").returns(location);
+			stub(playerActor1).getter("isPlayerActor").returns(true);
+			stub(playerActor2).getter("isPlayerActor").returns(true);
+			stub(opponentActor1).getter("isPlayerActor").returns(false);
+			stub(opponentActor2).getter("isPlayerActor").returns(false);
+			stub(wizard).getter("isPlayerActor").returns(true);
+			
+			stub(playerActor1).method("getPosition").returns(leftSide);
+			stub(playerActor2).method("getPosition").returns(leftSide);
+			stub(opponentActor1).method("getPosition").returns(rightSide);
+			stub(opponentActor2).method("getPosition").returns(rightSide);
+			stub(wizard).method("getPosition").returns(leftSide);
 			
 			stub(playerArrow).getter("targets").returns(MainArea.OPPONENT_ACTORS);
 			stub(opponentArrow).getter("targets").returns(MainArea.PLAYER_ACTORS);
 			
 
-			mainArea = new MainArea();
+			mainArea = new MainArea(null);
 			
 			Main.prepareRegularRuns();
 			
