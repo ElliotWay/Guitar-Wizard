@@ -25,12 +25,13 @@ package src
 		public static const ONE_HALF_PER_BEAT:int = -6;
 		public static const ONE_THIRD_PER_BEAT:int = -7;
 		public static const ON_STEP:int = -8;
+		public static const EVERY_FRAME:int = -9;
 		
 		private var frames:Vector.<Bitmap>;
 		
 		private var frameIndex:int;
 		
-		private var framesPerBeat:int;
+		private var frequency:int;
 		
 		private var frameCount:int;
 		private var runner:Function;
@@ -59,14 +60,14 @@ package src
 		 * @param	flipped whether to flip the animation horizontally
 		 * @return  the constructed FrameAnimation
 		 */
-		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, framesPerBeat:int,  color:uint = 0xFF0000, flipped:Boolean = false):FrameAnimation
+		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = 0xFF0000, flipped:Boolean = false):FrameAnimation
 		{
 			var output:FrameAnimation = new FrameAnimation();
 			
-			if (framesPerBeat >= 0)
+			if (frequency >= 0)
 				throw new Error("Error: use FrameAnimation constants to define frames per beat");
 			else 
-				output.framesPerBeat = framesPerBeat;
+				output.frequency = frequency;
 			
 			if (position.x + numFrames * frameWidth > image.width ||
 					position.y + frameHeight > image.height)
@@ -147,7 +148,7 @@ package src
 				output.frames[index].visible = false;
 			}
 			
-			output.framesPerBeat = animation.framesPerBeat;
+			output.frequency = animation.frequency;
 			
 			output.frames[0].visible = true;
 			
@@ -173,13 +174,13 @@ package src
 		 * Remember to use FrameAnimation constants.
 		 * @param	framesPerBeat how frequently to advance frames, expressed in FrameAnimation constants
 		 */
-		public function setFramesPerBeat(framesPerBeat:int):void {
+		public function setFrequency(freq:int):void {
 			if (runner != null) {
 				this.stop();
-				this.framesPerBeat = framesPerBeat;
+				this.frequency = freq;
 				this.go();
 			} else {
-				this.framesPerBeat = framesPerBeat;
+				this.frequency = freq;
 			}
 		}
 		
@@ -195,7 +196,7 @@ package src
 			
 			var countMax:int = 1;
 			
-			switch (framesPerBeat) {
+			switch (frequency) {
 				case ONE_PER_BEAT:
 					countMax = 3;
 					break;
@@ -220,6 +221,9 @@ package src
 				case ON_STEP:
 					//Wait for the user to call nextFrame()
 					return;
+				case EVERY_FRAME:
+					countMax = 1;
+					break;
 			}
 			
 			if (runner != null)
@@ -235,7 +239,9 @@ package src
 				}
 			}
 			
-			if (framesPerBeat == TWO_PER_BEAT || framesPerBeat == FOUR_PER_BEAT) {
+			if (frequency == EVERY_FRAME) {
+				Main.runEveryFrame(runner);
+			} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT) {
 				Main.runEveryQuarterBeat(runner);
 			} else {
 				Main.runEveryThirdBeat(runner);
@@ -272,8 +278,10 @@ package src
 		}
 		
 		public function stop():void {
-			if (runner != null){
-				if (framesPerBeat == TWO_PER_BEAT || framesPerBeat == FOUR_PER_BEAT)
+			if (runner != null) {
+				if (frequency == EVERY_FRAME) {
+					Main.stopRunningEveryFrame(runner);
+				} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT)
 					Main.stopRunningEveryQuarterBeat(runner);
 				else
 					Main.stopRunningEveryThirdBeat(runner);

@@ -20,8 +20,6 @@ package src
 	 */
 	public class MainArea extends Sprite 
 	{
-		[Embed(source="../assets/lightning.png")]
-		private static const LightningImage:Class;
 		
 		[Embed(source = "../assets/tower.png")]
 		private static const TowerImage:Class;
@@ -75,6 +73,7 @@ package src
 		
 		private static const MASSIVE_DAMAGE:Number = 9001;
 		
+		public static const MAX_LIGHTNING_DISTANCE:Number = SHIELD_POSITION + 20;
 		public static const LIGHTNING_DAMAGE:Number = 5;
 		
 		private var playerActors:Vector.<Actor>;
@@ -411,7 +410,7 @@ package src
 		 * Have lightning strike the nearest target.
 		 * @param	fromPlayer whether the lightning is from the player's wizard
 		 */
-		public function doLightning(fromPlayer:Boolean):void {
+		public function doLightning(fromPlayer:Boolean, forced:Boolean = false):void {
 			var nearest:Actor;
 			
 			var target:Actor = null;
@@ -442,44 +441,26 @@ package src
 			
 			if (nearest == null)
 				return;
+				
+			if (!forced && fromPlayer && nearPoint.x > MAX_LIGHTNING_DISTANCE)
+				return;
+			else if (!forced && !fromPlayer && nearPoint.x < ARENA_WIDTH - MAX_LIGHTNING_DISTANCE)
+				return;
 			
 			var wizardPoint:Point;
 			if (fromPlayer) {
 				wizardPoint = playerWizard.getPosition();
+				
 			} else {
 				wizardPoint = opponentWizard.getPosition();
 			}
 			
-			var lightning:Bitmap = new LightningImage() as Bitmap;
 			
-			var angle:Number = Math.atan2(nearPoint.y - wizardPoint.y,
-					nearPoint.x - wizardPoint.x);
-					
-			//Rotate the position of the top left corner.
-			//Supposing the the image starts facing right,
-			//we want the point to be at (0, Y) where Y is half the width of the lightning image.
-			//[0] [cosA  -sinA]  = 0cosA - YsinA = (-YsinA, YcosA)
-			// Y   sinA   cosA     0sinA + YcosA
-			lightning.x = wizardPoint.x - (lightning.width / 2) * Math.sin(angle);
-			lightning.y = wizardPoint.y + (lightning.width / 2) * Math.cos(angle);
-			
-			lightning.scaleY = (Math.sqrt((wizardPoint.x - nearPoint.x) * (wizardPoint.x - nearPoint.x)
-					+ (wizardPoint.y - nearPoint.y) * (wizardPoint.y - nearPoint.y))) /
-					lightning.height;
-			
-			trace("'zard: " + wizardPoint);
-			trace("angle " + angle + " x = " + (nearPoint.x - wizardPoint.x) + ", y = " + (nearPoint.y - wizardPoint.y));
-					
-			lightning.rotation = angle * (180 / Math.PI) - 90;
-			lightning.cacheAsBitmap = true;
+			var lightning:Lightning = new Lightning(wizardPoint, nearPoint);
 			
 			foreground.addChild(lightning);
 			
-			var lightningFadeTimer:Timer = new Timer(100, 1);
-			lightningFadeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-				foreground.removeChild(lightning);
-			});
-			lightningFadeTimer.start();
+			lightning.go();
 			
 			nearest.hit(LIGHTNING_DAMAGE);
 		}

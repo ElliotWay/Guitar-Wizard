@@ -28,7 +28,7 @@ package src
 		Status.STANDING,                0,   1, FrameAnimation.ONE_THIRD_PER_BEAT);
 		
 		ANIMATIONS.find(Status.PLAY_MID, ActorSprite.PLAYER, ActorSprite.RIGHT_FACING)
-				.setFramesPerBeat(FrameAnimation.ON_STEP);
+				.setFrequency(FrameAnimation.ON_STEP);
 				
 		public static const CENTER:Point = new Point(18, 26);
 		

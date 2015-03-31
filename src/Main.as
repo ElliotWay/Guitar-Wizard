@@ -205,7 +205,6 @@ package src
 		
 		private static function quarterBeatRunner(e:Event):void {
 			for (var func:Object in quarterBeatRun) {
-				
 				(func as Function).call();
 			}
 		}

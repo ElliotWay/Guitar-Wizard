@@ -19,6 +19,8 @@ package src {
 		 */
 		public static const HIT_TOLERANCE:Number = 150; // 150
 		
+		public static const MIN_LIGHTNING_COMBO:int = 15;
+		
 		
 		//All the fields are protected to make testing easier,
 		//which is important because this is a complicated and fiddly class.
@@ -44,7 +46,7 @@ package src {
 		protected var switchTimer:Timer;
 		private var switchTime:Number;
 		protected var advanceSwitchTimer:Timer;
-		private var advanceSwitchTime:Number
+		private var advanceSwitchTime:Number;
 		
 		private var expectingHold:Vector.<Boolean>;
 		private var currentHolds:Vector.<Note>;
@@ -55,6 +57,8 @@ package src {
 		private var blockQueue:Vector.<Vector.<Note>>;
 		
 		private var currentBlock:int;
+		
+		private var combo:int;
 		
 		private var highSummonAmount:Number = 8;
 		private var midSummonAmount:Number = 8;
@@ -179,6 +183,8 @@ package src {
 
 			mainArea.go(Wizard.create(true), Wizard.create(false));
 			
+			combo = 0;
+			
 			currentTrack = Main.MID;
 			nextTrack = Main.MID;
 			
@@ -200,6 +206,8 @@ package src {
 			
 			Main.runEveryFrame(missChecker);
 			
+			Main.runEveryQuarterBeat(checkCombo);
+			
 			infoArea.displayText("Text Test");
 		}
 		
@@ -219,6 +227,8 @@ package src {
 				quitTimer.stop();
 			
 			Main.stopRunningEveryFrame(missChecker);
+			
+			Main.stopRunningEveryQuarterBeat(checkCombo);
 		}
 		
 		public function songFinished():void {
@@ -273,6 +283,23 @@ package src {
 			}
 		}
 		
+		private var comboCounter:int = 0;
+		
+		private function checkCombo():void {
+			comboCounter++;
+			
+			if (comboCounter == 16) {//16 == 4 beats
+				
+				trace("check combo");
+				if (combo >= MIN_LIGHTNING_COMBO) {
+					mainArea.doLightning(true);
+					trace("LIGHTNING!");
+				}
+				
+				comboCounter = 0;
+			}
+		}
+		
 		private var frames:int = 0;
 		
 		/**
@@ -313,14 +340,17 @@ package src {
 		 * @param	noteList vector of notes to parse through
 		 * @param	cutoffTime time after which to stop missing notes
 		 */
-		public static function missNotesUntil(noteList:Vector.<Note>, cutOff:Number):void {
+		public function missNotesUntil(noteList:Vector.<Note>, cutOff:Number):void {
 			//I wish there was a Vector.peek method. Indexing to length - 1 is ugly.
 			while (noteList.length > 0 &&
 					noteList[noteList.length - 1].time < cutOff) {
 				var nextNote:Note = noteList.pop();
 				
-				if (!nextNote.isHit())
+				if (!nextNote.isHit()) {
 					nextNote.miss();
+					combo = 0;
+					musicPlayer.stopTrack();
+				}
 			}
 		}
 		
@@ -347,7 +377,6 @@ package src {
 		 * @param	noteLetter the letter using Note constants. _NOT_ KeyboardEvent constants.
 		 */
 		public function notePressHandler(noteLetter:int):void {
-			mainArea.doLightning(true);
 			//If we're currently in a hold, we can ignore these events.
 			if (expectingHold[noteLetter])
 				return;
@@ -370,6 +399,8 @@ package src {
 			
 			if (note != null) {
 				note.hit();
+				
+				combo++;
 				
 				musicPlayer.resumeTrack();
 				
@@ -465,6 +496,8 @@ package src {
 				if (Math.abs(currentHold.endtime - time) > HIT_TOLERANCE) {
 					currentHold.sprite.stopHolding();
 					goodEnd = true;
+					
+					combo++;
 				}
 				//If it ended well, the sprite will stop holding on its own.
 				
@@ -528,10 +561,11 @@ package src {
 			//
 			//In either case, we may already be at the end, and can't switch at all.
 			
-			if (currentBlock < song.numBlocks &&
-					song.blocks[currentBlock] - rightNow > MusicArea.SWITCH_ADVANCE_TIME) {
-				switchIndex = currentBlock + 1;
-				switchPoint = song.blocks[currentBlock];
+			if (currentBlock < song.numBlocks) {
+				if (song.blocks[currentBlock] - rightNow > MusicArea.SWITCH_ADVANCE_TIME) {
+					switchIndex = currentBlock + 1;
+					switchPoint = song.blocks[currentBlock];
+				}
 			} else if (currentBlock + 1 < song.numBlocks) {
 				//song.blocks[currentBlock + 1] - rightNow > MusicArea.SWITCH_ADVANCE_TIME
 				//is necessarily true.
@@ -757,6 +791,10 @@ package src {
 					break;
 				case Keyboard.L:
 					switchTrack(Main.LOW);
+					break;
+					
+				case Keyboard.X:
+					mainArea.doLightning(true, true);
 					break;
 			}
 		}
