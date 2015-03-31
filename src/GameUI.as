@@ -19,6 +19,7 @@ package src {
 		 */
 		public static const HIT_TOLERANCE:Number = 150; // 150
 		
+		
 		//All the fields are protected to make testing easier,
 		//which is important because this is a complicated and fiddly class.
 		
@@ -346,6 +347,7 @@ package src {
 		 * @param	noteLetter the letter using Note constants. _NOT_ KeyboardEvent constants.
 		 */
 		public function notePressHandler(noteLetter:int):void {
+			mainArea.doLightning(true);
 			//If we're currently in a hold, we can ignore these events.
 			if (expectingHold[noteLetter])
 				return;

@@ -1,17 +1,13 @@
 ---Might do soon.----------
 - fix bug where actors still stand fighting no one - might be fixed? - broke during linked listing?
 
-- quitting to menu is broken - partially fixed, probably still broken
-
-- cut holds that extend over blocks
+- combos? lightning effect?
 
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag - ?
 
 - score counter?
-
-- combos? lightning effect?
 
 - indicate buffedness somehow
 
@@ -30,6 +26,8 @@
 - tempo is off?
 
 - archers sometimes ignore assassins
+
+- quitting to menu is broken - partially fixed, probably still broken, check regularly
 
 
 ---Do Later.------------------
@@ -99,3 +97,4 @@
 - handle finished song  )
 - sigh...ugly though it'll be, replace the actor lists with vectors again - it's not so bad
 - make hitting notes after switching blocks more robust
+- cut holds that extend over blocks

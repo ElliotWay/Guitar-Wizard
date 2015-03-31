@@ -29,6 +29,10 @@ package src
 		
 		ANIMATIONS.find(Status.PLAY_MID, ActorSprite.PLAYER, ActorSprite.RIGHT_FACING)
 				.setFramesPerBeat(FrameAnimation.ON_STEP);
+				
+		public static const CENTER:Point = new Point(18, 26);
+		
+		private var relativeCenter:Point;
 		
 		public function WizardSprite(isPlayerPiece:Boolean) 
 		{
@@ -49,12 +53,19 @@ package src
 			super.defaultAnimation = super.animations[Status.STANDING];
 			
 			if (isPlayerPiece) {
-				//This branch included for similarity to other sprite classes.
+				relativeCenter = CENTER;
 			} else {
+				relativeCenter = new Point(
+						FrameAnimation.SCALE*FRAME_WIDTH - CENTER.x, CENTER.y);
+				
 				super.animations[Status.DYING].x = FrameAnimation.SCALE * (FRAME_WIDTH - DYING_FRAME_WIDTH); //Large animations need to be shifted.
 			}
 			
 			//No effects on wizards.
+		}
+		
+		override public function get center():Point {
+			return new Point(this.x + relativeCenter.x, this.y + relativeCenter.y);
 		}
 		
 	}
