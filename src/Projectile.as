@@ -182,20 +182,10 @@ package src
 			//Now create the animations.
 			var angleInDegrees:Number = (actualAngle * 180 / Math.PI);
 			var targetRotation:Number;
-			/*if (targetIsLeft) {
-				this.rotation = 180 + angleInDegrees;
-				targetRotation = 180 - angleInDegrees;
-			} else {
-				this.rotation = -angleInDegrees;
-				targetRotation = angleInDegrees;
-			}*/
 			this.rotation = -angleInDegrees;
 			targetRotation = angleInDegrees;
 			
-			timeline = new TimelineLite( /*{ onComplete:forceFinish }*/ );
-			
-			
-			//TODO simplify expressions
+			timeline = new TimelineLite();
 			
 			//Add y movement and time labels
 			timeline.add("start", "+=0");

@@ -1,7 +1,5 @@
 ---Might do soon.----------
-- fix bug where actors still stand fighting no one - might be fixed? - broke during linked listing?
-
-- combos? lightning effect?
+- quitting while dying causes immediate death on restart
 
 
 ---Should do at some point.----------------
@@ -9,11 +7,11 @@
 
 - score counter?
 
-- indicate buffedness somehow
-
-- have wizard killing archers get closer
+- indicate buffedness somehow - could be part of the responsiveness changes
 
 - refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object
+
+- better test coverage
 
 
 ---Bugs.-------------------	
@@ -28,6 +26,10 @@
 - archers sometimes ignore assassins
 
 - quitting to menu is broken - partially fixed, probably still broken, check regularly
+
+- fix bug where actors still stand fighting no one
+	- might be fixed?
+	- broke during linked listing?
 
 
 ---Do Later.------------------
@@ -44,6 +46,10 @@
 - create better shield sprite
 
 - responsiveness - visual reaction to every hit & miss?
+
+- create more frames, they just look better that way
+
+- create 3 more lightning animations
 
 
 ---Completed.---------------
@@ -98,3 +104,5 @@
 - sigh...ugly though it'll be, replace the actor lists with vectors again - it's not so bad
 - make hitting notes after switching blocks more robust
 - cut holds that extend over blocks
+- combos? lightning effect? - may still need to adjust range of lightning
+- have wizard killing archers get closer

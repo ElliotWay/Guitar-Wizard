@@ -290,10 +290,8 @@ package src {
 			
 			if (comboCounter == 16) {//16 == 4 beats
 				
-				trace("check combo");
 				if (combo >= MIN_LIGHTNING_COMBO) {
 					mainArea.doLightning(true);
-					trace("LIGHTNING!");
 				}
 				
 				comboCounter = 0;
@@ -561,12 +559,10 @@ package src {
 			//
 			//In either case, we may already be at the end, and can't switch at all.
 			
-			if (currentBlock < song.numBlocks) {
-				if (song.blocks[currentBlock] - rightNow > MusicArea.SWITCH_ADVANCE_TIME) {
+			if (currentBlock < song.numBlocks - 1 && song.blocks[currentBlock] - rightNow > MusicArea.SWITCH_ADVANCE_TIME) {
 					switchIndex = currentBlock + 1;
 					switchPoint = song.blocks[currentBlock];
-				}
-			} else if (currentBlock + 1 < song.numBlocks) {
+			} else if (currentBlock + 1 < song.numBlocks - 1) {
 				//song.blocks[currentBlock + 1] - rightNow > MusicArea.SWITCH_ADVANCE_TIME
 				//is necessarily true.
 				
@@ -632,7 +628,7 @@ package src {
 		}
 		
 		private function cutBlock(blockIndex:int):void {
-			if (blockIndex == song.blocks.length || blockQueue[blockIndex].length == 0)
+			if (blockIndex >= song.blocks.length || blockQueue[blockIndex].length == 0)
 				return;
 			
 			var foundF:Boolean = false;

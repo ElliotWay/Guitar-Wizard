@@ -17,12 +17,14 @@ package src
 		private static const NO_RETREAT_DISTANCE:Number = 50;
 		
 		private static const BASE_SKIRMISH_DISTANCE:Number = 200;
-		private static const SKIRMISH_VARIABILITY:Number = 100;
+		private static const SKIRMISH_VARIABILITY:Number = 75;
 		
 		private static const ARROW_DAMAGE:int = 3;
 		
 		private static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - 50;
-		private static const RANGE_VARIABILITY:Number = 75;
+		private static const RANGE_VARIABILITY:Number = 50;
+		
+		private static const WIZARD_RANGE:Number = 130;
 		
 		private static const MELEE_RANGE:int = 15;
 		private static const MELEE_DAMAGE:int = 1;
@@ -65,10 +67,10 @@ package src
 				//Find the closest valid target.
 				var closest:Actor = this.getClosest(enemies, range);
 				
-				if (closest == null) {
+				if (closest == null ||
+						(closest is Wizard && !withinRange(closest, WIZARD_RANGE))) {
 					if (_status != Status.MOVING)
 						go();
-						
 				} else if (withinRange(closest, MELEE_RANGE)) {
 					if (isPlayerPiece)
 						this.meleeAttack(closest, MELEE_RANGE,
@@ -85,7 +87,7 @@ package src
 					
 					var behindShield:Boolean = this.isBehindShield();
 					
-					if (expectedDistance < skirmishDistance && canRetreat()) {
+					if (expectedDistance < skirmishDistance && canRetreat() && !(closest is Wizard)) {
 						if (_status != Status.RETREATING) {
 							this.retreat();
 						}

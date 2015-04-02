@@ -17,6 +17,11 @@ package src
 		private static const LightningImage:Class;
 		private static const LIGHTNING_DATA:BitmapData = (new LightningImage() as Bitmap).bitmapData;
 
+		[Embed(source = "../assets/lightning2.png")]
+		private static const Lightning2Image:Class;
+		private static const LIGHTNING_DATA_2:BitmapData = (new Lightning2Image() as Bitmap).bitmapData;
+
+		
 		private static const FRAME_WIDTH:int = 48;
 		private static const FRAME_HEIGHT:int = 144;
 		
@@ -24,11 +29,20 @@ package src
 		FrameAnimation.create(LIGHTNING_DATA, new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT,
 		5, FrameAnimation.EVERY_FRAME);
 		
+		private static const LIGHTNING_ANIMATION_2:FrameAnimation = 
+		FrameAnimation.create(LIGHTNING_DATA_2, new Point(0, 0), 38, 133,
+		5, FrameAnimation.EVERY_FRAME);
+		
 		private var animation:FrameAnimation;
 		
 		public function Lightning(source:Point, target:Point) 
 		{
-			animation = LIGHTNING_ANIMATION.copy();
+			var choice:int = Math.random() * 2;
+			
+			if (choice == 0)
+				animation = LIGHTNING_ANIMATION.copy();
+			else 
+				animation = LIGHTNING_ANIMATION_2.copy();
 			
 			this.addChild(animation);
 			animation.visible = true;

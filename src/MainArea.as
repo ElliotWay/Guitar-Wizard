@@ -48,7 +48,7 @@ package src
 		public static const ARENA_WIDTH:int = 2000;
 		public static const SHIELD_POSITION:int = 450;
 		
-		public static const WIZARD_HEIGHT:int = 100;
+		public static const WIZARD_Y:int = 100;
 		
 		public static const WIZARD_KILL_DELAY:int = 1000;
 		
@@ -195,7 +195,7 @@ package src
 			var index:int;
 			var actor:Actor;
 			
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 12; index++) {
 				actor = new Archer(false, false);
 				opponentSummon(actor);
 			}
@@ -243,13 +243,13 @@ package src
 			
 			this.playerWizard = playerWizard;
 			playerWizard.sprite.x = 170;
-			playerWizard.sprite.y = WIZARD_HEIGHT - playerWizard.sprite.height;
+			playerWizard.sprite.y = WIZARD_Y - playerWizard.sprite.height;
 			arena.addChild(playerWizard.sprite);
 			playerWizard.playTrack(Main.MID);
 			
 			this.opponentWizard = opponentWizard;
 			opponentWizard.sprite.x = ARENA_WIDTH - 220;
-			opponentWizard.sprite.y = WIZARD_HEIGHT - opponentWizard.sprite.height;
+			opponentWizard.sprite.y = WIZARD_Y - opponentWizard.sprite.height;
 			arena.addChild(opponentWizard.sprite);
 			opponentWizard.playTrack(Main.MID);
 			
@@ -508,7 +508,7 @@ package src
 			var wizardKiller:Actor = new actorClass(actor.isPlayerActor, !actor.isPlayerActor);
 			
 			
-			wizardKiller.sprite.y = WIZARD_HEIGHT - actor.sprite.height;
+			wizardKiller.sprite.y = WIZARD_Y - actor.sprite.height;
 			
 			if (actor.isPlayerActor) {
 				playerWizardKiller = wizardKiller;
@@ -680,6 +680,8 @@ package src
 							projectile.collide(target);
 						}
 					}
+					if (projectile.hitTest(playerWizard))
+						projectile.collide(playerWizard);
 				}
 				
 				if ((projectile.targets & OPPONENT_ACTORS) > 0) {
@@ -688,6 +690,8 @@ package src
 							projectile.collide(target);
 						}
 					}
+					if (projectile.hitTest(opponentWizard))
+						projectile.collide(opponentWizard);
 				}
 				
 				if (!projectile.finished) {
