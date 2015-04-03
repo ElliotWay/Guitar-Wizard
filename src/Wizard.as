@@ -7,6 +7,8 @@ package src
 	 */
 	public class Wizard extends Actor 
 	{
+		private var _isCompletelyDead:Boolean = false;
+		
 		public static function create(isPlayerPiece:Boolean):Wizard {
 			return new Wizard(isPlayerPiece,
 					new WizardSprite(isPlayerPiece),
@@ -69,10 +71,21 @@ package src
 						_sprite.parent.removeChild(_sprite);
 						clean();
 						
+						_isCompletelyDead = true;
+						
 						callback.call();
 				} } );
 			} );
 		}
+		
+		/**
+		 * Whether the wizard has finished dying.
+		 */
+		public function get isCompletelyDead():Boolean 
+		{
+			return _isCompletelyDead;
+		}
+		
 		
 	}
 

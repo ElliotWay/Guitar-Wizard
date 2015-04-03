@@ -64,6 +64,8 @@ package src {
 		private var midSummonAmount:Number = 8;
 		private var lowSummonAmount:Number = 8;
 		
+		private static const HOLD_AMOUNT:Number = 20;
+		
 		private var highActorType:Class;
 		private var midActorType:Class;
 		private var lowActorType:Class;
@@ -404,8 +406,10 @@ package src {
 				
 				//If the note was a hold, we need to start hitting the hold.
 				if (note.isHold) {
+					trace("starting hold");
 					expectingHold[note.letter] = true;
 					currentHolds[note.letter] = note;
+					summoningMeter.increaseRate(HOLD_AMOUNT); //TODO replace with muggle number
 				} else {
 					//If it isn't a hold, we can summon now, otherwise
 					//wait until the hold is done.
@@ -464,6 +468,7 @@ package src {
 		 * Summon a new actor for the player.
 		 */
 		public function preparePlayerSummon():void {
+			
 			var actor:Actor;
 			
 			if (currentTrack == Main.HIGH)
@@ -493,9 +498,7 @@ package src {
 				//Check if we've missed the end of the hold.
 				if (Math.abs(currentHold.endtime - time) > HIT_TOLERANCE) {
 					currentHold.sprite.stopHolding();
-					goodEnd = true;
-					
-					combo++;
+					goodEnd = false;
 				}
 				//If it ended well, the sprite will stop holding on its own.
 				
@@ -507,9 +510,13 @@ package src {
 				else
 					summonBaseAmount = lowSummonAmount;
 				
-				summoningMeter.increase(.6 * summonBaseAmount +
-						(goodEnd ? .6 * summonBaseAmount : 0) +
-						(.002 * ((Math.min(time, currentHold.endtime)) - currentHold.time) * summonBaseAmount));
+				if (goodEnd) {
+					summoningMeter.increase(summonBaseAmount);
+					combo++;
+				}
+				
+				summoningMeter.decreaseRate(HOLD_AMOUNT);
+				trace("ending hold");
 				
 				expectingHold[noteLetter] = false;
 			}

@@ -323,11 +323,11 @@ package src
 			}
 			projectiles = new Vector.<Projectile>();
 			
-			if (!playerWizard.isDead)
+			if (!playerWizard.isCompletelyDead)
 				arena.removeChild(playerWizard.sprite);
 			playerWizard = null;
 			
-			if (!opponentWizard.isDead)
+			if (!opponentWizard.isCompletelyDead)
 				arena.removeChild(opponentWizard.sprite);
 			opponentWizard = null;
 			
@@ -354,6 +354,9 @@ package src
 		}
 		
 		public function playerSummon(actor : Actor):void {
+			if (playerWizard == null || playerWizard.isDead)
+				return;
+			
 			var position : Number = Math.random() * (SHIELD_POSITION - 80) + 50;
 			arena.addChild(actor.sprite);
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
