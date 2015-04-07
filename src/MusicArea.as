@@ -5,10 +5,12 @@ package  src
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.getTimer;
+	import flash.utils.Timer;
 	
 	/**
 	 * ...
@@ -33,18 +35,32 @@ package  src
 		public static const POSITION_SCALE:Number = 0.6; //0.3
 		public static var position_offset:Number = 40;
 		
-		private var highNotes:Vector.<Sprite>;
-		private var midNotes:Vector.<Sprite>;
-		private var lowNotes:Vector.<Sprite>;
+		private var highNotes:Vector.<NoteBlock>;
+		private var midNotes:Vector.<NoteBlock>;
+		private var lowNotes:Vector.<NoteBlock>;
 		
+		private var blockQueue:Vector.<NoteBlock>;
+		
+		private var currentBlock:int;
 		private var blocks:Vector.<Number>;
 		
-		private var notesLayer:Sprite;
+		private var _currentTrack:int;
+		private var nextTrack:int;
+		private var nextNextTrack:int;
 		
+		private var switchTimer:Timer;
+		private var advanceTimer:Timer;
+		
+		
+		private var notesLayer:Sprite;
 		private var scroll:TweenLite;
 		
-		public function MusicArea() 
+		private var gameUI:GameUI;
+		
+		public function MusicArea(gameUI:GameUI) 
 		{
+			this.gameUI = gameUI;
+			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
@@ -74,57 +90,166 @@ package  src
 		}
 		
 		/**
+		 * Attemps to hit a note with the specified letter at the current time.
+		 * Returns the hit note if one is found, or null otherwise.
+		 * @param	noteLetter the letter of the note to search for
+		 * @param	currentTime the approximate time of the note to search for
+		 * @return  the hit note, or null if none is found
+		 */
+		public function hitNote(noteLetter:int, currentTime:Number):Note {
+			updateCurrentBlock(currentTime);
+			
+			var note:Note = blockQueue[currentBlock].findHit(noteLetter, currentTime);
+			if (note == null && currentBlock + 1 < blockQueue.length)
+				note = blockQueue[currentBlock + 1].findHit(noteLetter, currentTime);
+				
+			return note;
+		}
+		
+		/**
+		 * Misses notes that are too late to hit.
+		 * @param	currentTime the current time to compare notes to
+		 * @return  whether a note was missed
+		 */
+		public function missNotes(currentTime:Number):Boolean {
+			updateCurrentBlock(currentTime);
+			
+			var noteMissed:Boolean = blockQueue[currentBlock].missUntil(currentTime);
+			if (currentBlock + 1 < blockQueue.length)
+				noteMissed ||= blockQueue[currentBlock + 1].missUntil(currentTime);
+				
+			return noteMissed;
+		}
+		
+		/**
 		 * Change the visibility of note blocks.
 		 * @param	track the track to switch to
-		 * @param   blockIndex the index of the block including and after which to change block visibility
+		 * @param   currentTime the current time
+		 * @param   the current track
+		 * @param   what the next track currently is
 		 * @return  time of the next block switch
 		 */
-		public function switchNotes(track:int, blockIndex:int):void {
+		public function switchNotes(track:int, currentTime:Number):void {
+			updateCurrentBlock(currentTime);
 			
+			var isEarlySwitch:Boolean = true;
+			var switchTime:Number;
+			var switchIndex:int;
+
+			
+			//2 major situations can occur here:
+			//we can switch in the next block or
+			//it's too late and we can switch in the block after that.
+			//
+			//In either case, we may already be at the end, and can't switch at all.
+			
+			if (currentBlock < blocks.length && blocks[currentBlock] - currentTime > SWITCH_ADVANCE_TIME) {
+				switchIndex = currentBlock + 1;
+				switchTime = blocks[currentBlock];
+			} else if (currentBlock + 1 < blocks.length) {
+				//blocks[currentBlock + 1] - rightNow > SWITCH_ADVANCE_TIME
+				//is necessarily true.
+				
+				switchIndex = currentBlock + 2;
+				switchTime = blocks[currentBlock + 1];
+				
+				isEarlySwitch = false;
+			} else {
+				//It's too late to switch, so just return.
+				return;
+			}
+			
+			//If it's the same track, don't switch.
+			if ((isEarlySwitch && track == nextTrack) ||
+					(!isEarlySwitch && track == nextNextTrack))
+				return;
+			
+			if (isEarlySwitch)
+				trace("switching from " + _currentTrack + " to " + track + " after and including " + switchIndex);
+			else
+				trace("will switch from " + nextTrack + " to " + track + " after and including " + switchIndex);
+			
+			//Swap in the correct note blocks.
+			var trackList:Vector.<NoteBlock>;
 			switch (track) {
 				case Main.HIGH:
-					setHighNotes(blockIndex);
+					trackList = highNotes;
 					break;
 				case Main.MID:
-					setMidNotes(blockIndex);
+					trackList = midNotes;
 					break;
 				case Main.LOW:
-					setLowNotes(blockIndex);
+					trackList = lowNotes;
 					break;
 			}
-		}
-		
-		/**
-		 * Switches the visible notes after and including the index.
-		 */
-		public function setLowNotes(index:int):void {
-			for (index; index < lowNotes.length; index++) {
-				lowNotes[index].visible = true;
-				midNotes[index].visible = false;
-				highNotes[index].visible = false;
+			for (var index:int = switchIndex; index < blockQueue.length; index++) {
+				blockQueue[index].visible = false;
+				trackList[index].visible = true;
+				blockQueue[index] = trackList[index];
+			}
+			
+			//Trim the trailing holds from the block before, or undo that if
+			//we're switching back.
+			if ((track == _currentTrack && isEarlySwitch) ||
+					(track == nextTrack && !isEarlySwitch)) {
+				trace("uncut " + (switchIndex - 1));
+				blockQueue[switchIndex - 1].uncut();
+			} else {
+				trace("cut " + (switchIndex - 1));
+				blockQueue[switchIndex - 1].cut();
+			}
+			
+			//At the right time, ask the gameUI to switch music playback.
+			if (isEarlySwitch) {
+				
+				if (switchTimer != null)
+					switchTimer.stop();
+				
+				switchTimer = new Timer(switchTime - currentTime, 1);
+				switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					switchLater();
+					gameUI.switchMusicNow(track);
+				});
+				switchTimer.start();
+				
+				nextTrack = track;
+				nextNextTrack = track;
+				
+			} else {
+				
+				//If we're too late to switch right away, and no switch was scheduled,
+				//we still need to switch numbers around.
+				if (switchTimer == null) {
+					switchTimer = new Timer(blocks[currentBlock] - currentTime, 1);
+					switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+						switchLater();
+					});
+					switchTimer.start();
+				}
+				
+				if (advanceTimer != null)
+					advanceTimer.stop();
+				
+				advanceTimer = new Timer(switchTime - currentTime, 1);
+				advanceTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
+					switchLater();
+					gameUI.switchMusicNow(track);
+				});
+				advanceTimer.start();
+				
+				nextNextTrack = track;
 			}
 		}
 		
 		/**
-		 * Switches the visible notes after and including the index.
+		 * Move the advance switch into the current switch.
 		 */
-		public function setMidNotes(index:int):void {
-			for (index; index < midNotes.length; index++) {
-				lowNotes[index].visible = false;
-				midNotes[index].visible = true;
-				highNotes[index].visible = false;
-			}
-		}
-		
-		/**
-		 * Switches the visible notes after and including the index.
-		 */
-		public function setHighNotes(index:int):void {
-			for (index; index < highNotes.length; index++) {
-				lowNotes[index].visible = false;
-				midNotes[index].visible = false;
-				highNotes[index].visible = true;
-			}
+		private function switchLater():void {
+			_currentTrack = nextTrack;
+			nextTrack = nextNextTrack;
+			
+			switchTimer = advanceTimer;
+			advanceTimer = null;
 		}
 		
 		/**
@@ -135,9 +260,9 @@ package  src
 		public function loadNotes(song:Song):void {
 			notesLayer = new Sprite();
 			
-			lowNotes = createNotesImage(song.lowPart);
-			midNotes = createNotesImage(song.midPart);
-			highNotes = createNotesImage(song.highPart);
+			lowNotes = createNotesImage(song.lowPart, song.blocks);
+			midNotes = createNotesImage(song.midPart, song.blocks);
+			highNotes = createNotesImage(song.highPart, song.blocks);
 			
 			blocks = song.blocks;
 			
@@ -158,8 +283,16 @@ package  src
 				noteBlock.visible = false;
 			}
 			
+			blockQueue = midNotes.concat(); //Concat without args creates a shallow copy.
+			currentBlock = 0;
+			
 			notesLayer.x = HIT_LINE + Main.VIDEO_LAG * POSITION_SCALE + position_offset;
 			this.addChild(notesLayer);
+		}
+		
+		private function updateCurrentBlock(currentTime:Number):void {
+			while (currentBlock < blocks.length && currentTime > blocks[currentBlock])
+				currentBlock++;
 		}
 		
 		/**
@@ -168,36 +301,16 @@ package  src
 		 * @param   blocks a vector of times about which to separate the notes into blocks
 		 * @return the image of notes
 		 */
-		public static function createNotesImage(notes:Vector.<Vector.<Note>>):Vector.<Sprite> {
-			var noteBlocks:Vector.<Sprite> = new Vector.<Sprite>();
+		public static function createNotesImage(notes:Vector.<Vector.<Note>>, blocks:Vector.<Number>):Vector.<NoteBlock> {
+			var noteBlocks:Vector.<NoteBlock> = new Vector.<NoteBlock>();
 
-			var notesImage:Sprite;
-			
-			for each (var block:Vector.<Note> in notes) 
+			var notesImage:NoteBlock;
+			for (var index:int = 0; index < notes.length; index++)
 			{
-				notesImage = new Sprite();
-				
-				for each(var note:Note in block) {
-					
-					//Create note image
-					var noteSprite:NoteSprite = new NoteSprite(note);
-					
-					//Choose which line
-					var yPosition:int = 0;
-					if (note.letter == Note.NOTE_F)
-						yPosition = (1 / 5) * HEIGHT;
-					if (note.letter == Note.NOTE_D)
-						yPosition = (2 / 5) * HEIGHT;
-					if (note.letter == Note.NOTE_S)
-						yPosition = (3 / 5) * HEIGHT;
-					if (note.letter == Note.NOTE_A)
-						yPosition = (4 / 5) * HEIGHT;
-					
-					//Place the note
-					notesImage.addChild(noteSprite);
-					noteSprite.x = note.time * POSITION_SCALE;
-					noteSprite.y = yPosition;
-				}
+				if (index == blocks.length)
+					notesImage = new NoteBlock(notes[index], Number.MAX_VALUE);
+				else
+					notesImage = new NoteBlock(notes[index], blocks[index]);
 				
 				noteBlocks.push(notesImage);
 			}
@@ -210,6 +323,13 @@ package  src
 		 */
 		public function go():void {
 			scroll = new TweenLite(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
+			
+			_currentTrack = Main.MID;
+			nextTrack = Main.MID;
+			nextNextTrack = Main.MID;
+			
+			switchTimer = null;
+			advanceTimer = null;
 		}
 		
 		/**
@@ -236,6 +356,11 @@ package  src
 		 */
 		public function getPosition():Number {
 			return notesLayer.x;
+		}
+		
+		public function get currentTrack():int 
+		{
+			return _currentTrack;
 		}
 	}
 

@@ -125,7 +125,7 @@ package  src
 				//It should never occur that tracks are switched before one track has a chance to
 				//fade out, but we need to handle it if it does.
 				if (fadingOut != null) {
-					(fadingOut.target as SoundTransform).volume = 0;
+					(fadingOut.target as SoundChannel).soundTransform = MUTE;
 					fadingOut.kill();
 				}
 				if (fadingIn != null) {

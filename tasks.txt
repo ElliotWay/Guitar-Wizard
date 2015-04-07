@@ -1,5 +1,5 @@
 ---Might do soon.----------
-
+- better test coverage
 
 
 ---Should do at some point.----------------
@@ -9,9 +9,7 @@
 
 - indicate buffedness somehow - could be part of the responsiveness changes
 
-- refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object
-
-- better test coverage
+- refactor even more of track switching into music area; give music area a referance back up to game ui
 
 
 ---Bugs.-------------------	
@@ -106,3 +104,4 @@
 - have wizard killing archers get closer
 - quitting while dying causes immediate death on restart
 - smooth summoning meter animations
+- refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object

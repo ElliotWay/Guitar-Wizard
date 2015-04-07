@@ -131,7 +131,6 @@ package src
 			
 			var timer:Timer = new Timer(time, 1);
 			timer.addEventListener(TimerEvent.TIMER_COMPLETE, finishIncreaseQueue);
-			trace("increaseQueue length " + increaseQueue.length);
 			
 			if (increaseQueue.length == 0) {
 				changeRate += BASE_SPEED;
@@ -157,7 +156,6 @@ package src
 			proceed();
 			
 			increaseQueue.shift();
-			trace("finish increase queue length " + increaseQueue.length);
 		}
 		
 		private function appendToDecreaseQueue(time:Number):void {
@@ -190,7 +188,6 @@ package src
 		}
 		
 		private function proceed():void {
-			trace("current summon rate: " + changeRate);
 			if (uncover.x == MAX_METER) {
 				uncover.x = MIN_METER;
 			}
