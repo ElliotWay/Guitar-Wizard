@@ -79,7 +79,7 @@ package src {
 			expectingHold = new <Boolean>[false, false, false, false];
 			currentHolds = new <Note>[null, null, null, null];
 			
-			mainArea = new MainArea(this);
+			mainArea = MainArea.create(this);
 			this.addChild(mainArea);
 			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
 			
@@ -146,7 +146,8 @@ package src {
 			
 			summoningMeter.reset();
 
-			mainArea.go(Wizard.create(true), Wizard.create(false));
+			mainArea.go(Wizard.create(true), Wizard.create(false),
+					Shield.create(true), Shield.create(false));
 			
 			combo = 0;
 			

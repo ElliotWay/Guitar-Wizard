@@ -39,15 +39,12 @@ public class TestRunner extends Sprite
 		
 		//#### Populate classNames here.
 		classNames.push(ActorTest);
-		classNames.push(GameUI_FindHitTest);
-		classNames.push(GameUI_MissUntilTest);
-		classNames.push(GameUI_SwitchTrackTest);
 		classNames.push(MainAreaTest);
 		classNames.push(MusicPlayerTest);
 		classNames.push(NoteSpriteTest);
 		classNames.push(NoteTest);
 		classNames.push(SongLoaderTest);
-		classNames.push(Song_ParseNotesTest);
+		classNames.push(SongTest);
 		classNames.push(TestTest);
 //%%%%		
 		for each (var clazz:Class in classNames) {
@@ -111,9 +108,7 @@ class AfterTestClose implements IRunListener {
 	}
 
 	public function testRunFinished(result:Result):void {
-		ongoingRuns++;
-		if (ongoingRuns == 11)
-			System.exit(0);
+		ongoingRuns--;
 	}
 
 	public function testRunStarted(description:IDescription):void {

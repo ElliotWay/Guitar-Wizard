@@ -93,20 +93,34 @@ package src {
 			return isPlayerPiece;
 		}
 		
-		/**
-		 * Override this method.
-		 * @param	others target actor
-		 */
-		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
-			//TODO create new error class
-			throw new GWError("Unimplemented abstract method.");
+		public function get facesRight():Boolean {
+			return _facesRight;
+		}
+		
+		public function get isBlessed():Boolean {
+			return blessCounter > 0 || willBeBlessed;
+		}
+		
+		public function get status():int {
+			return _status;
 		}
 		
 		/**
+		 * Whether the actor has started dying and shoud not act.
 		 * Override this method if necessary.
 		 */
 		public function get isDead() : Boolean {
 			return _isDead;
+		}
+		
+		/**
+		 * Override this method.
+		 * @param	allies friendly actors to help or ignore
+		 * @param   enemies hostile actors to attack
+		 */
+		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+			//TODO create new error class
+			throw new GWError("Unimplemented abstract method.");
 		}
 		
 		/**
@@ -169,19 +183,6 @@ package src {
 			_sprite.showBlessed();
 			blessCounter = BLESS_FRAMES;
 			willBeBlessed = false;
-		}
-		
-		public function get isBlessed():Boolean {
-			return blessCounter > 0 || willBeBlessed;
-		}
-		
-		public function get status():int {
-			return _status;
-		}
-		
-		public function get facesRight():Boolean 
-		{
-			return _facesRight;
 		}
 		
 		

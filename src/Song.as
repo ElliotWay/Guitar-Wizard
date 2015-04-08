@@ -220,7 +220,7 @@ package  src
 				}
 				
 				var time:Number = parseInt(String(tokens[index]));
-
+				
 				if (isNaN(time) || time < 0) {
 					throw new GWError("Error: Corrupt GWS File: bad timestamp " + 
 							"Token # " + index + " Funny timestamp: " + String(tokens[index]));
@@ -286,7 +286,7 @@ package  src
 				if (isNaN(time) || time < 0) {
 					throw new GWError("Error: Corrupt GWS File: bad separator timestamp " + 
 							"Token # " + index + ", Funny timestamp: " + String(tokens[index]));
-				} else if (time < lastTime) {
+				} else if (time <= lastTime) {
 					throw new GWError("Error: Corrupt GWS File: separator timestamps out of order " +
 							"Token # " + index + ", " + time + " < " + lastTime);
 				}

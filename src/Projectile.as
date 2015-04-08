@@ -208,7 +208,8 @@ package src
 		}
 		
 		public function forceFinish():void {
-			this.parent.removeChild(this);
+			if (parent != null)
+				this.parent.removeChild(this);
 			
 			timeline.kill();
 			

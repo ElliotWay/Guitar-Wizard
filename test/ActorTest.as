@@ -25,8 +25,7 @@ package test
 	
 	MockolateRunner;
 	/**
-	 * 
-	 * @author ...
+	 * TODO: test predict position somehow?
 	 */
 	[RunWith("mockolate.runner.MockolateRunner")]
 	public class ActorTest
@@ -35,10 +34,10 @@ package test
 		private var playerActor:Actor;
 		private var opponentActor:Actor;
 		
-		public var dyingLeft450:Actor, dyingRight550:Actor, left450:Actor, right550:Actor;
-		public var left350:Actor, right650:Actor, movingActor:Actor;
+		private var dyingLeft450:Actor, dyingRight550:Actor, left450:Actor, right550:Actor;
+		private var left350:Actor, right650:Actor, movingActor:Actor;
 		
-		private static const MASSIVE_DAMAGE:int = 9001;
+		private static const HP:int = 10; //What the default HP is expected to be.
 		
 		[Mock]
 		public var sprite:ActorSprite;
@@ -84,13 +83,13 @@ package test
 			
 			stub(sprite450).getter("center").returns(new Point(450, 10));
 			dyingLeft450 = partial(Actor, "Dying Left 450", [true, true, sprite450, miniSprite]);
-			dyingLeft450.hit(MASSIVE_DAMAGE);
+			dyingLeft450.hit(HP);
 			dyingLeft450.checkIfDead();
 			left450 = partial(Actor, "Left 450", [true, true, sprite450, miniSprite]);
 			
 			stub(sprite550).getter("center").returns(new Point(550, 10));
 			dyingRight550 = partial(Actor, "Dying Right 550", [false, false, sprite550, miniSprite]);
-			dyingRight550.hit(MASSIVE_DAMAGE);
+			dyingRight550.hit(HP);
 			dyingRight550.checkIfDead();
 			right550 = partial(Actor, "Right 550", [false, false, sprite550, miniSprite]);
 			
@@ -107,6 +106,28 @@ package test
 			
 			playerActor = new Actor(true, true, sprite, miniSprite);
 			opponentActor = new Actor(false, false, sprite, miniSprite);
+		}
+		
+		[Test(order = 0)]
+		public function getsSprite():void {
+			assertThat(playerActor.sprite, sprite);
+		}
+		
+		[Test(order = 0)]
+		public function getsMiniSprite():void {
+			assertThat(playerActor.miniSprite, miniSprite);
+		}
+		
+		[Test(order = 0)]
+		public function getsIsPlayerPiece():void {
+			assertThat(playerActor.isPlayerActor, true);
+			assertThat(opponentActor.isPlayerActor, false);
+		}
+		
+		[Test(order = 0)]
+		public function getsFacesRight():void {
+			assertThat(playerActor.facesRight, true);
+			assertThat(opponentActor.facesRight, false);
 		}
 		
 		[Test(order = 0)]
@@ -133,7 +154,7 @@ package test
 		
 		[Test(order = 1)]
 		public function diesIfHit():void {
-			playerActor.hit(MASSIVE_DAMAGE);
+			playerActor.hit(HP);
 			playerActor.checkIfDead();
 			
 			assertThat(playerActor.status, Status.DYING);
@@ -145,6 +166,24 @@ package test
 		[Test(order = 1)]
 		public function livesIfNotHit():void {
 			playerActor.checkIfDead();
+			
+			assertThat(playerActor.status, not(Status.DYING));
+			assertThat(sprite, not(received().method("animate").args(Status.DYING, isA(Function))));
+			
+			assertThat(playerActor.isDead, false);
+		}
+		
+		[Test(order = 1)]
+		public function canBeBlessed():void {
+			playerActor.bless();
+			
+			assertThat(sprite, received().method("showBlessed"));
+		}
+		
+		[Test(order = 1)]
+		public function resistantIfBlessed():void {
+			playerActor.bless();
+			playerActor.hit(HP);
 			
 			assertThat(playerActor.status, not(Status.DYING));
 			assertThat(sprite, not(received().method("animate").args(Status.DYING, isA(Function))));
@@ -193,7 +232,7 @@ package test
 		
 		[Test(order = 3)]
 		public function findsClosest():void {
-			var left:Vector.<Actor> = new <Actor>[left450, left350];
+			var left:Vector.<Actor> = new <Actor>[left350, left450];
 			var right:Vector.<Actor> = new <Actor>[right550, right650];
 			
 			assertThat(playerActor.getClosest(right, 400), right550);
@@ -294,17 +333,18 @@ package test
 		}
 		
 		[Test(async, order = 4)]
-		public function meleeStopsWhenTargetBecomesInvalid():void {
+		public function meleeStopsWhenTargetDies():void {
 			playerActor.meleeAttack(right550, 100, 10, TIME_BETWEEN_BLOWS);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
 				assertThat(right550, received().method("hit").arg(10).twice());
-				right550.hit(MASSIVE_DAMAGE);
+				right550.hit(HP);
 				right550.checkIfDead();
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(right550, received().method("hit").arg(10).twice());
+				//It's hit twice by player actor, and once by firstHandler.
+				assertThat(right550, received().method("hit").arg(10).thrice());
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);

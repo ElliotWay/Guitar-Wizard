@@ -1,20 +1,28 @@
 package test 
 {
 	import flash.events.Event;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
+	import flash.utils.Timer;
 	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
+	import org.flexunit.async.Async;
 	import org.hamcrest.assertThat;
 	import org.hamcrest.core.anyOf;
 	import org.hamcrest.core.either;
 	import org.hamcrest.core.isA;
+	import org.hamcrest.number.closeTo;
+	import org.hamcrest.number.lessThanOrEqualTo;
 	import src.Actor;
 	import src.ActorSprite;
 	import src.Main;
+	import src.factory;
 	import src.MainArea;
 	import src.MiniSprite;
 	import src.Projectile;
+	import src.ScrollArea;
+	import src.Shield;
 	import src.Status;
 	import src.Wizard;
 	
@@ -24,10 +32,23 @@ package test
 	[RunWith("mockolate.runner.MockolateRunner")]
 	public class MainAreaTest 
 	{
+		use namespace factory;
+		
 		private var mainArea:MainArea;
+		
+		private var beforeScroll:Timer;
+		private var afterScroll:Timer;
+		private var afterSecondScroll:Timer;
+		
+		[Mock]
+		public var scrollable:ScrollArea;
+		private var scrollTarget:Number;
 		
 		[Mock]
 		public var wizard:Wizard;
+		
+		[Mock]
+		public var playerShield:Shield, opponentShield:Shield;
 		
 		[Mock]
 		public var arrow:Projectile;
@@ -39,7 +60,7 @@ package test
 		public var actor:Extension_Actor;
 		
 		[Mock]
-		public var playerActor1:Extension_Actor, playerActor2:Extension_Actor;
+		public var playerActor1:Extension_Actor, playerActor2:Extension_Actor, playerActorMiddle:Extension_Actor;
 		[Mock]
 		public var opponentActor1:Extension_Actor, opponentActor2:Extension_Actor;
 		
@@ -53,7 +74,10 @@ package test
 		public function setup():void {
 			
 			var leftSide:Point = new Point(0, 0);
+			var almostLeftSide:Point = new Point(50, 0);
 			var rightSide:Point = new Point(MainArea.ARENA_WIDTH, 0);
+			var almostRightSide:Point = new Point(MainArea.ARENA_WIDTH - 50, 0);
+			var middle:Point = new Point(MainArea.ARENA_WIDTH / 2, 0);
 			
 			stub(actor).getter("sprite").returns(sprite);
 			stub(sprite).method("animate")
@@ -66,39 +90,64 @@ package test
 
 			stub(playerActor1).getter("sprite").returns(sprite);
 			stub(playerActor2).getter("sprite").returns(sprite);
+			stub(playerActorMiddle).getter("sprite").returns(sprite);
 			stub(opponentActor1).getter("sprite").returns(sprite);
 			stub(opponentActor2).getter("sprite").returns(sprite);
 			stub(wizard).getter("sprite").returns(sprite);
+			stub(playerShield).getter("sprite").returns(sprite);
+			stub(opponentShield).getter("sprite").returns(sprite);
 
 			stub(playerActor1).getter("miniSprite").returns(miniSprite);
 			stub(playerActor2).getter("miniSprite").returns(miniSprite);
+			stub(playerActorMiddle).getter("miniSprite").returns(miniSprite);
 			stub(opponentActor1).getter("miniSprite").returns(miniSprite);
 			stub(opponentActor2).getter("miniSprite").returns(miniSprite);
+			stub(playerShield).getter("miniSprite").returns(miniSprite);
+			stub(opponentShield).getter("miniSprite").returns(miniSprite);
 			
 			stub(playerActor1).getter("isPlayerActor").returns(true);
 			stub(playerActor2).getter("isPlayerActor").returns(true);
+			stub(playerActorMiddle).getter("isPlayerActor").returns(true);
 			stub(opponentActor1).getter("isPlayerActor").returns(false);
 			stub(opponentActor2).getter("isPlayerActor").returns(false);
 			stub(wizard).getter("isPlayerActor").returns(true);
+			stub(playerShield).getter("isPlayerActor").returns(true);
+			stub(opponentShield).getter("isPlayerActor").returns(false);
 			
 			stub(playerActor1).method("getPosition").returns(leftSide);
-			stub(playerActor2).method("getPosition").returns(leftSide);
+			stub(playerActor2).method("getPosition").returns(almostLeftSide);
+			stub(playerActorMiddle).method("getPosition").returns(middle);
 			stub(opponentActor1).method("getPosition").returns(rightSide);
-			stub(opponentActor2).method("getPosition").returns(rightSide);
+			stub(opponentActor2).method("getPosition").returns(almostRightSide);
 			stub(wizard).method("getPosition").returns(leftSide);
+			stub(playerShield).method("getPosition").returns(leftSide);
+			stub(opponentShield).method("getPosition").returns(rightSide);
 			
 			stub(playerArrow).getter("targets").returns(MainArea.OPPONENT_ACTORS);
 			stub(opponentArrow).getter("targets").returns(MainArea.PLAYER_ACTORS);
 			
-
+			stub(scrollable).method("scrollTo")
+					.callsWithArguments(function(target:Number):void {
+						scrollTarget = target;
+					});
+			
+			beforeScroll = new Timer(MainArea.AUTO_SCROLL_DELAY +
+					MainArea.REPEATED_SCROLL_DELAY - 100, 1);
+			afterScroll = new Timer(MainArea.AUTO_SCROLL_DELAY +
+					MainArea.REPEATED_SCROLL_DELAY + 100, 1);
+			afterSecondScroll = new Timer(MainArea.AUTO_SCROLL_DELAY +
+					MainArea.REPEATED_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY + 100, 1);
+			
+			
 			mainArea = new MainArea(null);
+			mainArea.setScrollable(scrollable);
 			
 			Main.prepareRegularRuns();
 			
 			//Hopefully the initialization doesn't do anything that
 			//necessarily requires a stage.
 			mainArea.dispatchEvent(new Event(Event.ADDED_TO_STAGE));
-			mainArea.go(wizard, wizard);
+			mainArea.go(wizard, wizard, playerShield, opponentShield);
 		}
 		
 		[Test]
@@ -222,6 +271,192 @@ package test
 			
 			assertThat(playerArrow, received().method("collide").never());
 			assertThat(opponentArrow, received().method("collide").never());
+		}
+		
+		[Test]
+		public function hitsShields():void {
+			mainArea.killShields();
+			
+			assertThat(playerShield, received().method("hit"));
+			assertThat(opponentShield, received().method("hit"));
+		}
+		
+		
+		//Most of lightning is a visual effect,
+		//but we can test the correct target is zapped.
+		[Test(order = 1)]
+		public function zapsClosestTarget():void {
+			//Note that I'm being sneaky and summoning the actors
+			//into the wrong lists.
+			mainArea.playerSummon(opponentActor2);
+			mainArea.playerSummon(opponentActor1);
+			mainArea.opponentSummon(playerActor1);
+			mainArea.opponentSummon(playerActor2);
+			
+			mainArea.doLightning(true);
+			assertThat(playerActor1, received().method("hit").arg(MainArea.LIGHTNING_DAMAGE));
+			assertThat(playerActor2, received().method("hit").never());
+			assertThat(opponentActor1, received().method("hit").never());
+			assertThat(opponentActor2, received().method("hit").never());
+			
+			mainArea.doLightning(false);
+			assertThat(opponentActor1, received().method("hit").arg(MainArea.LIGHTNING_DAMAGE));
+			assertThat(opponentActor2, received().method("hit").never());
+			assertThat(playerActor1, received().method("hit").once());
+			assertThat(playerActor2, received().method("hit").never());
+		}
+		
+		[Test(order = 1)]
+		public function doesNotZapIfTooFar():void {
+			//Now we're summoning to the correct lists again.
+			mainArea.playerSummon(playerActor1);
+			mainArea.opponentSummon(opponentActor1);
+			
+			mainArea.doLightning(true);
+			mainArea.doLightning(false);
+			
+			assertThat(playerActor1, received().method("hit").never());
+			assertThat(opponentActor1, received().method("hit").never());
+		}
+		
+		[Test]
+		public function scrollsInCorrectDirection():void {
+			mainArea.forceScroll(true);
+			
+			assertThat(scrollable, received().method("scrollRight").once());
+			assertThat(scrollable, received().method("scrollLeft").never());
+			
+			mainArea.forceScroll(false);
+			
+			assertThat(scrollable, received().method("scrollRight").once());
+			assertThat(scrollable, received().method("scrollLeft").once());
+		}
+		
+		[Test]
+		public function stopsScrollingIfCorrectDirection():void {
+			mainArea.forceScroll(true);
+			mainArea.stopScroll(true);
+			
+			assertThat(scrollable, received().method("stopScrolling").once());
+			
+			mainArea.forceScroll(false);
+			mainArea.stopScroll(false);
+			
+			assertThat(scrollable, received().method("stopScrolling").twice());
+		}
+		
+		[Test]
+		public function doesNotStopScrollingIfWrongDirection():void {
+			mainArea.stopScroll(true);
+			
+			assertThat(scrollable, received().method("stopScrolling").never());
+			
+			mainArea.forceScroll(true);
+			mainArea.stopScroll(false);
+			
+			assertThat(scrollable, received().method("stopScrolling").never());
+			
+			mainArea.forceScroll(false);
+			mainArea.stopScroll(true);
+			
+			assertThat(scrollable, received().method("stopScrolling").never());
+		}
+		
+		[Test(async, order = 1)]
+		public function autoScrollsAtCorrectTime():void {
+			mainArea.playerSummon(playerActor1);
+			
+			mainArea.forceScroll(true);
+			mainArea.stopScroll(true);
+			
+			var earlyHandler:Function = Async.asyncHandler(this, function():void {
+				assertThat(scrollable, received().method("scrollTo").never());
+			}, MainArea.AUTO_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY * 2);
+			
+			var laterHandler:Function = Async.asyncHandler(this, function():void {
+				assertThat(scrollable, received().method("scrollTo").once());
+			}, MainArea.AUTO_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY * 2);
+			
+			var evenLaterHandler:Function = Async.asyncHandler(this, function():void {
+				assertThat(scrollable, received().method("scrollTo").twice());
+			}, MainArea.AUTO_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY * 3);
+			
+			beforeScroll.addEventListener(TimerEvent.TIMER_COMPLETE, earlyHandler, false, 0, true);
+			afterScroll.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0 , true);
+			afterSecondScroll.addEventListener(TimerEvent.TIMER_COMPLETE, evenLaterHandler, false, 0, true);
+			
+			beforeScroll.start();
+			afterScroll.start();
+			afterSecondScroll.start();
+		}
+		
+		[Test(async, order = 1)]
+		public function doesNotAutoScrollIfScrolling():void {
+			mainArea.playerSummon(playerActor1);
+			
+			mainArea.forceScroll(true);
+			
+			var laterHandler:Function = Async.asyncHandler(this, function():void {
+				assertThat(scrollable, received().method("scrollTo").never());
+			}, MainArea.AUTO_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY * 3);
+			
+			afterSecondScroll.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
+			
+			afterSecondScroll.start();
+		}
+		
+		[Test(async, order = 2)]
+		public function scrollsToLeftWithNoActors():void {
+			mainArea.forceScroll(true);
+			mainArea.stopScroll(true);
+			
+			var scrollHandler:Function = Async.asyncHandler(this, function():void {
+				assertThat(scrollable, received().method("scrollTo").once());
+				assertThat(scrollTarget, lessThanOrEqualTo(0));
+			}, MainArea.AUTO_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY * 2);
+			
+			afterScroll.addEventListener(TimerEvent.TIMER_COMPLETE, scrollHandler, false, 0, true);
+			
+			afterScroll.start();
+		}
+		
+		[Test(async, order = 2)]
+		public function scrollsToRightMostActor():void {
+			mainArea.playerSummon(playerActor2);
+			mainArea.playerSummon(playerActorMiddle);
+			mainArea.playerSummon(playerActor1);
+			
+			mainArea.forceScroll(true);
+			mainArea.stopScroll(true);
+			
+			var scrollHandler:Function = Async.asyncHandler(this, function():void {
+				assertThat(scrollable, received().method("scrollTo").once());
+				assertThat(scrollTarget, closeTo(MainArea.ARENA_WIDTH / 2, MainArea.WIDTH));
+			}, MainArea.AUTO_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY * 2);
+			
+			afterScroll.addEventListener(TimerEvent.TIMER_COMPLETE, scrollHandler, false, 0, true);
+			
+			afterScroll.start();
+		}
+		
+		[After]
+		public function tearDown():void {
+			if (beforeScroll != null) {
+				beforeScroll.stop();
+				beforeScroll = null;
+			}
+			
+			if (afterScroll != null) {
+				afterScroll.stop();
+				afterScroll = null;
+			}
+			
+			if (afterSecondScroll != null) {
+				afterSecondScroll.stop();
+				afterSecondScroll = null;
+			}
+			
+			mainArea.stop();
 		}
 	}
 

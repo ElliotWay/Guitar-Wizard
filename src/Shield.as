@@ -9,6 +9,9 @@ package src
 	 */
 	public class Shield extends Actor 
 	{
+		public static function create(isPlayerPiece:Boolean):Shield {
+			return new Shield(isPlayerPiece, isPlayerPiece);
+		}
 		
 		public function Shield(playerPiece:Boolean, facesRight:Boolean) 
 		{

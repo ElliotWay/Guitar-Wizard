@@ -62,7 +62,7 @@ package src
 			else if (position < 0)
 				position = 0;
 			
-			var distance:Number = Math.abs(this.x + position); //Or - -position
+			var distance:Number = Math.abs(this.x + position); // - -position
 			if (this.isScrolling) {
 				scroller =  new TweenLite(this, SCROLL_TO_DURATION,
 					{ x : -position, ease:ElasticOut, onComplete:stopScrolling} );

@@ -68,8 +68,8 @@ package src
 		
 		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
 		
-		private static const AUTO_SCROLL_DELAY:int = 3000;
-		private static const REPEATED_SCROLL_DELAY:int = 3000;
+		public static const AUTO_SCROLL_DELAY:int = 3000;
+		public static const REPEATED_SCROLL_DELAY:int = 3000;
 		
 		private static const MASSIVE_DAMAGE:Number = 9001;
 		
@@ -105,12 +105,29 @@ package src
 		
 		private var gameUI:GameUI;
 		
+		
+		
+		
+		public static function create(gameUI:GameUI):MainArea {
+			use namespace factory;
+			
+			var out:MainArea = new MainArea(gameUI);
+			out.setScrollable(new ScrollArea(ARENA_WIDTH - WIDTH));
+			
+			return out;
+		}
+		
 		public function MainArea(gameUI:GameUI) 
 		{
 			this.gameUI = gameUI;
 			mainArea = this;
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+		
+		factory function setScrollable(scrollable:ScrollArea):void {
+			this.scrollable = scrollable;
+			this.addChild(scrollable);
 		}
 		
 		private function init(e:Event):void {
@@ -125,9 +142,6 @@ package src
 			projectiles = new Vector.<Projectile>();
 			
 			//prep arena
-			scrollable = new ScrollArea(ARENA_WIDTH - WIDTH);
-			this.addChild(scrollable);
-			
 			background = new Sprite();
 			scrollable.addChild(background);
 			
@@ -148,12 +162,7 @@ package src
 			minimap = new Sprite();
 			this.addChild(minimap);
 			
-			minimap.graphics.beginFill(0xFFFFB0);
-			minimap.graphics.drawRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
-			minimap.graphics.endFill();
-			
-			minimap.x = WIDTH;
-			minimap.y = 0;
+			prepMinimap(minimap);
 			
 			autoScrollTimer = new Timer(AUTO_SCROLL_DELAY, 1);
 			autoScrollTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
@@ -166,31 +175,25 @@ package src
 				
 				var actor:Actor;
 				for each (actor in playerActors) {
-					if (!(actor is Shield) && actor.sprite.x > rightMost)
-						rightMost = actor.sprite.x;
+					trace("!!!! " + actor + " " + actor.getPosition());
+					if (!(actor is Shield) && actor.getPosition().x > rightMost)
+						rightMost = actor.getPosition().x;
 				}
 				
 				scrollable.scrollTo(rightMost - WIDTH / 3);
 			});
 		}
 		
-		/**
-		 * Adds the projectile to the list of projectiles, adds it to the arena,
-		 * and starts the projectile moving.
-		 * @param	projectile
-		 */
-		public function addProjectile(projectile:Projectile):void {
+		private function prepMinimap(minimap:Sprite):void {
+			minimap.graphics.beginFill(0xFFFFB0);
+			minimap.graphics.drawRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+			minimap.graphics.endFill();
 			
-			projectiles.push(projectile);
-						
-			projectile.addEventListener(Event.ADDED_TO_STAGE, function(e:Event):void {
-				projectile.go();
-			});
-			
-			arena.addChild(projectile);
+			minimap.x = WIDTH;
+			minimap.y = 0;
 		}
 		
-		public function hardCode():void {
+		private function hardCode():void {
 			
 			var index:int;
 			var actor:Actor;
@@ -223,17 +226,15 @@ package src
 			
 		}
 		
-		public function go(playerWizard:Wizard, opponentWizard:Wizard):void {
+		public function go(playerWizard:Wizard, opponentWizard:Wizard, playerShield:Shield, opponentShield:Shield):void {
 			Actor.resetPlayerBuff();
 
-			var playerShield:Shield = new Shield(true, true);
 			playerShield.position();
 			arena.addChild(playerShield.sprite);
 			minimap.addChild(playerShield.miniSprite);
 			
 			playerShieldIsUp = true;
 			
-			var opponentShield:Shield = new Shield(false, false);
 			opponentShield.position();
 			arena.addChild(opponentShield.sprite);
 			minimap.addChild(opponentShield.miniSprite);
@@ -296,25 +297,26 @@ package src
 			Main.runEveryFrame(step);
 		}
 		
-		
 		public function stop():void {
 			Main.stopRunningEveryFrame(step);
 			
 			var actor:Actor;
-			
-			for each (actor in playerActors) {
+			for each (actor in playerActors)
 				actor.clean();
-				arena.removeChild(actor.sprite);
-				minimap.removeChild(actor.miniSprite);
-			}
+			for each (actor in opponentActors)
+				actor.clean();
+			
 			playerActors = new Vector.<Actor>();
-			
-			for each (actor in opponentActors) {				
-				actor.clean();
-				arena.removeChild(actor.sprite);
-				minimap.removeChild(actor.miniSprite);
-			}
 			opponentActors = new Vector.<Actor>();
+			
+			scrollable.removeChild(arena);
+			arena = new Sprite();
+			scrollable.addChildAt(arena, 1);
+			
+			this.removeChild(minimap);
+			minimap = new Sprite();
+			this.addChild(minimap);
+			prepMinimap(minimap);
 			
 			var projectile:Projectile;
 			
@@ -323,27 +325,17 @@ package src
 			}
 			projectiles = new Vector.<Projectile>();
 			
-			if (!playerWizard.isCompletelyDead)
-				arena.removeChild(playerWizard.sprite);
-			playerWizard = null;
 			
-			if (!opponentWizard.isCompletelyDead)
-				arena.removeChild(opponentWizard.sprite);
+			playerWizard = null;
 			opponentWizard = null;
 			
-			if (playerWizardKiller != null) {
-				arena.removeChild(playerWizardKiller.sprite);
-				playerWizardKiller = null;
-			}
+			playerWizardKiller = null;
 			if (playerWizardKillerTimer != null) {
 				playerWizardKillerTimer.stop();
 				playerWizardKillerTimer = null;
 			}
 			
-			if (opponentWizardKiller != null) {
-				arena.removeChild(opponentWizardKiller.sprite);
-				opponentWizardKiller = null;
-			}
+			opponentWizardKiller = null;
 			if (opponentWizardKillerTimer != null) {
 				opponentWizardKillerTimer.stop();
 				opponentWizardKillerTimer = null;
@@ -386,6 +378,22 @@ package src
 				
 				actor.go();
 			});
+		}
+		
+		/**
+		 * Adds the projectile to the list of projectiles, adds it to the arena,
+		 * and starts the projectile moving.
+		 * @param	projectile
+		 */
+		public function addProjectile(projectile:Projectile):void {
+			
+			projectiles.push(projectile);
+						
+			projectile.addEventListener(Event.ADDED_TO_STAGE, function(e:Event):void {
+				projectile.go();
+			});
+			
+			arena.addChild(projectile);
 		}
 		
 		/**
@@ -493,7 +501,7 @@ package src
 		 * Prepare this actor for killing a wizard, namely, move it into position behind the wizard.
 		 * @param	actor
 		 */
-		public function wizardKillMode(actor:Actor):void {
+		private function wizardKillMode(actor:Actor):void {
 			trace(actor.isDead);
 			arena.removeChild(actor.sprite);
 			minimap.removeChild(actor.miniSprite);
@@ -709,6 +717,11 @@ package src
 		
 		private var scrollDirection:int = 0;
 		
+		/**
+		 * Forces the scrollable area to scroll left or right.
+		 * It will never scroll past the boundaries.
+		 * @param	scrollRight whether to scroll to the right
+		 */
 		public function forceScroll(scrollRight:Boolean):void {
 			autoScrollTimer.reset();
 			repeatedScrollTimer.reset();
@@ -722,6 +735,11 @@ package src
 			}
 		}
 		
+		/**
+		 * Stop scrolling in a given direction. If we weren't scolling in that direction, this does nothing.
+		 * Starts the timer for autoscrolling to begin.
+		 * @param	scrollRight whether to stop scrolling right
+		 */
 		public function stopScroll(scrollRight:Boolean):void {
 			autoScrollTimer.start();
 			

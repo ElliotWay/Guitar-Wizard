@@ -19,6 +19,7 @@ package src
 	 */
 	public class Main extends Sprite 
 	{
+		
 		public static const WIDTH:int = 800;
 		public static const HEIGHT:int = 600;
 		

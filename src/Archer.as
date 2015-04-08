@@ -38,6 +38,8 @@ package src
 		private var range:Number; //Range should decrease below skirmish distance.
 		private var skirmishDistance:Number;
 		
+		private var shotFiredTimer:Timer;
+		
 		public function Archer(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
 				
@@ -51,6 +53,8 @@ package src
 			range = BASE_RANGE + (Math.random() * RANGE_VARIABILITY) - (RANGE_VARIABILITY / 2);
 			
 			skirmishDistance = BASE_SKIRMISH_DISTANCE + (Math.random() * SKIRMISH_VARIABILITY) - (SKIRMISH_VARIABILITY / 2);
+			
+			shotFiredTimer = null;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
@@ -98,7 +102,7 @@ package src
 						
 						_sprite.animate(Status.SHOOTING, function():void { _status = Status.STANDING;} );
 						
-						var shotFiredTimer:Timer = new Timer(ArcherSprite.timeUntilFired(), 1);
+						shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(), 1);
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 							
 							var arrow:Projectile = new Projectile(
@@ -150,6 +154,15 @@ package src
 				} else {
 					return (this.getPosition().x < (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE));
 				}
+			}
+		}
+		
+		override public function clean():void {
+			super.clean();
+			
+			if (shotFiredTimer != null) {
+				shotFiredTimer.stop();
+				shotFiredTimer = null;
 			}
 		}
 	}
