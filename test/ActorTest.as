@@ -66,13 +66,13 @@ package test
 		
 		private var afterFirstBlow:Timer;
 		private var afterSecondBlow:Timer;
-		
+		/*
 		[Before(async, timeout = 5000)]
 		public function prepMocks():void {
 			Async.proceedOnEvent(this,
 				prepare(Actor),
 				Event.COMPLETE);
-		}
+		}*/
 		
 		[Before(order = 1)]
 		public function setup():void {

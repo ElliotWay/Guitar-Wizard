@@ -211,7 +211,8 @@ package src
 			if (parent != null)
 				this.parent.removeChild(this);
 			
-			timeline.kill();
+			if (timeline != null)
+				timeline.kill();
 			
 			_finished = true;
 		}

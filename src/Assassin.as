@@ -30,11 +30,16 @@ package src
 		private var landedTimer:Timer;
 		private var jumpTarget:Number;
 		
-		public function Assassin(isPlayerPiece:Boolean, facesRight:Boolean) 
-		{
-			super(isPlayerPiece, facesRight,
+		public static function create(isPlayerPiece:Boolean, facesRight:Boolean):Assassin {
+			return new Assassin(isPlayerPiece, facesRight,
 					new AssassinSprite(isPlayerPiece, facesRight),
 					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
+		}
+		
+		public function Assassin(isPlayerPiece:Boolean, facesRight:Boolean,
+				sprite:ActorSprite, miniSprite:MiniSprite) 
+		{
+			super(isPlayerPiece, facesRight, sprite, miniSprite);
 			
 			this.speed = 150;
 		}
@@ -53,22 +58,21 @@ package src
 			
 			//Find the closest valid target.
 			var closest:Actor = this.getClosest(enemies, MAX_JUMP_DISTANCE * 2);
-
 			
 			if (closest != null && (_status == Status.MOVING || _status == Status.STANDING)) {
-					
+			
 				var targetPositionAfterJump:Number =
 						closest.predictPosition(AssassinSprite.timeToLand()).x;
 				
 				if (isPlayerPiece) {
 					if (MainArea.opponentShieldIsUp) {
-						targetPositionAfterJump = Math.max(
+						targetPositionAfterJump = Math.min(
 								targetPositionAfterJump,
 								MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION);
 					}
 				} else {
 					if (MainArea.playerShieldIsUp) {
-						targetPositionAfterJump = Math.min(
+						targetPositionAfterJump = Math.max(
 								targetPositionAfterJump,
 								MainArea.SHIELD_POSITION);
 					}
@@ -77,6 +81,7 @@ package src
 				var targetAfterJumpDistance:Number =
 						Math.abs(targetPositionAfterJump - this.getPosition().x);
 						
+			if (closest != null)
 				//Jump towards the target if they will be in range.
 				if (MIN_JUMP_DISTANCE < targetAfterJumpDistance &&
 						targetAfterJumpDistance < MAX_JUMP_DISTANCE &&
@@ -98,8 +103,7 @@ package src
 					landedTimer = new Timer(AssassinSprite.timeToLand(), 1);
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						if (withinRange(closest, MELEE_RANGE*1.1))//A little extra leeway on assassination.
-							closest.hit(2*MELEE_DAMAGE*(isPlayerPiece ? player_buff : 1.0)); //Double damage on assassination
-							
+							closest.hit(2 * MELEE_DAMAGE * (isPlayerPiece ? player_buff : 1.0)); //Double damage on assassination
 						landedTimer = null;
 					});
 					landedTimer.start();

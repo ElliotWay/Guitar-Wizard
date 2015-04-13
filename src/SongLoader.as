@@ -44,11 +44,9 @@ package  src
 		/**
 		 * Loads the requested songs.
 		 * 
-		 * Unless an error occurs, a call will be made to Main.go
-		 * when the files are finished loading.
+		 * Unless an error occurs, a call will be made to Main.go when the files are finished loading.
 		 * 
-		 * Calling this method before the Main.go has been called will
-		 * have not effect.
+		 * Calling this method before loading has finished has been called will have not effect.
 		 */
 		public function load():void {
 			if (!_isLoading) {

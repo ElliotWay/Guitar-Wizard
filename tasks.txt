@@ -11,6 +11,9 @@
 
 - refactor even more of track switching into music area; give music area a referance back up to game ui
 
+- quitting while dying causes immediate death on restart
+
+- fix MainAreaTest, needless withArgs
 
 ---Bugs.-------------------	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
@@ -47,6 +50,17 @@
 
 - create 3 more lightning animations
 
+
+---Behavior that should be tested, is impossible or difficult to test, or is too simple to test--
+- test-unbacked classes:
+	AnimationCollection, ArcherSprite, GWError, InfoArea, Lightning
+
+- untested stuff:
+	arrows created by shooting<Archer>
+	standing after shooting:<Archer>
+	wizard kill mode<MainArea>
+	jumping through shields<Assassin>
+	movement actually moves<Actor>
 
 ---Completed.---------------
 - lay out the rest of the screen - mostly done
@@ -102,6 +116,5 @@
 - cut holds that extend over blocks
 - combos? lightning effect? - may still need to adjust range of lightning
 - have wizard killing archers get closer
-- quitting while dying causes immediate death on restart
 - smooth summoning meter animations
 - refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object

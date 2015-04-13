@@ -28,7 +28,7 @@ package test
 		[Before]
 		public function setUp():void {
 			
-			//Note is sufficiently simple that I'm not bothering to mock it (or test it).	
+			//Note is sufficiently simple that I'm not bothering to mock it here.
 			var hold:Note = new Note();
 			hold.letter = Note.NOTE_A;
 			hold.time = 0;
@@ -46,6 +46,19 @@ package test
 			note.time = 0;
 			
 			var noteSprite:NoteSprite = new NoteSprite(note);
+		}
+		
+		[Test]
+		public function getsIsHit():void {
+			assertThat(holdSprite.isHit(), false);
+			holdSprite.hit();
+			assertThat(holdSprite.isHit(), true);
+		}
+		
+		[Test]
+		public function isNotHitByMiss():void {
+			holdSprite.miss();
+			assertThat(holdSprite.isHit(), false);
 		}
 		
 		[Test]

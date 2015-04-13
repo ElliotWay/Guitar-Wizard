@@ -4,7 +4,7 @@ package test
 	import org.flexunit.asserts.assertEquals;
 	
 	/**
-	 * ...
+	 * Tests that the testing framework is at least partially working.
 	 * @author Elliot Way
 	 */
 	public class TestTest 

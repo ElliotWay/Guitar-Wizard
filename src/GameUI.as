@@ -51,10 +51,6 @@ package src {
 		
 		private static const HOLD_AMOUNT:Number = 20;
 		
-		private var highActorType:Class;
-		private var midActorType:Class;
-		private var lowActorType:Class;
-		
 		private var opponent:OpponentStrategy;
 		private var opponentTimer:Timer;
 		
@@ -114,10 +110,6 @@ package src {
 			losing.textColor = 0xFFFFFF;
 			losingScreen.addChild(losing);
 			losingScreen.visible = false;
-			
-			highActorType = Assassin;
-			midActorType = Archer;
-			lowActorType = Cleric;
 			
 			opponent = new DefaultOpponent();
 		}
@@ -342,11 +334,11 @@ package src {
 			var actor:Actor;
 			
 			if (musicArea.currentTrack == Main.HIGH)
-				actor = new highActorType(true, true);
+				actor = Assassin.create(true, true);
 			else if (musicArea.currentTrack == Main.MID)
-				actor = new midActorType(true, true);
+				actor = Archer.create(true, true);
 			else
-				actor = new lowActorType(true, true);
+				actor = Cleric.create(true, true);
 				
 			mainArea.playerSummon(actor);
 		}

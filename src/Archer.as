@@ -14,19 +14,21 @@ package src
 	public class Archer extends Actor 
 	{
 		
-		private static const NO_RETREAT_DISTANCE:Number = 50;
+		public static const NO_RETREAT_DISTANCE:Number = 50;
 		
-		private static const BASE_SKIRMISH_DISTANCE:Number = 200;
+		public static const BASE_SKIRMISH_DISTANCE:Number = 200;
 		private static const SKIRMISH_VARIABILITY:Number = 75;
 		
 		private static const ARROW_DAMAGE:int = 3;
 		
-		private static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - 50;
+		public static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - 50;
 		private static const RANGE_VARIABILITY:Number = 50;
+		
+		trace("min range/skirmish diff " + ((BASE_RANGE - RANGE_VARIABILITY) - (BASE_SKIRMISH_DISTANCE + 75)));
 		
 		private static const WIZARD_RANGE:Number = 130;
 		
-		private static const MELEE_RANGE:int = 15;
+		public static const MELEE_RANGE:int = 15;
 		private static const MELEE_DAMAGE:int = 1;
 		
 		/**
@@ -40,12 +42,15 @@ package src
 		
 		private var shotFiredTimer:Timer;
 		
-		public function Archer(isPlayerPiece:Boolean, facesRight:Boolean) 
-		{
-				
-			super(isPlayerPiece, facesRight,
-					new	ArcherSprite(isPlayerPiece, facesRight),
-					new SmallTriangleSprite((isPlayerPiece) ? (0x2020B0) : (0xB02020)));
+		public static function create(isPlayerPiece:Boolean, facesRight:Boolean):Archer {
+			return new Archer(isPlayerPiece, facesRight,
+					new ArcherSprite(isPlayerPiece, facesRight),
+					new SmallTriangleSprite(isPlayerPiece ? 0x2020B0 : 0xB02020));
+		}
+		
+		public function Archer(isPlayerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		{	
+			super(isPlayerPiece, facesRight, sprite, miniSprite);
 			
 			this.speed = 70;
 			this._hitpoints = 5;
@@ -82,14 +87,12 @@ package src
 					else
 						this.meleeAttack(closest, MELEE_RANGE,
 								MELEE_DAMAGE, ArcherSprite.timeBetweenBlows());
-				} else if (this.isBehindShield()) {
+				} else if (isBehindShield()) {
 					if (_status != Status.MOVING)
 						go();
 				} else {
 					var expectedDistance:Number = Math.abs(this.getPosition().x
 							- closest.predictPosition(ArcherSprite.ARROW_TIME).x);
-					
-					var behindShield:Boolean = this.isBehindShield();
 					
 					if (expectedDistance < skirmishDistance && canRetreat() && !(closest is Wizard)) {
 						if (_status != Status.RETREATING) {
@@ -100,7 +103,7 @@ package src
 						halt();
 						_status = Status.SHOOTING;
 						
-						_sprite.animate(Status.SHOOTING, function():void { _status = Status.STANDING;} );
+						_sprite.animate(Status.SHOOTING, function():void { _status = Status.STANDING; } );
 						
 						shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(), 1);
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {

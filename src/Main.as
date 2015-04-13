@@ -40,7 +40,7 @@ package src
 		
 		private static var everyFrameRun:Dictionary;
 		
-		private static var millisecondsPerBeat:int;
+		private static var millisecondsPerBeat:int = 500;
 		
 		private static var quarterBeatRun:Dictionary;
 		private static var quarterBeatTimer:Timer;
@@ -141,7 +141,7 @@ package src
 		}
 		
 		/**
-		 * Get the current beat, in milliseconds per beat.
+		 * Get the current beat, in milliseconds per beat. If the beat has not been set, this returns 500.
 		 * This beat drives the functions running every quarter and every third beat.
 		 * @return the current beat, in milliseconds per beat
 		 */

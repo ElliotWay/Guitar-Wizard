@@ -5,6 +5,7 @@ package test
 	import flash.geom.Point;
 	import flash.utils.Timer;
 	import mockolate.received;
+	import mockolate.runner.MockolateRule;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
 	import org.flexunit.async.Async;
@@ -26,12 +27,11 @@ package test
 	import src.Status;
 	import src.Wizard;
 	
-	MockolateRunner;
-	/**
-	 */
-	[RunWith("mockolate.runner.MockolateRunner")]
 	public class MainAreaTest 
 	{
+		[Rule]
+		public var mocks:MockolateRule = new MockolateRule();
+		
 		use namespace factory;
 		
 		private var mainArea:MainArea;
@@ -405,7 +405,7 @@ package test
 			afterSecondScroll.start();
 		}
 		
-		[Test(async, order = 2)]
+		[Test(async, order = 1)]
 		public function scrollsToLeftWithNoActors():void {
 			mainArea.forceScroll(true);
 			mainArea.stopScroll(true);
@@ -420,7 +420,7 @@ package test
 			afterScroll.start();
 		}
 		
-		[Test(async, order = 2)]
+		[Test(async, order = 1)]
 		public function scrollsToRightMostActor():void {
 			mainArea.playerSummon(playerActor2);
 			mainArea.playerSummon(playerActorMiddle);

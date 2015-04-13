@@ -13,25 +13,30 @@ package src
 	public class Cleric extends Actor 
 	{
 		
-		private static const MELEE_RANGE:int = 20;
+		public static const MELEE_RANGE:int = 20;
 		
 		private static const DAMAGE:int = 3;
 		
-		private static const BLESS_RANGE:int = 200;
+		public static const BLESS_RANGE:int = 200;
 		
-		private static const BLESS_COOLDOWN:int = 3000; //milliseconds
+		public static const BLESS_COOLDOWN:int = 3000; //milliseconds
 		
-		private static const MIN_UNBLESSED:int = 3;
+		public static const MIN_UNBLESSED:int = 3;
 		
 		private var blessIsReady:Boolean;
 		private var blessTimer:Timer;
 		private var blessCooldownTimer:Timer;
 		
-		public function Cleric(isPlayerPiece:Boolean, facesRight:Boolean) 
-		{
-			super(isPlayerPiece, facesRight,
+		public static function create(isPlayerPiece:Boolean, facesRight:Boolean):Cleric {
+			return new Cleric(isPlayerPiece, facesRight,
 					new ClericSprite(isPlayerPiece, facesRight),
 					new SmallCircleSprite(isPlayerPiece ? 0x0040FF : 0xFF4000));
+		}
+		
+		public function Cleric(isPlayerPiece:Boolean, facesRight:Boolean,
+				sprite:ActorSprite, miniSprite:MiniSprite) {
+			
+			super(isPlayerPiece, facesRight, sprite, miniSprite);
 			
 			this.speed = 45;
 			this._hitpoints = 20; //30
@@ -110,7 +115,7 @@ package src
 				
 				if (!finished) {
 					//Find the closest valid target.
-					var closest : Actor = this.getClosest(enemies, MELEE_RANGE);
+					var closest:Actor = this.getClosest(enemies, MELEE_RANGE);
 				
 					if (closest != null) {
 						if (isPlayerActor)

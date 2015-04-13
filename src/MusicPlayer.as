@@ -51,7 +51,7 @@ package  src
 		/**
 		 * Time in seconds to fade out the last track and fade in the new one.
 		 */
-		public static const TRACK_SWITCH_TIME:Number = 0.1;
+		public static const TRACK_SWITCH_TIME:Number = 0.4; //0.1
 		
 		/**
 		 * Construct a new player
@@ -160,7 +160,7 @@ package  src
 		 * Stops the current track from playing, but not the base part.
 		 */
 		public function stopTrack():void {
-			if (isPlaying) {
+			if (isPlaying && !trackStopped) {
 				if (currentTrack == Main.HIGH)
 					highChannel.soundTransform = MUTE;
 				else if (currentTrack == Main.MID)
@@ -177,7 +177,7 @@ package  src
 		 * This should not be called if the base part is not currently playing.
 		 */
 		public function resumeTrack():void {
-			if (isPlaying) {
+			if (isPlaying && trackStopped) {
 				if (currentTrack == Main.HIGH) {
 					highChannel.soundTransform = UNMUTE;
 				} else if (currentTrack == Main.MID) {

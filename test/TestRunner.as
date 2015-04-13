@@ -38,7 +38,11 @@ public class TestRunner extends Sprite
 		var classNames:Vector.<Class> = new Vector.<Class>();
 		
 		//#### Populate classNames here.
+		classNames.push(ActorSpriteTest);
 		classNames.push(ActorTest);
+		classNames.push(ArcherTest);
+		classNames.push(AssassinTest);
+		classNames.push(ClericTest);
 		classNames.push(MainAreaTest);
 		classNames.push(MusicPlayerTest);
 		classNames.push(NoteSpriteTest);

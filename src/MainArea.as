@@ -71,7 +71,7 @@ package src
 		public static const AUTO_SCROLL_DELAY:int = 3000;
 		public static const REPEATED_SCROLL_DELAY:int = 3000;
 		
-		private static const MASSIVE_DAMAGE:Number = 9001;
+		public static const MASSIVE_DAMAGE:Number = 9001;
 		
 		public static const MAX_LIGHTNING_DISTANCE:Number = SHIELD_POSITION + 20;
 		public static const LIGHTNING_DAMAGE:Number = 5;
@@ -175,7 +175,6 @@ package src
 				
 				var actor:Actor;
 				for each (actor in playerActors) {
-					trace("!!!! " + actor + " " + actor.getPosition());
 					if (!(actor is Shield) && actor.getPosition().x > rightMost)
 						rightMost = actor.getPosition().x;
 				}
@@ -199,28 +198,28 @@ package src
 			var actor:Actor;
 			
 			for (index = 0; index < 12; index++) {
-				actor = new Archer(false, false);
+				actor = Archer.create(false, false);
 				opponentSummon(actor);
 			}
 			for (index = 0; index < 0; index++) {
-				actor = new Assassin(false, false);
+				actor = Assassin.create(false, false);
 				opponentSummon(actor);
 			}
 			for (index = 0; index < 0; index++) {
-				actor = new Cleric(false, false);
+				actor = Cleric.create(false, false);
 				opponentSummon(actor);
 			}
 			
 			for (index = 0; index < 0; index++) {
-				actor = new Archer(true, true);
+				actor = Archer.create(true, true);
 				playerSummon(actor);
 			}
 			for (index = 0; index < 0; index++) {
-				actor = new Assassin(true, true);
+				actor = Assassin.create(true, true);
 				playerSummon(actor)
 			}
 			for (index = 0; index < 0; index++) {
-				actor = new Cleric(true, true);
+				actor = Cleric.create(true, true);
 				playerSummon(actor);
 			}
 			
@@ -508,15 +507,14 @@ package src
 			
 			//TODO kill actor?
 			
-			var actorClass:Class;
-			if (actor is Archer)
-				actorClass = Archer;
-			else if (actor is Assassin)
-				actorClass = Assassin;
-			else
-				actorClass = Cleric;
+			var wizardKiller:Actor;
 			
-			var wizardKiller:Actor = new actorClass(actor.isPlayerActor, !actor.isPlayerActor);
+			if (actor is Archer)
+				wizardKiller = Archer.create(actor.isPlayerActor, !actor.facesRight);
+			else if (actor is Assassin)
+				wizardKiller = Assassin.create(actor.isPlayerActor, !actor.facesRight);
+			else
+				wizardKiller = Cleric.create(actor.isPlayerActor, !actor.facesRight);
 			
 			
 			wizardKiller.sprite.y = WIZARD_Y - actor.sprite.height;

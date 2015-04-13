@@ -191,7 +191,7 @@ package src {
 		 * @return the center of the actor
 		 */
 		public function getPosition():Point {
-			return _sprite.center
+			return _sprite.center;
 		}
 		
 		/**
