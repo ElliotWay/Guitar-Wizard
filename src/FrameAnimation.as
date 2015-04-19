@@ -27,7 +27,7 @@ package src
 		public static const ON_STEP:int = -8;
 		public static const EVERY_FRAME:int = -9;
 		
-		private var frames:Vector.<Bitmap>;
+		private var _frames:Vector.<Bitmap>;
 		
 		private var frameIndex:int;
 		
@@ -60,7 +60,7 @@ package src
 		 * @param	flipped whether to flip the animation horizontally
 		 * @return  the constructed FrameAnimation
 		 */
-		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = 0xFF0000, flipped:Boolean = false):FrameAnimation
+		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = FLAG_COLOR, flipped:Boolean = false):FrameAnimation
 		{
 			var output:FrameAnimation = new FrameAnimation();
 			
@@ -73,7 +73,7 @@ package src
 					position.y + frameHeight > image.height)
 				throw new Error("Bad bounds on image for frame animation.");
 			
-			output.frames = new Vector.<Bitmap>(numFrames, true);
+			output._frames = new Vector.<Bitmap>(numFrames, true);
 			
 			for (var frameNumber:int = 0; frameNumber < numFrames; frameNumber++) {
 				//Initialize a bitmap to transparent black.
@@ -112,14 +112,14 @@ package src
 				//Create a Bitmap for this frame
 				var bmpFrame:Bitmap = new Bitmap(finalData);
 				
-				output.frames[frameNumber] = bmpFrame;
+				output._frames[frameNumber] = bmpFrame;
 				
 				output.addChild(bmpFrame);
 				bmpFrame.visible = false;
 			}
 			
 			
-			output.frames[0].visible = true;
+			output._frames[0].visible = true;
 			
 			output.visible = false;
 			
@@ -135,22 +135,22 @@ package src
 		public static function copy(animation:FrameAnimation):FrameAnimation {
 			var output:FrameAnimation = new FrameAnimation();
 			
-			var numFrames:int = animation.frames.length;
+			var numFrames:int = animation._frames.length;
 			
-			output.frames = new Vector.<Bitmap>(numFrames);
+			output._frames = new Vector.<Bitmap>(numFrames);
 			
 			output.visible = false;
 			
 			for (var index:int = 0; index < numFrames; index++) {
-				output.frames[index] = new Bitmap(animation.frames[index].bitmapData);
+				output._frames[index] = new Bitmap(animation._frames[index].bitmapData);
 				
-				output.addChild(output.frames[index]);
-				output.frames[index].visible = false;
+				output.addChild(output._frames[index]);
+				output._frames[index].visible = false;
 			}
 			
 			output.frequency = animation.frequency;
 			
-			output.frames[0].visible = true;
+			output._frames[0].visible = true;
 			
 			output.onComplete = animation.onComplete;
 			
@@ -289,6 +289,12 @@ package src
 			
 			runner = null;
 		}
+		
+		public function get frames():Vector.<Bitmap> 
+		{
+			return _frames;
+		}
+		
 		
 	}
 

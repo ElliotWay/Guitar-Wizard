@@ -3,6 +3,7 @@ package src
 	import flash.display.NativeMenu;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.TimerEvent;
 	import flash.media.Sound;
@@ -37,7 +38,7 @@ package src
 		
 		private static var songLoader:SongLoader;
 		
-		
+		private static var everyFrameDispatcher:EventDispatcher;
 		private static var everyFrameRun:Dictionary;
 		
 		private static var millisecondsPerBeat:int = 500;
@@ -60,9 +61,7 @@ package src
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
-			prepareRegularRuns();
-			
-			this.addEventListener(Event.ENTER_FRAME, frameRunner);
+			prepareRegularRuns(this);
 			
 			songLoader = new SongLoader();
 			
@@ -77,13 +76,16 @@ package src
 			switchToGame("../assets/FurElise.gws");
 		}
 		
-		public static function prepareRegularRuns():void {
+		public static function prepareRegularRuns(dispatcher:EventDispatcher):void {
 			everyFrameRun = new Dictionary(true);
 			
 			quarterBeatRun = new Dictionary(true);
 			quarterBeatTimer = null;
 			thirdBeatRun = new Dictionary(true);
 			thirdBeatTimer = null;
+			
+			everyFrameDispatcher = dispatcher;
+			dispatcher.addEventListener(Event.ENTER_FRAME, frameRunner);
 		}
 		
 		public static function fileLoaded():void {
@@ -126,7 +128,7 @@ package src
 			if (quarterBeatTimer != null) {
 				quarterBeatTimer.stop();
 			}
-			//Remember that repeating 0 times mean repeat indefinitely.
+			//Remember that repeating 0 times means repeat indefinitely.
 			quarterBeatTimer = new Timer(millisPerBeat / 4, 0);
 			quarterBeatTimer.addEventListener(TimerEvent.TIMER, quarterBeatRunner);
 			
@@ -147,6 +149,23 @@ package src
 		 */
 		public static function getBeat():int {
 			return millisecondsPerBeat;
+		}
+		
+		/**
+		 * Stop running things on the beat and on each frame.
+		 */
+		public function killBeat():void {
+			if (quarterBeatTimer != null)
+				quarterBeatTimer.stop();
+			if (thirdBeatTimer != null)
+				thirdBeatTimer.stop();
+			everyFrameDispatcher.removeEventListener(Event.ENTER_FRAME, frameRunner);
+			
+			quarterBeatRun = null;
+			quarterBeatTimer = null;
+			thirdBeatRun = null;
+			thirdBeatTimer = null;
+			everyFrameRun = null;
 		}
 		
 		public static function showError(errorMessage:String):void {
