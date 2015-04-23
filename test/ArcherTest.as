@@ -4,14 +4,17 @@ package test
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.stub;
 	import mockolate.runner.MockolateRunner;
 	import org.hamcrest.assertThat;
+	import org.hamcrest.core.isA;
 	import src.Actor;
 	import src.Archer;
 	import src.ArcherSprite;
 	import src.MainArea;
+	import src.Repeater;
 	import src.SmallTriangleSprite;
 	import src.Status;
 	
@@ -25,6 +28,8 @@ package test
 	{
 		private var archer:Archer;
 		
+		private var repeater:Repeater;
+		
 		private var emptyVector:Vector.<Actor>;
 		private var opponentVector:Vector.<Actor>;
 		
@@ -37,7 +42,7 @@ package test
 		private static const MELEE_DISTANCE:int = Archer.MELEE_RANGE - 3;
 		
 		[Mock]
-		public var opponentActor:Extension_Actor2, opponentActor2:Extension_Actor2;
+		public var opponentActor:Actor, opponentActor2:Actor;
 		
 		[Mock]
 		public var archerSprite:ArcherSprite;
@@ -56,6 +61,8 @@ package test
 			
 			stub(archerSprite).getter("arrowPosition").returns(new Point());
 			
+			repeater = nice(Repeater);
+			
 			archer = new Archer(true, true, archerSprite, archerMiniSprite);
 		}
 		
@@ -69,7 +76,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(ADVANCE_DISTANCE + BEHIND_SHIELD);
 			
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.MOVING);
 		}
@@ -79,9 +86,10 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + BEHIND_SHIELD);
 					
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.SHOOTING);
+			assertThat(archerSprite, received().method("animate").args(Status.SHOOTING, repeater, isA(Function)));
 		}
 		
 		[Test]
@@ -89,7 +97,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(RETREAT_DISTANCE + BEHIND_SHIELD);
 					
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.RETREATING);
 		}
@@ -99,7 +107,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(MELEE_DISTANCE + BEHIND_SHIELD);
 					
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.FIGHTING);
 		}
@@ -111,7 +119,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + BEHIND_SHIELD);
 					
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.MOVING);
 		}
@@ -123,7 +131,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(RETREAT_DISTANCE + BEHIND_SHIELD);
 					
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.MOVING);
 		}
@@ -135,7 +143,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(MELEE_DISTANCE + BEHIND_SHIELD);
 			
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.FIGHTING);
 		}
@@ -147,7 +155,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(PAST_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + PAST_SHIELD);
 			
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 					
 			assertThat(archer.status, Status.SHOOTING);
 		}
@@ -159,7 +167,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(PAST_SHIELD, 0));
 			positionOpponent(RETREAT_DISTANCE + PAST_SHIELD);
 			
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 					
 			assertThat(archer.status, Status.RETREATING);
 		}
@@ -169,7 +177,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + BEHIND_SHIELD);
 					
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			var newVector:Vector.<Actor> = new <Actor>[opponentActor2];
 			
@@ -178,7 +186,7 @@ package test
 			stub(opponentActor2).method("predictPosition").returns(
 					new Point(RETREAT_DISTANCE + BEHIND_SHIELD, 0));
 					
-			archer.act(emptyVector, newVector);
+			archer.act(emptyVector, newVector, repeater);
 			
 			assertThat(archer.status, Status.SHOOTING);
 		}
@@ -188,7 +196,7 @@ package test
 			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(MELEE_DISTANCE + BEHIND_SHIELD);
 					
-			archer.act(emptyVector, opponentVector);
+			archer.act(emptyVector, opponentVector, repeater);
 			
 			var newVector:Vector.<Actor> = new <Actor>[opponentActor2];
 			
@@ -197,7 +205,7 @@ package test
 			stub(opponentActor2).method("predictPosition").returns(
 					new Point(RETREAT_DISTANCE + BEHIND_SHIELD, 0));
 					
-			archer.act(emptyVector, newVector);
+			archer.act(emptyVector, newVector, repeater);
 			
 			assertThat(archer.status, Status.FIGHTING);
 		}
@@ -206,7 +214,7 @@ package test
 		public function diesIfHit():void {
 			archer.hit(MainArea.MASSIVE_DAMAGE);
 			
-			archer.act(emptyVector, emptyVector);
+			archer.act(emptyVector, emptyVector, repeater);
 			
 			assertThat(archer.isDead);
 		}

@@ -44,7 +44,7 @@ package src
 			this.speed = 150;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -62,7 +62,7 @@ package src
 			if (closest != null && (_status == Status.MOVING || _status == Status.STANDING)) {
 			
 				var targetPositionAfterJump:Number =
-						closest.predictPosition(AssassinSprite.timeToLand()).x;
+						closest.predictPosition(AssassinSprite.timeToLand(repeater)).x;
 				
 				if (isPlayerPiece) {
 					if (MainArea.opponentShieldIsUp) {
@@ -96,11 +96,11 @@ package src
 						
 					_status = Status.ASSASSINATING;
 						
-					_sprite.animate(Status.ASSASSINATING, function():void { 
+					_sprite.animate(Status.ASSASSINATING, repeater, function():void { 
 						_status = Status.STANDING;
 					} );
 					
-					landedTimer = new Timer(AssassinSprite.timeToLand(), 1);
+					landedTimer = new Timer(AssassinSprite.timeToLand(repeater), 1);
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						if (withinRange(closest, MELEE_RANGE*1.1))//A little extra leeway on assassination.
 							closest.hit(2 * MELEE_DAMAGE * (isPlayerPiece ? player_buff : 1.0)); //Double damage on assassination
@@ -108,36 +108,38 @@ package src
 					});
 					landedTimer.start();
 					
-					jumping = new TweenLite(_sprite, AssassinSprite.timeToLand() / 1000,
+					jumping = new TweenLite(_sprite, AssassinSprite.timeToLand(repeater) / 1000,
 							{ x:landedX, ease:Linear.easeInOut } );
 				} else if (this.withinRange(closest, MELEE_RANGE)) {
 					if (isPlayerActor)
 						this.meleeAttack(closest, MELEE_RANGE,
-								MELEE_DAMAGE * player_buff, AssassinSprite.timeBetweenStabs());
+								MELEE_DAMAGE * player_buff, AssassinSprite.timeBetweenStabs(repeater), repeater);
 					else
 						this.meleeAttack(closest, MELEE_RANGE,
-								MELEE_DAMAGE, AssassinSprite.timeBetweenStabs());
+								MELEE_DAMAGE, AssassinSprite.timeBetweenStabs(repeater), repeater);
 					
 				} else {
 					if (_status != Status.MOVING) {
-						this.go();
+						this.go(repeater);
 					}
 				}
 			}  else {
 				if (_status != Status.MOVING)
-					this.go();
+					this.go(repeater);
 			}
 			
 			
 			
 			}//End of check for ongoing status.
 			
-			this.checkIfDead();
+			this.checkIfDead(repeater);
 		}
 		
 		override public function predictPosition(time:Number):Point {
 			if (_status == Status.ASSASSINATING) {
-				if ((1 - jumping.progress()) * AssassinSprite.timeToLand() < time) {
+				
+				if (landedTimer == null) {
+					//landedTimer is null if we've landed but haven't finished assassinating yet
 					return new Point(jumpTarget, _sprite.y);
 				} else {
 					if (_facesRight)

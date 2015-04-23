@@ -62,7 +62,7 @@ package src
 			shotFiredTimer = null;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -79,33 +79,34 @@ package src
 				if (closest == null ||
 						(closest is Wizard && !withinRange(closest, WIZARD_RANGE))) {
 					if (_status != Status.MOVING)
-						go();
+						go(repeater);
 				} else if (withinRange(closest, MELEE_RANGE)) {
 					if (isPlayerPiece)
-						this.meleeAttack(closest, MELEE_RANGE,
-								MELEE_DAMAGE * player_buff, ArcherSprite.timeBetweenBlows());
+						this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE * player_buff,
+								ArcherSprite.timeBetweenBlows(repeater), repeater);
 					else
-						this.meleeAttack(closest, MELEE_RANGE,
-								MELEE_DAMAGE, ArcherSprite.timeBetweenBlows());
+						this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE,
+								ArcherSprite.timeBetweenBlows(repeater), repeater);
 				} else if (isBehindShield()) {
 					if (_status != Status.MOVING)
-						go();
+						go(repeater);
 				} else {
 					var expectedDistance:Number = Math.abs(this.getPosition().x
 							- closest.predictPosition(ArcherSprite.ARROW_TIME).x);
 					
 					if (expectedDistance < skirmishDistance && canRetreat() && !(closest is Wizard)) {
 						if (_status != Status.RETREATING) {
-							this.retreat();
+							this.retreat(repeater);
 						}
 					} else {	
 								
 						halt();
 						_status = Status.SHOOTING;
 						
-						_sprite.animate(Status.SHOOTING, function():void { _status = Status.STANDING; } );
+						_sprite.animate(Status.SHOOTING, repeater,
+							function():void { _status = Status.STANDING; } );
 						
-						shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(), 1);
+						shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(repeater), 1);
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 							
 							var arrow:Projectile = new Projectile(
@@ -127,7 +128,7 @@ package src
 				}
 			}
 			
-			checkIfDead();
+			checkIfDead(repeater);
 		}
 		
 		private function isBehindShield():Boolean {

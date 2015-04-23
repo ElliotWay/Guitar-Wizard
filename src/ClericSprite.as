@@ -74,18 +74,18 @@ package src
 			alignEffects(relativeCenter);
 		}
 		
-		public static function timeBetweenBlows():Number {
+		public static function timeBetweenBlows(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (3 frames)
 			//		?	   *	(2/3)     *  3
 			
-			return Main.getBeat() * 2;
+			return repeater.getBeat() * 2;
 		}
 		
-		public static function timeToBless():Number {
+		public static function timeToBless(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (3rd frame)
 			//		?	   *	(2/3)     *  3
 			
-			return Main.getBeat() * 2;
+			return repeater.getBeat() * 2;
 		}
 		
 		override public function get center():Point {

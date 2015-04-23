@@ -3,11 +3,13 @@ package test
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.geom.Point;
+	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 	import org.hamcrest.assertThat;
 	import src.ActorSprite;
 	import src.FrameAnimation;
+	import src.Repeater;
 	import src.Status;
 	
 	/**
@@ -19,6 +21,8 @@ package test
 		public var mocks:MockolateRule = new MockolateRule();
 		
 		private var actorSprite:ActorSprite;
+		
+		private var repeater:Repeater;
 		
 		[Mock]
 		public var moving:FrameAnimation, fighting:FrameAnimation, retreating:FrameAnimation;
@@ -38,6 +42,8 @@ package test
 			
 			super.currentAnimation = fighting;
 			super.defaultAnimation = moving;
+			
+			repeater = nice(Repeater);
 		}
 		
 		//I could plausibly test blessing, but that would involve setting the bless effect
@@ -46,31 +52,31 @@ package test
 		
 		[Test]
 		public function stopsAndHidesCurrentAnimation():void {
-			actorSprite.animate(Status.RETREATING);
+			actorSprite.animate(Status.RETREATING, repeater);
 			
-			assertThat(fighting, received().method("stop"));
+			assertThat(fighting, received().method("stop").arg(repeater));
 			assertThat(fighting, received().setter("visible").arg(false));
 		}
 		
 		[Test]
 		public function startsAndShowsNewAnimation():void {
-			actorSprite.animate(Status.RETREATING);
+			actorSprite.animate(Status.RETREATING, repeater);
 			
-			assertThat(retreating, received().method("go"));
+			assertThat(retreating, received().method("go").arg(repeater));
 			assertThat(retreating, received().setter("visible").arg(true));
 		}
 		
 		[Test]
 		public function usesDefaultOnUnusedKey():void {
-			actorSprite.animate(Status.ASSASSINATING);
+			actorSprite.animate(Status.ASSASSINATING, repeater);
 			
-			assertThat(moving, received().method("go"));
+			assertThat(moving, received().method("go").arg(repeater));
 			assertThat(moving, received().setter("visible").arg(true));
 		}
 		
 		[Test]
 		public function doesNotRestartOnSameAnimation():void {
-			actorSprite.animate(Status.FIGHTING);
+			actorSprite.animate(Status.FIGHTING, repeater);
 			
 			assertThat(fighting, received().method("go").never());
 			assertThat(fighting, received().setter("visible").never());
@@ -78,7 +84,7 @@ package test
 		
 		[Test]
 		public function setsOnComplete():void {
-			actorSprite.animate(Status.RETREATING, onCompleteFunction);
+			actorSprite.animate(Status.RETREATING, repeater, onCompleteFunction);
 			
 			assertThat(retreating, received().method("setOnComplete").arg(onCompleteFunction));
 		}
@@ -92,7 +98,7 @@ package test
 		
 		[Test]
 		public function freezeStops():void {
-			actorSprite.freeze();
+			actorSprite.freeze(repeater);
 			
 			assertThat(fighting, received().method("stop"));
 		}

@@ -7,6 +7,7 @@ package test
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
 	import flash.utils.Timer;
+	import mockolate.nice;
 	import mockolate.partial;
 	import mockolate.prepare;
 	import mockolate.received;
@@ -20,6 +21,7 @@ package test
 	import src.Actor;
 	import src.ActorSprite;
 	import src.MiniSprite;
+	import src.Repeater;
 	import src.Status;
 	
 	
@@ -36,6 +38,8 @@ package test
 		
 		private var dyingLeft450:Actor, dyingRight550:Actor, left450:Actor, right550:Actor;
 		private var left350:Actor, right650:Actor, movingActor:Actor;
+		
+		private var repeater:Repeater;
 		
 		private static const HP:int = 10; //What the default HP is expected to be.
 		
@@ -84,13 +88,13 @@ package test
 			stub(sprite450).getter("center").returns(new Point(450, 10));
 			dyingLeft450 = partial(Actor, "Dying Left 450", [true, true, sprite450, miniSprite]);
 			dyingLeft450.hit(HP);
-			dyingLeft450.checkIfDead();
+			dyingLeft450.checkIfDead(repeater);
 			left450 = partial(Actor, "Left 450", [true, true, sprite450, miniSprite]);
 			
 			stub(sprite550).getter("center").returns(new Point(550, 10));
 			dyingRight550 = partial(Actor, "Dying Right 550", [false, false, sprite550, miniSprite]);
 			dyingRight550.hit(HP);
-			dyingRight550.checkIfDead();
+			dyingRight550.checkIfDead(repeater);
 			right550 = partial(Actor, "Right 550", [false, false, sprite550, miniSprite]);
 			
 			stub(sprite350).getter("center").returns(new Point(350, 10));
@@ -106,6 +110,8 @@ package test
 			
 			playerActor = new Actor(true, true, sprite, miniSprite);
 			opponentActor = new Actor(false, false, sprite, miniSprite);
+			
+			repeater = nice(Repeater);
 		}
 		
 		[Test(order = 0)]
@@ -155,20 +161,20 @@ package test
 		[Test(order = 1)]
 		public function diesIfHit():void {
 			playerActor.hit(HP);
-			playerActor.checkIfDead();
+			playerActor.checkIfDead(repeater);
 			
 			assertThat(playerActor.status, Status.DYING);
-			assertThat(sprite, received().method("animate").args(Status.DYING, isA(Function)));
+			assertThat(sprite, received().method("animate").args(Status.DYING, repeater, isA(Function)));
 			
 			assertThat(playerActor.isDead, true);
 		}
 		
 		[Test(order = 1)]
 		public function livesIfNotHit():void {
-			playerActor.checkIfDead();
+			playerActor.checkIfDead(repeater);
 			
 			assertThat(playerActor.status, not(Status.DYING));
-			assertThat(sprite, not(received().method("animate").args(Status.DYING, isA(Function))));
+			assertThat(sprite, not(received().method("animate").args(Status.DYING, repeater, isA(Function))));
 			
 			assertThat(playerActor.isDead, false);
 		}
@@ -286,16 +292,16 @@ package test
 		
 		[Test(order = 4)]
 		public function meleeStartsImmediately():void {
-			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS);
+			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS, repeater);
 			
-			assertThat(sprite, received().method("animate").args(Status.FIGHTING));
+			assertThat(sprite, received().method("animate").args(Status.FIGHTING, repeater));
 			assertThat(playerActor.status, Status.FIGHTING);
 			assertThat(right550, received().method("hit").arg(10));
 		}
 		
 		[Test(async, order = 4)]
 		public function hitsAgain():void {
-			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS);
+			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS, repeater);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
 				assertThat(right550, received().method("hit").arg(10).twice());
@@ -315,7 +321,7 @@ package test
 		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetMoves():void {
 			stub(movingSprite).getter("center").returns(new Point(550, 10), new Point(650, 10));
-			playerActor.meleeAttack(movingActor, 100, 10, TIME_BETWEEN_BLOWS);
+			playerActor.meleeAttack(movingActor, 100, 10, TIME_BETWEEN_BLOWS, repeater);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
 				assertThat(movingActor, received().method("hit").arg(10).twice());
@@ -334,12 +340,12 @@ package test
 		
 		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetDies():void {
-			playerActor.meleeAttack(right550, 100, 10, TIME_BETWEEN_BLOWS);
+			playerActor.meleeAttack(right550, 100, 10, TIME_BETWEEN_BLOWS, repeater);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
 				assertThat(right550, received().method("hit").arg(10).twice());
 				right550.hit(HP);
-				right550.checkIfDead();
+				right550.checkIfDead(repeater);
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
@@ -356,19 +362,20 @@ package test
 		
 		//End Actor.meleeAttack tests.
 		
+		
 		[Test(order = 0)]
 		public function goMoves():void {
-			playerActor.go();
+			playerActor.go(repeater);
 			
-			assertThat(sprite, received().method("animate").arg(Status.MOVING));
+			assertThat(sprite, received().method("animate").args(Status.MOVING, repeater));
 			assertThat(playerActor.status, Status.MOVING);
 		}
 		
 		[Test(order = 0)]
 		public function retreatRetreats():void {
-			playerActor.retreat();
+			playerActor.retreat(repeater);
 			
-			assertThat(sprite, received().method("animate").arg(Status.RETREATING));
+			assertThat(sprite, received().method("animate").args(Status.RETREATING, repeater));
 			assertThat(playerActor.status, Status.RETREATING);
 		}
 		

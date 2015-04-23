@@ -69,7 +69,7 @@ package src {
 		 * @param	status the status to animate
 		 * @param	onComplete a function to run once we're past the last frame
 		 */
-		public function animate(status:int, onComplete:Function = null):void {
+		public function animate(status:int, repeater:Repeater, onComplete:Function = null):void {
 			if (status == Status.DYING)
 				hideBlessed();
 			
@@ -88,17 +88,17 @@ package src {
 			}
 			
 			if (currentAnimation != null) {
-				currentAnimation.stop();
+				currentAnimation.stop(repeater);
 				currentAnimation.visible = false;
 			}
 			
 			if (animation != null) {
-				animation.go();
+				animation.go(repeater);
 				animation.visible = true;
 				currentAnimation = animation;
 				
 			} else {
-				defaultAnimation.go();
+				defaultAnimation.go(repeater);
 				defaultAnimation.visible = true;
 				currentAnimation = defaultAnimation;
 			}
@@ -116,27 +116,28 @@ package src {
 			currentAnimation.nextFrame();
 		}
 		
+		
 		/**
 		 * Animate the default animation.
-		 */
-		public function animateDefault():void {
+		 *//* Function was unused.
+		public function animateDefault(repeater:Repeater):void {
 			if (currentAnimation != defaultAnimation && currentAnimation != null) {
-				currentAnimation.stop();
+				currentAnimation.stop(repeater);
 				currentAnimation.visible = false;
 				
-				defaultAnimation.go();
+				defaultAnimation.go(repeater);
 				defaultAnimation.visible = true;
 				
 				currentAnimation = defaultAnimation;
 			}
-		}
+		}*/
 		
 		/**
 		 * Stop the current animation at its current frame.
 		 */
-		public function freeze():void {
+		public function freeze(repeater:Repeater):void {
 			if (currentAnimation != null)
-				currentAnimation.stop();
+				currentAnimation.stop(repeater);
 		}
 		
 		/**

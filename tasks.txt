@@ -1,6 +1,8 @@
 ---Might do soon.----------
 - better test coverage
 
+- allow some animations to stop instead of looping
+
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag - ?
@@ -52,9 +54,11 @@
 
 
 ---Behavior that should be tested, is impossible or difficult to test, or is too simple to test--
+
 - test-unbacked classes:
 	AnimationCollection, ArcherSprite, AssassinSprite, ClericSprite,
-	DefaultOpponent, DefaultSprite, EmptyAnimation, GWError, InfoArea, Lightning
+	DefaultOpponent, DefaultSprite, EmptyAnimation, GWError, InfoArea, Lightning,
+	Menu, MenuTextButton, MiniSprite
 
 - untested stuff:
 	arrows created by shooting<Archer>
@@ -122,3 +126,4 @@
 - have wizard killing archers get closer
 - smooth summoning meter animations
 - refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object
+- create repeater class

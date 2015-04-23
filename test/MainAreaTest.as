@@ -4,6 +4,7 @@ package test
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 	import mockolate.runner.MockolateRunner;
@@ -17,11 +18,13 @@ package test
 	import org.hamcrest.number.lessThanOrEqualTo;
 	import src.Actor;
 	import src.ActorSprite;
+	import src.GameUI;
 	import src.Main;
 	import src.factory;
 	import src.MainArea;
 	import src.MiniSprite;
 	import src.Projectile;
+	import src.Repeater;
 	import src.ScrollArea;
 	import src.Shield;
 	import src.Status;
@@ -36,9 +39,14 @@ package test
 		
 		private var mainArea:MainArea;
 		
+		private var repeater:Repeater;
+		
 		private var beforeScroll:Timer;
 		private var afterScroll:Timer;
 		private var afterSecondScroll:Timer;
+		
+		[Mock]
+		public var gameUI:GameUI;
 		
 		[Mock]
 		public var scrollable:ScrollArea;
@@ -57,18 +65,18 @@ package test
 		public var playerArrow:Projectile, opponentArrow:Projectile;
 		
 		[Mock]
-		public var actor:Extension_Actor;
+		public var actor:Actor;
 		
 		[Mock]
-		public var playerActor1:Extension_Actor, playerActor2:Extension_Actor, playerActorMiddle:Extension_Actor;
+		public var playerActor1:Actor, playerActor2:Actor, playerActorMiddle:Actor;
 		[Mock]
-		public var opponentActor1:Extension_Actor, opponentActor2:Extension_Actor;
+		public var opponentActor1:Actor, opponentActor2:Actor;
 		
 		[Mock] //You'll need multiple sprites if you want to test removal on multiple actors.
-		public var sprite:Extension_ActorSprite;
+		public var sprite:ActorSprite;
 		
 		[Mock]
-		public var miniSprite:Extension_MiniSprite;
+		public var miniSprite:MiniSprite;
 		
 		[Before]
 		public function setup():void {
@@ -81,7 +89,7 @@ package test
 			
 			stub(actor).getter("sprite").returns(sprite);
 			stub(sprite).method("animate")
-					.callsWithArguments(function(status:int, func:Function):void {
+					.callsWithArguments(function(status:int, repeater:Repeater, func:Function):void {
 						func.call();
 					});
 			
@@ -139,10 +147,11 @@ package test
 					MainArea.REPEATED_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY + 100, 1);
 			
 			
-			mainArea = new MainArea(null);
+			repeater = nice(Repeater);
+			stub(gameUI).getter("repeater").returns(repeater);
+					
+			mainArea = new MainArea(gameUI);
 			mainArea.setScrollable(scrollable);
-			
-			Main.prepareRegularRuns();
 			
 			//Hopefully the initialization doesn't do anything that
 			//necessarily requires a stage.
@@ -157,11 +166,11 @@ package test
 			assertThat(actor, received().getter("sprite"));
 			
 			assertThat(sprite, received().method("animate")
-					.args(Status.SUMMONING, isA(Function)));
+					.args(Status.SUMMONING, repeater, isA(Function)));
 					
 			
 			assertThat(actor, received().getter("miniSprite"));
-			assertThat(actor, received().method("go"));
+			assertThat(actor, received().method("go").arg(repeater));
 		}
 		
 		[Test]
@@ -171,11 +180,11 @@ package test
 			assertThat(actor, received().getter("sprite"));
 			
 			assertThat(sprite, received().method("animate")
-					.args(Status.SUMMONING, isA(Function)));
+					.args(Status.SUMMONING, repeater, isA(Function)));
 					
 			
 			assertThat(actor, received().getter("miniSprite"));
-			assertThat(actor, received().method("go"));
+			assertThat(actor, received().method("go").arg(repeater));
 		}
 		
 		[Test(order = 1)]

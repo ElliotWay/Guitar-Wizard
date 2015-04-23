@@ -5,9 +5,11 @@ package test
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
+	import mockolate.nice;
 	import org.hamcrest.assertThat;
 	import org.hamcrest.collection.array;
 	import src.FrameAnimation;
+	import src.Repeater;
 	/**
 	 * ...
 	 * @author 
@@ -17,6 +19,8 @@ package test
 		
 		private var frameAnimation:FrameAnimation;
 		private var newAnimation:FrameAnimation;
+		
+		private var repeater:Repeater;
 		
 		private static var imageData:BitmapData = new BitmapData(7, 4);
 		
@@ -40,7 +44,7 @@ package test
 		
 		[Before]
 		public function setup():void {
-			
+			repeater = nice(Repeater);
 		}
 		
 		[Test]
@@ -195,10 +199,10 @@ package test
 		[After]
 		public function tearDown():void {
 			if (frameAnimation != null)
-				frameAnimation.stop();
+				frameAnimation.stop(repeater);
 				
 			if (newAnimation != null)
-				frameAnimation.stop();
+				frameAnimation.stop(repeater);
 		}
 	}
 

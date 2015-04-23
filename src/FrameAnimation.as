@@ -174,17 +174,25 @@ package src
 		 * Remember to use FrameAnimation constants.
 		 * @param	framesPerBeat how frequently to advance frames, expressed in FrameAnimation constants
 		 */
-		public function setFrequency(freq:int):void {
+		public function setFrequency(freq:int, repeater:Repeater = null):void {
 			if (runner != null) {
-				this.stop();
+				
+				if (repeater == null)
+					throw new GWError("Can't change frequency of ongoing animation without repeater access.");
+
+				this.stop(repeater);
 				this.frequency = freq;
-				this.go();
+				this.go(repeater);
 			} else {
 				this.frequency = freq;
 			}
 		}
 		
-		public function go():void {
+		/**
+		 * Play animation.
+		 * @param	repeater repeater to control frame stepping
+		 */
+		public function go(repeater:Repeater):void {
 			if (frameIndex >= 0) {
 				frames[frameIndex].visible = false;
 				frames[0].visible = true;
@@ -227,7 +235,7 @@ package src
 			}
 			
 			if (runner != null)
-				stop();
+				stop(repeater);
 			
 			runner = function():void {
 				frameCount++;
@@ -240,11 +248,11 @@ package src
 			}
 			
 			if (frequency == EVERY_FRAME) {
-				Main.runEveryFrame(runner);
+				repeater.runEveryFrame(runner);
 			} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT) {
-				Main.runEveryQuarterBeat(runner);
+				repeater.runEveryQuarterBeat(runner);
 			} else {
-				Main.runEveryThirdBeat(runner);
+				repeater.runEveryThirdBeat(runner);
 			}
 		}
 		
@@ -277,14 +285,14 @@ package src
 			frames[frameIndex].visible = true;
 		}
 		
-		public function stop():void {
+		public function stop(repeater:Repeater):void {
 			if (runner != null) {
 				if (frequency == EVERY_FRAME) {
-					Main.stopRunningEveryFrame(runner);
+					repeater.stopRunningEveryFrame(runner);
 				} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT)
-					Main.stopRunningEveryQuarterBeat(runner);
+					repeater.stopRunningEveryQuarterBeat(runner);
 				else
-					Main.stopRunningEveryThirdBeat(runner);
+					repeater.stopRunningEveryThirdBeat(runner);
 			}
 			
 			runner = null;

@@ -72,18 +72,18 @@ package src
 			alignEffects(relativeCenter);
 		}
 		
-		public static function timeToLand():Number {
+		public static function timeToLand(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (7th frame)
 			//		?	   *	(1/3)     *  7
 			
-			return Main.getBeat() * (7.0 / 3.0);
+			return repeater.getBeat() * (7.0 / 3.0);
 		}
 		
-		public static function timeBetweenStabs():Number {
+		public static function timeBetweenStabs(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (3 frames)
 			//		?	   *	(1/3)     *  3
 			
-			return Main.getBeat();
+			return repeater.getBeat();
 		}
 		
 		override public function get center():Point {

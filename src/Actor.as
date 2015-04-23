@@ -118,8 +118,7 @@ package src {
 		 * @param	allies friendly actors to help or ignore
 		 * @param   enemies hostile actors to attack
 		 */
-		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
-			//TODO create new error class
+		public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			throw new GWError("Unimplemented abstract method.");
 		}
 		
@@ -259,10 +258,10 @@ package src {
 		 * @param	damage the damage after buff to the other's hitpoints each blow should do
 		 * @param	timeBetweenBlows time before the next range comparison and attack
 		 */
-		public function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number):void {
+		public function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number, repeater:Repeater):void {
 			halt();
 			_status = Status.FIGHTING;
-			_sprite.animate(Status.FIGHTING);
+			_sprite.animate(Status.FIGHTING, repeater);
 			
 			other.hit(damage);
 			
@@ -299,7 +298,7 @@ package src {
 		 * Starts the sprite moving, direction depending on ownership.
 		 * Updates status and animation to MOVING.
 		 */
-		public function go() : void {
+		public function go(repeater:Repeater) : void {
 			halt();
 			
 			var realSpeed:Number = speed;
@@ -307,7 +306,7 @@ package src {
 				realSpeed *= player_buff;
 			
 			_status = Status.MOVING;
-			_sprite.animate(Status.MOVING);
+			_sprite.animate(Status.MOVING, repeater);
 			
 			var distance:Number;
 			if (_facesRight) {
@@ -323,7 +322,7 @@ package src {
 		 * Starts the sprite moving in the opposite direction.
 		 * Updates status and animation to RETREATING.
 		 */
-		public function retreat():void {
+		public function retreat(repeater:Repeater):void {
 			halt();
 			
 			var realSpeed:Number = speed;
@@ -331,7 +330,7 @@ package src {
 				realSpeed *= player_buff;
 				
 			_status = Status.RETREATING;
-			_sprite.animate(Status.RETREATING);
+			_sprite.animate(Status.RETREATING, repeater);
 			
 			var distance:Number;
 			if (!_facesRight) {
@@ -347,7 +346,7 @@ package src {
 		 * Checks if hitpoints is below 0.
 		 * If we're dead, sets status and animation to DYING.
 		 */ 
-		public function checkIfDead():void {
+		public function checkIfDead(repeater:Repeater):void {
 			blessCounter--;
 			if (blessCounter == 0) {
 				_sprite.hideBlessed();
@@ -363,8 +362,8 @@ package src {
 				
 				_status = Status.DYING;
 				_isDead = true;
-				_sprite.animate(Status.DYING, function():void {
-					_sprite.freeze();
+				_sprite.animate(Status.DYING, repeater, function():void {
+					_sprite.freeze(repeater);
 					
 					fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
 						onComplete:function():void {
@@ -398,7 +397,8 @@ package src {
 			if (fightingTimer != null)
 				fightingTimer.stop();
 				
-			_sprite.freeze();
+			//TODO needed?
+			//_sprite.freeze();
 		}
 	}
 

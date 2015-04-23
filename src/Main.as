@@ -11,7 +11,6 @@ package src
 	import flash.text.TextField;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-	import org.flexunit.runner.FlexUnitCore;
 	import test.TestRunner;
 	
 	/**
@@ -31,22 +30,11 @@ package src
 		public static const LOW:int = 2;
 		
 		private static var menu:Menu;
-		
 		private static var gameUI:GameUI;
 		
 		private static var song:Song;
 		
 		private static var songLoader:SongLoader;
-		
-		private static var everyFrameDispatcher:EventDispatcher;
-		private static var everyFrameRun:Dictionary;
-		
-		private static var millisecondsPerBeat:int = 500;
-		
-		private static var quarterBeatRun:Dictionary;
-		private static var quarterBeatTimer:Timer;
-		private static var thirdBeatRun:Dictionary;
-		private static var thirdBeatTimer:Timer;
 		
 		public function Main():void 
 		{
@@ -61,7 +49,8 @@ package src
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
-			prepareRegularRuns(this);
+			var repeater:Repeater = new Repeater(this);
+			repeater.prepareRegularRuns();
 			
 			songLoader = new SongLoader();
 			
@@ -69,23 +58,11 @@ package src
 			this.addChild(menu);
 			menu.visible = false;//TODO true
 			
-			gameUI = new GameUI();
+			gameUI = new GameUI(repeater);
 			this.addChild(gameUI);
 			gameUI.visible = false;
 			
 			switchToGame("../assets/FurElise.gws");
-		}
-		
-		public static function prepareRegularRuns(dispatcher:EventDispatcher):void {
-			everyFrameRun = new Dictionary(true);
-			
-			quarterBeatRun = new Dictionary(true);
-			quarterBeatTimer = null;
-			thirdBeatRun = new Dictionary(true);
-			thirdBeatTimer = null;
-			
-			everyFrameDispatcher = dispatcher;
-			dispatcher.addEventListener(Event.ENTER_FRAME, frameRunner);
 		}
 		
 		public static function fileLoaded():void {
@@ -121,53 +98,6 @@ package src
 			songLoader.addSong(song, url);
 		}
 		
-		public static function setBeat(millisPerBeat:int):void {
-			
-			millisecondsPerBeat = millisPerBeat;
-			
-			if (quarterBeatTimer != null) {
-				quarterBeatTimer.stop();
-			}
-			//Remember that repeating 0 times means repeat indefinitely.
-			quarterBeatTimer = new Timer(millisPerBeat / 4, 0);
-			quarterBeatTimer.addEventListener(TimerEvent.TIMER, quarterBeatRunner);
-			
-			if (thirdBeatTimer != null) {
-				thirdBeatTimer.stop();
-			}
-			thirdBeatTimer = new Timer(millisPerBeat / 3, 0);
-			thirdBeatTimer.addEventListener(TimerEvent.TIMER, thirdBeatRunner);
-			
-			quarterBeatTimer.start();
-			thirdBeatTimer.start();
-		}
-		
-		/**
-		 * Get the current beat, in milliseconds per beat. If the beat has not been set, this returns 500.
-		 * This beat drives the functions running every quarter and every third beat.
-		 * @return the current beat, in milliseconds per beat
-		 */
-		public static function getBeat():int {
-			return millisecondsPerBeat;
-		}
-		
-		/**
-		 * Stop running things on the beat and on each frame.
-		 */
-		public function killBeat():void {
-			if (quarterBeatTimer != null)
-				quarterBeatTimer.stop();
-			if (thirdBeatTimer != null)
-				thirdBeatTimer.stop();
-			everyFrameDispatcher.removeEventListener(Event.ENTER_FRAME, frameRunner);
-			
-			quarterBeatRun = null;
-			quarterBeatTimer = null;
-			thirdBeatRun = null;
-			thirdBeatTimer = null;
-			everyFrameRun = null;
-		}
-		
 		public static function showError(errorMessage:String):void {
 			var errorSprite:Sprite = new Sprite();
 			
@@ -182,58 +112,6 @@ package src
 			errorSprite.addChild(error);
 			
 			gameUI.addChild(errorSprite);
-		}
-		
-		/**
-		 * Run a given function every frame. The function should take no arguments.
-		 * @param	func the function to run every frame
-		 */
-		public static function runEveryFrame(func:Function):void {
-			everyFrameRun[func] = func;
-		}
-		
-		/**
-		 * Stop running the function every frame.
-		 * @param   func the function to stop running
-		 */
-		public static function stopRunningEveryFrame(func:Function):void {
-			delete everyFrameRun[func];
-		}
-		
-		public static function runEveryQuarterBeat(func:Function):void {
-			quarterBeatRun[func] = func;
-		}
-		
-		public static function stopRunningEveryQuarterBeat(func:Function):void {
-			delete quarterBeatRun[func];
-		}
-		
-		public static function runEveryThirdBeat(func:Function):void {
-			thirdBeatRun[func] = func;
-		}
-		
-		public static function stopRunningEveryThirdBeat(func:Function):void {
-			delete thirdBeatRun[func];
-		}
-		
-		private static function frameRunner(e:Event):void {
-			for (var func:Object in everyFrameRun) {
-				
-				(func as Function).call();
-			}
-		}
-		
-		private static function quarterBeatRunner(e:Event):void {
-			for (var func:Object in quarterBeatRun) {
-				(func as Function).call();
-			}
-		}
-		
-		private static function thirdBeatRunner(e:Event):void {
-			for (var func:Object in thirdBeatRun) {
-				
-				(func as Function).call();
-			}
 		}
 		
 	}

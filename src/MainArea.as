@@ -39,7 +39,7 @@ package src
 		[Embed(source="../assets/arch_fore.png")]
 		private static const ArchForeImage:Class;
 		
-		
+		//TODO replace this; am I even still using this?
 		public static var mainArea:MainArea;
 		
 		public static const WIDTH:int = 600;
@@ -104,8 +104,7 @@ package src
 		private var minimap:Sprite;
 		
 		private var gameUI:GameUI;
-		
-		
+		private var repeater:Repeater;
 		
 		
 		public static function create(gameUI:GameUI):MainArea {
@@ -121,6 +120,7 @@ package src
 		{
 			this.gameUI = gameUI;
 			mainArea = this;
+			repeater = gameUI.repeater;
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -245,13 +245,13 @@ package src
 			playerWizard.sprite.x = 170;
 			playerWizard.sprite.y = WIZARD_Y - playerWizard.sprite.height;
 			arena.addChild(playerWizard.sprite);
-			playerWizard.playTrack(Main.MID);
+			playerWizard.playTrack(Main.MID, repeater);
 			
 			this.opponentWizard = opponentWizard;
 			opponentWizard.sprite.x = ARENA_WIDTH - 220;
 			opponentWizard.sprite.y = WIZARD_Y - opponentWizard.sprite.height;
 			arena.addChild(opponentWizard.sprite);
-			opponentWizard.playTrack(Main.MID);
+			opponentWizard.playTrack(Main.MID, repeater);
 			
 			
 			playerWizardKiller = null;
@@ -291,13 +291,13 @@ package src
 			
 			autoScrollTimer.start();
 			
-			Main.setBeat(MILLISECONDS_PER_BEAT);
+			repeater.setBeat(MILLISECONDS_PER_BEAT);
 			
-			Main.runEveryFrame(step);
+			repeater.runEveryFrame(step);
 		}
 		
 		public function stop():void {
-			Main.stopRunningEveryFrame(step);
+			repeater.stopRunningEveryFrame(step);
 			
 			var actor:Actor;
 			for each (actor in playerActors)
@@ -354,12 +354,12 @@ package src
 			
 			createSummoningLine(actor, playerWizard);
 			
-			actor.sprite.animate(Status.SUMMONING, function():void {
+			actor.sprite.animate(Status.SUMMONING, repeater, function():void {
 				
 				minimap.addChild(actor.miniSprite);
 				playerActors.push(actor);
 				
-				actor.go();
+				actor.go(repeater);
 			});
 		}
 		
@@ -370,12 +370,12 @@ package src
 			
 			createSummoningLine(actor, opponentWizard);
 			
-			actor.sprite.animate(Status.SUMMONING, function():void {
+			actor.sprite.animate(Status.SUMMONING, repeater, function():void {
 				
 				minimap.addChild(actor.miniSprite);
 				opponentActors.push(actor);
 				
-				actor.go();
+				actor.go(repeater);
 			});
 		}
 		
@@ -470,7 +470,7 @@ package src
 			
 			foreground.addChild(lightning);
 			
-			lightning.go();
+			lightning.go(repeater);
 			
 			nearest.hit(LIGHTNING_DAMAGE);
 		}
@@ -526,7 +526,7 @@ package src
 				playerWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
 				playerWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					arena.addChild(wizardKiller.sprite);
-					wizardKiller.go();
+					wizardKiller.go(repeater);
 					
 					playerWizardKillerTimer = null;
 				});
@@ -539,7 +539,7 @@ package src
 				opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
 				opponentWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					arena.addChild(wizardKiller.sprite);
-					wizardKiller.go();
+					wizardKiller.go(repeater);
 					
 					opponentWizardKillerTimer = null;
 				});
@@ -605,11 +605,11 @@ package src
 			
 			//Tell actors to act.
 			for each (actor in playerActors) {
-				actor.act(playerActors, opponentActors);
+				actor.act(playerActors, opponentActors, repeater);
 			}
 			
 			for each (actor in opponentActors) {
-				actor.act(opponentActors, playerActors);
+				actor.act(opponentActors, playerActors, repeater);
 			}
 			
 			checkProjectiles();
@@ -625,9 +625,9 @@ package src
 			if (playerWizardKiller != null && !opponentWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = opponentWizard;
-				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
 				
-				opponentWizard.checkIfDead();
+				opponentWizard.checkIfDead(repeater);
 				if (opponentWizard.isDead) {
 					SoundPlayer.playScream();
 					
@@ -636,9 +636,9 @@ package src
 					autoScrollTimer.reset();
 					autoScrollTimer.start();
 					
-					opponentWizard.die(gameUI.opponentWizardDead);
+					opponentWizard.die(gameUI.opponentWizardDead, repeater);
 					
-					playerWizardKiller.sprite.animate(Status.STANDING);
+					playerWizardKiller.sprite.animate(Status.STANDING, repeater);
 					
 				}
 			}
@@ -646,9 +646,9 @@ package src
 			if (opponentWizardKiller != null && !playerWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = playerWizard;
-				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList);
+				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
 				
-				playerWizard.checkIfDead();
+				playerWizard.checkIfDead(repeater);
 				if (playerWizard.isDead) {
 					SoundPlayer.playScream();
 					
@@ -657,9 +657,9 @@ package src
 					autoScrollTimer.reset();
 					autoScrollTimer.start();
 					
-					playerWizard.die(gameUI.playerWizardDead);
+					playerWizard.die(gameUI.playerWizardDead, repeater);
 							
-					opponentWizardKiller.sprite.animate(Status.STANDING);
+					opponentWizardKiller.sprite.animate(Status.STANDING, repeater);
 				}
 			}
 		}

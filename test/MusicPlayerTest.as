@@ -25,10 +25,6 @@ package test
 	
 	
 	/**
-	 * Test Class for MusicPlayer.
-	 * SoundChannel is a final class, so unfortunately I can't mock it.
-	 * As a result, I cannot test when stop calls are made.
-	 * @author Elliot Way
 	 */	
 	[RunWith("mockolate.runner.MockolateRunner")]
 	public class MusicPlayerTest 
@@ -39,8 +35,7 @@ package test
 		public var song:Song;
 		
 		[Mock]
-		public var baseMusic:SoundExtension, highMusic:SoundExtension,
-			midMusic:SoundExtension, lowMusic:SoundExtension;
+		public var baseMusic:Sound, highMusic:Sound, midMusic:Sound, lowMusic:Sound;
 
 		private var baseChannel:SoundChannel;
 		private var lowChannel:SoundChannel;

@@ -60,8 +60,16 @@ package src {
 		private var songIsFinished:Boolean;
 		private var opponentIsDefeated:Boolean;
 		
-		public function GameUI() 
+		private var _repeater:Repeater;
+		
+		public function get repeater():Repeater {
+			return _repeater;
+		}
+		
+		public function GameUI(repeater:Repeater) 
 		{
+			this._repeater = repeater;
+			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
@@ -159,9 +167,9 @@ package src {
 			musicArea.go();
 			musicPlayer.go();
 			
-			Main.runEveryFrame(missChecker);
+			_repeater.runEveryFrame(missChecker);
 			
-			Main.runEveryQuarterBeat(checkCombo);
+			_repeater.runEveryQuarterBeat(checkCombo);
 			
 			infoArea.displayText("Text Test");
 		}
@@ -181,9 +189,9 @@ package src {
 			if (quitTimer != null)
 				quitTimer.stop();
 			
-			Main.stopRunningEveryFrame(missChecker);
+			_repeater.stopRunningEveryFrame(missChecker);
 			
-			Main.stopRunningEveryQuarterBeat(checkCombo);
+			_repeater.stopRunningEveryQuarterBeat(checkCombo);
 		}
 		
 		public function songFinished():void {

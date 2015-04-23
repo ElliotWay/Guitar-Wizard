@@ -23,7 +23,7 @@ package src
 			this._hitpoints = 1;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			throw new Error("Error: wizards shouldn't be in the acting list");
 		}
 		
@@ -33,7 +33,7 @@ package src
 			}
 		}
 		
-		public function playTrack(track:int):void {
+		public function playTrack(track:int, repeater:Repeater):void {
 			if (!this.isDead) {
 				switch(track) {
 					case Main.HIGH:
@@ -46,16 +46,21 @@ package src
 						_status = Status.PLAY_LOW;
 				}
 				
-				_sprite.animate(_status);
+				_sprite.animate(_status, repeater);
 			}
 		}
 		
-		override public function checkIfDead():void {
+		/**
+		 * Updates isDead. Does NOT start the dieing animation, unlike most actors.
+		 * Use die to kill, then isCompletelyDead to check if the wizard has finished dieing.
+		 * @param	repeater
+		 */
+		override public function checkIfDead(repeater:Repeater):void {
 			if (_hitpoints < 0)
 				_isDead = true;
 		}
 		
-		public function die(callback:Function):void {
+		public function die(callback:Function, repeater:Repeater):void {
 			halt();
 			clean();
 			
@@ -63,8 +68,8 @@ package src
 			
 			_status = Status.DYING;
 			_isDead = true;
-			_sprite.animate(Status.DYING, function():void {
-				_sprite.freeze();
+			_sprite.animate(Status.DYING, repeater, function():void {
+				_sprite.freeze(repeater);
 				
 				fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
 				onComplete:function():void {

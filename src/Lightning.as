@@ -66,7 +66,7 @@ package src
 			this.cacheAsBitmap = true;
 		}
 		
-		public function go():void {
+		public function go(repeater:Repeater):void {
 			var lightningFadeTimer:Timer = new Timer(100, 1);
 			var self:Lightning = this;
 			lightningFadeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
@@ -76,10 +76,10 @@ package src
 			animation.setOnComplete(function():void {
 				lightningFadeTimer.start();
 				
-				animation.stop();
+				animation.stop(repeater);
 			});
 			
-			animation.go();
+			animation.go(repeater);
 		}
 		
 	}

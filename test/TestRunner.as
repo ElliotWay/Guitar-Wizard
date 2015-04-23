@@ -4,23 +4,32 @@ import flash.display.Sprite;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
+import flash.events.IEventDispatcher;
+import flash.media.Sound;
 import flash.system.System;
+import mockolate.prepare;
 import noiseandheat.flexunit.visuallistener.VisualListener;
 import org.flexunit.internals.TraceListener;
 import org.flexunit.listeners.UIListener;
 import org.flexunit.listeners.VisualDebuggerListener;
 import org.flexunit.runner.FlexUnitCore;
 import org.fluint.uiImpersonation.VisualTestEnvironmentBuilder;
+import src.Actor;
+import src.ActorSprite;
+import src.MiniSprite;
+import src.Note;
+import src.Repeater;
 
 /**
- * Generated test runner class.
- * If you want to change it, be sure to change "generateTestFile" to false.
+ * 
  */
 public class TestRunner extends Sprite
 {
 
 	private var core:FlexUnitCore;
 	private var listener:VisualListener;
+	
+	private var classNames:Vector.<Class>;
 
 	public function TestRunner()
 	{
@@ -35,7 +44,7 @@ public class TestRunner extends Sprite
 		
 	    //core.addListener(new AfterTestClose());
 
-		var classNames:Vector.<Class> = new Vector.<Class>();
+		classNames = new Vector.<Class>();
 		
 		//#### Populate classNames here.
 		classNames.push(ActorSpriteTest);
@@ -48,25 +57,27 @@ public class TestRunner extends Sprite
 		classNames.push(MusicPlayerTest);
 		classNames.push(NoteSpriteTest);
 		classNames.push(NoteTest);
+		classNames.push(RepeaterTest);
 		classNames.push(SongLoaderTest);
 		classNames.push(SongTest);
 		classNames.push(TestTest);
-//%%%%		
+//%%%%
+
+		var dispatcher:IEventDispatcher = prepare(
+			ActorSprite,
+			Actor,
+			MiniSprite,
+			Repeater,
+			Sound);
+		
+		dispatcher.addEventListener(Event.COMPLETE, run);
+	}
+	
+	public function run(event:Event):void {
+		
 		for each (var clazz:Class in classNames) {
 			core.run(clazz);
 		}
-		/*
-		core.run(ActorTest);
-		core.run(GameUI_FindHitTest);
-		core.run(GameUI_MissUntilTest);
-		core.run(GameUI_SwitchTrackTest);
-		core.run(MainAreaTest);
-		core.run(MusicPlayerTest);
-		core.run(NoteSpriteTest);
-		core.run(NoteTest);
-		core.run(SongLoaderTest);
-		core.run(Song_ParseNotesTest);
-		core.run(TestTest);*/
 
         addEventListener(Event.ADDED_TO_STAGE, addedToStage);
     }

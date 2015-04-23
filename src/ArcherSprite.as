@@ -84,18 +84,18 @@ package src
 			alignEffects(relativeCenter);
 		}
 		
-		public static function timeUntilFired():Number {
+		public static function timeUntilFired(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (5th frame)
 			//		?	   *	(2/3)     *  5
 			
-			return Main.getBeat() * (10.0 / 3.0);
+			return repeater.getBeat() * (10.0 / 3.0);
 		}
 		
-		public static function timeBetweenBlows():Number {
+		public static function timeBetweenBlows(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (4 frames)
 			//		?	   *	(1/2)     *  4
 			
-			return Main.getBeat() * (2.0);
+			return repeater.getBeat() * (2.0);
 		}
 			
 		override public function get center():Point {

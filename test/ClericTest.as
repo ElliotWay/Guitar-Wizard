@@ -3,15 +3,18 @@ package test
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
 	import org.flexunit.async.Async;
 	import org.hamcrest.assertThat;
+	import org.hamcrest.core.isA;
 	import src.Actor;
 	import src.Cleric;
 	import src.ClericSprite;
 	import src.MainArea;
+	import src.Repeater;
 	import src.SmallCircleSprite;
 	import src.Status;
 	
@@ -25,6 +28,8 @@ package test
 	{
 		private var cleric:Cleric;
 		
+		private var repeater:Repeater;
+		
 		private var emptyVector:Vector.<Actor>;
 		private var opponentVector:Vector.<Actor>;
 		private var playerVector:Vector.<Actor>;
@@ -36,10 +41,10 @@ package test
 		private static const MELEE_DISTANCE:int = Cleric.MELEE_RANGE - 5;
 		
 		[Mock]
-		public var opponentActor:Extension_Actor4;
+		public var opponentActor:Actor;
 
 		[Mock]
-		public var playerActor:Extension_Actor4, playerActor2:Extension_Actor4, playerActor3:Extension_Actor4;
+		public var playerActor:Actor, playerActor2:Actor, playerActor3:Actor;
 		
 		[Mock]
 		public var sprite:ClericSprite;
@@ -53,7 +58,7 @@ package test
 			emptyVector = new Vector.<Actor>();
 			opponentVector = new <Actor>[opponentActor];
 			
-			stub(sprite).method("animate").callsWithArguments(function(status:int, func:Function = null):void {
+			stub(sprite).method("animate").callsWithArguments(function(status:int, repeater:Repeater, func:Function = null):void {
 				animateOnComplete = func;
 			});
 			stub(sprite).getter("center").returns(new Point(0, 0));
@@ -61,6 +66,8 @@ package test
 			cleric = new Cleric(true, true, sprite, miniSprite);
 			
 			playerVector = new <Actor>[playerActor, playerActor2, cleric];
+			
+			repeater = nice(Repeater);
 			
 			MainArea.playerShieldIsUp = false;
 			MainArea.opponentShieldIsUp = false;
@@ -75,7 +82,7 @@ package test
 		public function advancesIfTooFar():void {
 			positionActor(opponentActor, FAR_AWAY);
 			
-			cleric.act(emptyVector, opponentVector);
+			cleric.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(cleric.status, Status.MOVING);
 		}
@@ -84,7 +91,7 @@ package test
 		public function fightsIfClose():void {
 			positionActor(opponentActor, MELEE_DISTANCE);
 			
-			cleric.act(emptyVector, opponentVector);
+			cleric.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(cleric.status, Status.FIGHTING);
 		}
@@ -94,19 +101,20 @@ package test
 			positionActor(playerActor, BLESS_DISTANCE);
 			positionActor(playerActor2, BLESS_DISTANCE - 20);
 			
-			cleric.act(playerVector, emptyVector);
+			cleric.act(playerVector, emptyVector, repeater);
 			
 			assertThat(cleric.status, Status.BLESSING);
+			assertThat(sprite, received().method("animate").args(Status.BLESSING, repeater, isA(Function)));
 		}
 		
 		[Test(order = 1)]
 		public function doesNotStopFighting():void {
 			positionActor(opponentActor, MELEE_DISTANCE);
 					
-			cleric.act(emptyVector, opponentVector);
+			cleric.act(emptyVector, opponentVector, repeater);
 			
 			
-			cleric.act(emptyVector, emptyVector);
+			cleric.act(emptyVector, emptyVector, repeater);
 			
 			assertThat(cleric.status, Status.FIGHTING);
 		}
@@ -116,10 +124,10 @@ package test
 			positionActor(playerActor, BLESS_DISTANCE);
 			positionActor(playerActor2, BLESS_DISTANCE - 20);
 			
-			cleric.act(playerVector, emptyVector);
+			cleric.act(playerVector, emptyVector, repeater);
 			
 			
-			cleric.act(emptyVector, emptyVector);
+			cleric.act(emptyVector, emptyVector, repeater);
 			
 			assertThat(cleric.status, Status.BLESSING);
 		}
@@ -129,7 +137,7 @@ package test
 			positionActor(playerActor, BLESS_DISTANCE);
 			positionActor(playerActor2, FAR_AWAY);
 			
-			cleric.act(playerVector, emptyVector);
+			cleric.act(playerVector, emptyVector, repeater);
 			
 			assertThat(cleric.status, Status.MOVING);
 		}
@@ -141,7 +149,7 @@ package test
 			
 			stub(playerActor2).getter("isBlessed").returns(true);
 			
-			cleric.act(playerVector, emptyVector);
+			cleric.act(playerVector, emptyVector, repeater);
 			
 			assertThat(cleric.status, Status.MOVING);
 		}
@@ -151,7 +159,7 @@ package test
 			positionActor(playerActor, BLESS_DISTANCE);
 			positionActor(playerActor2, BLESS_DISTANCE - 20);
 			
-			afterBless = new Timer(ClericSprite.timeToBless() + 100, 1);
+			afterBless = new Timer(ClericSprite.timeToBless(repeater) + 100, 1);
 			
 			var blessedHandler:Function = Async.asyncHandler(this, function():void {
 				assertThat(playerActor, received().method("bless"));
@@ -159,11 +167,11 @@ package test
 				
 				animateOnComplete.call();
 				assertThat(cleric.status, Status.STANDING);
-			}, ClericSprite.timeToBless() + 500);
+			}, ClericSprite.timeToBless(repeater) + 500);
 			
 			afterBless.addEventListener(TimerEvent.TIMER_COMPLETE, blessedHandler, false, 0, true);
 			
-			cleric.act(playerVector, emptyVector);
+			cleric.act(playerVector, emptyVector, repeater);
 			
 			afterBless.start();
 			
@@ -180,19 +188,19 @@ package test
 			positionActor(playerActor3, BLESS_DISTANCE - 30);
 			playerVector.push(playerActor3);
 			
-			afterBless = new Timer(ClericSprite.timeToBless() + 100, 1);
+			afterBless = new Timer(ClericSprite.timeToBless(repeater) + 100, 1);
 			
 			var blessedHandler:Function = Async.asyncHandler(this, function():void {
 				animateOnComplete.call();
 				
-				cleric.act(playerVector, emptyVector);
+				cleric.act(playerVector, emptyVector, repeater);
 				
 				assertThat(cleric.status, Status.MOVING);
-			}, ClericSprite.timeToBless() + 500);
+			}, ClericSprite.timeToBless(repeater) + 500);
 			
 			afterBless.addEventListener(TimerEvent.TIMER_COMPLETE, blessedHandler, false, 0, true);
 			
-			cleric.act(playerVector, emptyVector);
+			cleric.act(playerVector, emptyVector, repeater);
 			
 			afterBless.start();
 		}
@@ -211,14 +219,14 @@ package test
 			var blessedHandler:Function = Async.asyncHandler(this, function():void {
 				animateOnComplete.call();
 				
-				cleric.act(playerVector, emptyVector);
+				cleric.act(playerVector, emptyVector, repeater);
 				
 				assertThat(cleric.status, Status.BLESSING);
 			}, Cleric.BLESS_COOLDOWN + 500);
 			
 			afterBless.addEventListener(TimerEvent.TIMER_COMPLETE, blessedHandler, false, 0, true);
 			
-			cleric.act(playerVector, emptyVector);
+			cleric.act(playerVector, emptyVector, repeater);
 			
 			afterBless.start();
 		}
@@ -227,7 +235,7 @@ package test
 		public function diesIfHit():void {
 			cleric.hit(MainArea.MASSIVE_DAMAGE);
 			
-			cleric.act(emptyVector, emptyVector);
+			cleric.act(emptyVector, emptyVector, repeater);
 			
 			assertThat(cleric.isDead);
 		}

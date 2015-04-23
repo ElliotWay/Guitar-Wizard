@@ -23,10 +23,10 @@ package src
 			this._hitpoints = 200;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			//Do nothing.
 			
-			checkIfDead();
+			checkIfDead(repeater);
 			
 			if (isDead) {
 				if (isPlayerPiece) {

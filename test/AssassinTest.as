@@ -3,6 +3,7 @@ package test
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.stub;
 	import org.flexunit.async.Async;
@@ -14,6 +15,7 @@ package test
 	import mockolate.runner.MockolateRunner;
 	import src.AssassinSprite;
 	import src.MainArea;
+	import src.Repeater;
 	import src.SmallSquareSprite;
 	import src.Status;
 	
@@ -27,6 +29,8 @@ package test
 	{
 		private var assassin:Assassin;
 		
+		private var repeater:Repeater;
+		
 		private var emptyVector:Vector.<Actor>;
 		private var opponentVector:Vector.<Actor>;
 		
@@ -38,7 +42,7 @@ package test
 		private static const MELEE_DISTANCE:int = Assassin.MELEE_RANGE - 10;
 		
 		[Mock]
-		public var opponentActor:Extension_Actor3, opponentActor2:Extension_Actor3;
+		public var opponentActor:Actor, opponentActor2:Actor;
 		
 		[Mock]
 		public var sprite:AssassinSprite;
@@ -53,7 +57,8 @@ package test
 			emptyVector = new Vector.<Actor>();
 			opponentVector = new <Actor>[opponentActor];
 			
-			stub(sprite).method("animate").callsWithArguments(function(status:int, func:Function = null):void {
+			stub(sprite).method("animate").callsWithArguments(
+					function(status:int, repeater:Repeater, func:Function = null):void {
 				animateOnComplete = func;
 			});
 			stub(sprite).getter("center").returns(new Point(0, 0));
@@ -66,6 +71,8 @@ package test
 			});
 			
 			assassin = new Assassin(true, true, sprite, miniSprite);
+			
+			repeater = nice(Repeater);
 			
 			MainArea.playerShieldIsUp = false;
 			MainArea.opponentShieldIsUp = false;
@@ -80,7 +87,7 @@ package test
 		public function advanceIfTooFar():void {
 			positionOpponent(FAR_AWAY);
 			
-			assassin.act(emptyVector, opponentVector);
+			assassin.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(assassin.status, Status.MOVING);
 		}
@@ -89,17 +96,17 @@ package test
 		public function assassinateInJumpRange():void {
 			positionOpponent(JUMP_DISTANCE);
 			
-			assassin.act(emptyVector, opponentVector);
+			assassin.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(assassin.status, Status.ASSASSINATING);
-			assertThat(sprite, received().method("animate").args(Status.ASSASSINATING, isA(Function)));
+			assertThat(sprite, received().method("animate").args(Status.ASSASSINATING, repeater, isA(Function)));
 		}
 		
 		[Test]
 		public function advanceIfTooCloseToJump():void {
 			positionOpponent(CLOSE_TO_MELEE_DISTANCE);
 			
-			assassin.act(emptyVector, opponentVector);
+			assassin.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(assassin.status, Status.MOVING);
 		}
@@ -108,7 +115,7 @@ package test
 		public function fightIfCloseEnough():void {
 			positionOpponent(MELEE_DISTANCE);
 			
-			assassin.act(emptyVector, opponentVector);
+			assassin.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(assassin.status, Status.FIGHTING);
 		}
@@ -117,7 +124,7 @@ package test
 		public function doesNotStopAssassinating():void {
 			positionOpponent(JUMP_DISTANCE);
 					
-			assassin.act(emptyVector, opponentVector);
+			assassin.act(emptyVector, opponentVector, repeater);
 			
 			var newVector:Vector.<Actor> = new <Actor>[opponentActor2];
 			
@@ -126,7 +133,7 @@ package test
 			stub(opponentActor2).method("predictPosition").returns(
 					new Point(CLOSE_TO_MELEE_DISTANCE, 0));
 			
-			assassin.act(emptyVector, newVector);
+			assassin.act(emptyVector, newVector, repeater);
 			
 			assertThat(assassin.status, Status.ASSASSINATING);
 		}
@@ -135,7 +142,7 @@ package test
 		public function doesNotStopFighting():void {
 			positionOpponent(MELEE_DISTANCE);
 					
-			assassin.act(emptyVector, opponentVector);
+			assassin.act(emptyVector, opponentVector, repeater);
 			
 			var newVector:Vector.<Actor> = new <Actor>[opponentActor2];
 			
@@ -144,7 +151,7 @@ package test
 			stub(opponentActor2).method("predictPosition").returns(
 					new Point(CLOSE_TO_MELEE_DISTANCE, 0));
 					
-			assassin.act(emptyVector, newVector);
+			assassin.act(emptyVector, newVector, repeater);
 			
 			assertThat(assassin.status, Status.FIGHTING);
 		}
@@ -158,18 +165,18 @@ package test
 			stub(opponentActor2).method("predictPosition").returns(
 				new Point(JUMP_DISTANCE, 0), new Point(MELEE_DISTANCE, 0));
 			
-			afterJump = new Timer(AssassinSprite.timeToLand() + 100, 1);
+			afterJump = new Timer(AssassinSprite.timeToLand(repeater) + 100, 1);
 			
 			var landedHandler:Function = Async.asyncHandler(this, function():void {
 				assertThat(JUMP_DISTANCE - spriteX, lessThanOrEqualTo(Assassin.MELEE_RANGE));
 				assertThat(opponentActor2, received().method("hit"));
 				animateOnComplete.call();
 				assertThat(assassin.status, Status.STANDING);
-			}, AssassinSprite.timeToLand() + 500);
+			}, AssassinSprite.timeToLand(repeater) + 500);
 			
 			afterJump.addEventListener(TimerEvent.TIMER_COMPLETE, landedHandler, false, 0, true);
 			
-			assassin.act(emptyVector, newVector);
+			assassin.act(emptyVector, newVector, repeater);
 			
 			afterJump.start();
 		}
@@ -180,7 +187,7 @@ package test
 		public function diesIfHit():void {
 			assassin.hit(MainArea.MASSIVE_DAMAGE);
 			
-			assassin.act(emptyVector, emptyVector);
+			assassin.act(emptyVector, emptyVector, repeater);
 			
 			assertThat(assassin.isDead);
 		}

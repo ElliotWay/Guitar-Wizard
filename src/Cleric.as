@@ -44,7 +44,7 @@ package src
 			blessIsReady = true;
 		}
 		
-		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>):void {
+		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			//Check if we're dead. If we're dead, we have to stop now.
 			if (_status == Status.DYING) {
 				return;
@@ -83,12 +83,12 @@ package src
 						this.halt();
 						
 						_status = Status.BLESSING;
-						_sprite.animate(Status.BLESSING, function():void {
+						_sprite.animate(Status.BLESSING, repeater, function():void {
 							_status = Status.STANDING;
 						});
 						
 						//Do bless at the "peak" of the animation.
-						blessTimer = new Timer(ClericSprite.timeToBless(), 1);
+						blessTimer = new Timer(ClericSprite.timeToBless(repeater), 1);
 						blessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 							for each (var actor:Actor in nearbyAllies) {
 								if (!actor.isDead)
@@ -119,23 +119,23 @@ package src
 				
 					if (closest != null) {
 						if (isPlayerActor)
-							this.meleeAttack(closest, MELEE_RANGE,
-									DAMAGE * player_buff, ClericSprite.timeBetweenBlows());
+							this.meleeAttack(closest, MELEE_RANGE, DAMAGE * player_buff,
+									ClericSprite.timeBetweenBlows(repeater), repeater);
 						else
-							this.meleeAttack(closest, MELEE_RANGE,
-									DAMAGE, ClericSprite.timeBetweenBlows());
+							this.meleeAttack(closest, MELEE_RANGE, DAMAGE,
+									ClericSprite.timeBetweenBlows(repeater), repeater);
 						
 
 					} else {
 						if (_status != Status.MOVING) {
-							this.go();
+							this.go(repeater);
 						}
 					}
 				}
 			}
 			
 			
-			this.checkIfDead();
+			this.checkIfDead(repeater);
 		}
 		
 		override public function clean():void {
