@@ -153,7 +153,7 @@ package src
 			delete quarterBeatRun[func];
 		}
 		
-		public function isRunningEveryQuartBeat(func:Function):Boolean {
+		public function isRunningEveryQuarterBeat(func:Function):Boolean {
 			return (quarterBeatRun[func] != undefined);
 		}
 		
