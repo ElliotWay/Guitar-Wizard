@@ -18,6 +18,7 @@ import src.Actor;
 import src.ActorSprite;
 import src.MiniSprite;
 import src.Note;
+import src.NoteSprite;
 import src.Repeater;
 
 /**
@@ -55,8 +56,10 @@ public class TestRunner extends Sprite
 		classNames.push(FrameAnimationTest);
 		classNames.push(MainAreaTest);
 		classNames.push(MusicPlayerTest);
+		classNames.push(NoteBlockTest);
 		classNames.push(NoteSpriteTest);
 		classNames.push(NoteTest);
+		classNames.push(ProjectileTest);
 		classNames.push(RepeaterTest);
 		classNames.push(SongLoaderTest);
 		classNames.push(SongTest);
@@ -67,6 +70,7 @@ public class TestRunner extends Sprite
 			ActorSprite,
 			Actor,
 			MiniSprite,
+			NoteSprite,
 			Repeater,
 			Sound);
 		

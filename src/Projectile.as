@@ -74,6 +74,7 @@ package src
 		
 		/**
 		 * The projectile collides with the actor.
+		 * The animation is stopped and the projectile is removed from its parent.
 		 * @param	actor the actor to collide with
 		 */
 		public function collide(actor:Actor):void {
@@ -88,6 +89,8 @@ package src
 		
 		/**
 		 * Checks if the projectile can hit the actor.
+		 * The projectile can hit if the actor is alive and the arrow head
+		 * intersects with the actors hitbox.
 		 * @param	actor the actor to check
 		 * @return whether the projectile can hit the actor
 		 */

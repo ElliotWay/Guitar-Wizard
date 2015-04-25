@@ -1,6 +1,8 @@
 ---Might do soon.----------
 - better test coverage
 
+- GameUITest - I missed this somehow.
+
 - allow some animations to stop instead of looping
 
 
@@ -58,7 +60,7 @@
 - test-unbacked classes:
 	AnimationCollection, ArcherSprite, AssassinSprite, ClericSprite,
 	DefaultOpponent, DefaultSprite, EmptyAnimation, GWError, InfoArea, Lightning,
-	Menu, MenuTextButton, MiniSprite
+	Main, Menu, MenuTextButton, MiniSprite, OpponentStrategy
 
 - untested stuff:
 	arrows created by shooting<Archer>
@@ -68,6 +70,8 @@
 	movement actually moves<Actor>
 	starting and stopping, frequency<FrameAnimation>
 	sets onComplete<FrameAnimation>
+	projectile path<Projectile>
+	projectile will finish if too low<Projectile>
 	
 
 ---Completed.---------------

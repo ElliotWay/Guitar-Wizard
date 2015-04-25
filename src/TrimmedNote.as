@@ -15,7 +15,7 @@ package src
 		/**
 		 * Create a trimmable note.
 		 * @param	note The note to trim. This MUST be a hold.
-		 * @param	staysHold Whether the note should stay a hold when trimmed, or become just a note
+		 * @param	staysHold Whether the note should stay a hold when trimmed, or become just a note.
 		 * @param	newEndTime If the note stays a hold, the end time to trim to.
 		 */
 		public function TrimmedNote(note:Note, staysHold:Boolean, newEndTime:Number = 0.0) 

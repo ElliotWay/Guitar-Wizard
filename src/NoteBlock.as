@@ -3,8 +3,9 @@ package src
 	import flash.display.Sprite;
 	
 	/**
-	 * ...
-	 * @author 
+	 * A block of notes, both visually and numerically,
+	 * so the appearance of notes can be more easily changed at the same time as
+	 * their underlying model.
 	 */
 	public class NoteBlock extends Sprite 
 	{
