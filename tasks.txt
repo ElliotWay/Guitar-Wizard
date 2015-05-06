@@ -1,10 +1,13 @@
 ---Might do soon.----------
-- better test coverage
-
 - GameUITest - I missed this somehow.
 
 - allow some animations to stop instead of looping
 
+- fix garbage collection
+
+- pending switch indication
+
+- create more frames, they just look better that way - IP
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag - ?
@@ -40,8 +43,6 @@
 ---Do Later.------------------
 - change arrow sprite to pixelated rotation - this may be difficult to tune
 
-- pending switch indication
-
 - proper lag handling
 
 - create better opponent strategies
@@ -50,28 +51,31 @@
 
 - responsiveness - visual reaction to every hit & miss?
 
-- create more frames, they just look better that way
-
 - create 3 more lightning animations
 
 
 ---Behavior that should be tested, is impossible or difficult to test, or is too simple to test--
+---Starred indicates priority.----------------------------
 
-- test-unbacked classes:
-	AnimationCollection, ArcherSprite, AssassinSprite, ClericSprite,
-	DefaultOpponent, DefaultSprite, EmptyAnimation, GWError, InfoArea, Lightning,
-	Main, Menu, MenuTextButton, MiniSprite, OpponentStrategy
+- test-unbacked classes: **GameUI**
+	*AnimationCollection*, ArcherSprite, AssassinSprite, ClericSprite, DefaultOpponent,
+	DefaultSprite, InfoArea, Lightning, Main, Menu, MenuTextButton, OpponentStrategy,
+	Shield, ShieldSprite, SoundPlayer, Status,*SummoningMeter*, Wizard, WizardSprite
 
 - untested stuff:
 	arrows created by shooting<Archer>
 	standing after shooting<Archer>
 	wizard kill mode<MainArea>
 	jumping through shields<Assassin>
-	movement actually moves<Actor>
-	starting and stopping, frequency<FrameAnimation>
+	*movement actually moves*<Actor>
+	*starting and stopping, frequency*<FrameAnimation>
 	sets onComplete<FrameAnimation>
-	projectile path<Projectile>
-	projectile will finish if too low<Projectile>
+	*projectile path*<Projectile>
+	*projectile will finish if too low*<Projectile>
+	
+- classes that definitely don't need tests, because they are just data
+	EmptyAnimation, GWError, MiniSprite, SmallCircleSprite, SmallSquareSprite,
+	SmallTriangleSprite, ThinLineSprite,
 	
 
 ---Completed.---------------
@@ -131,3 +135,4 @@
 - smooth summoning meter animations
 - refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object
 - create repeater class
+- better test coverage

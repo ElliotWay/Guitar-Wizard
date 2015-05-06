@@ -99,7 +99,6 @@ package src
 							this.retreat(repeater);
 						}
 					} else {	
-								
 						halt();
 						_status = Status.SHOOTING;
 						

@@ -26,10 +26,10 @@ package src
 		public static const ANIMATIONS:AnimationCollection =
 		new AnimationCollection(ARCHER_DATA, FRAME_WIDTH, FRAME_HEIGHT,
 		//status, 				yposition, num frames, frames per beat,	(true, different width)
-		Status.MOVING, 					0, 	4, FrameAnimation.TWO_PER_BEAT,
+		Status.MOVING, 					0, 	8, FrameAnimation.FOUR_PER_BEAT,
 		Status.SUMMONING, 	 FRAME_HEIGHT, 	7, FrameAnimation.TWO_PER_BEAT,
-		Status.SHOOTING, FRAME_HEIGHT * 2, 	6, FrameAnimation.THREE_HALVES_PER_BEAT,
-		Status.FIGHTING, FRAME_HEIGHT * 3, 	4, FrameAnimation.TWO_PER_BEAT,
+		Status.SHOOTING, FRAME_HEIGHT * 2, 	12, FrameAnimation.THREE_PER_BEAT,
+		Status.FIGHTING, FRAME_HEIGHT * 3, 	8, FrameAnimation.FOUR_PER_BEAT,
 		Status.DYING, 	 FRAME_HEIGHT * 4, 	9, FrameAnimation.TWO_PER_BEAT, true, DYING_FRAME_WIDTH,
 		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT);
 		

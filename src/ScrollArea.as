@@ -22,15 +22,26 @@ package src
 		
 		private var maxScroll:Number;
 		
+		/**
+		 * Whether the ScrollArea is currently scrolling.
+		 */
 		public function get isScrolling():Boolean {
 			return !(scroller == null);
 		}
 		
+		/**
+		 * Create a new scrollable area.
+		 * @param	maxScroll the rightmost point of the scroll.
+		 */
 		public function ScrollArea(maxScroll:Number) 
 		{
 			this.maxScroll = maxScroll;
 		}
 		
+		/**
+		 * Start scrolling right at a constant rate. Call stopScrolling or any other scroll function to stop.
+		 * This stops automatically if it reachs the rightmost position.
+		 */
 		public function scrollRight():void {
 			if (scroller != null)
 				scroller.kill();
@@ -40,6 +51,10 @@ package src
 					{ x : -maxScroll, ease:Linear.easeInOut, onComplete:stopScrolling } );
 		}
 		
+		/**
+		 * Start scrolling left at a constant rate. Call stopScrolling or any other scroll function to stop.
+		 * This stops automatically if it reachs the leftmost position.
+		 */
 		public function scrollLeft():void {
 			if (scroller != null)
 				scroller.kill();
@@ -49,6 +64,9 @@ package src
 					{ x : 0, ease:Linear.easeInOut, onComplete:stopScrolling} );
 		}
 		
+		/**
+		 * Stop scrolling immediately. Does nothing if not already scrolling.
+		 */
 		public function stopScrolling():void {
 			if (scroller != null) {
 				scroller.kill();
@@ -56,6 +74,10 @@ package src
 			}
 		}
 		
+		/**
+		 * Gently scroll to the desired position over SCROLL_TO_DURATION.
+		 * @param	position the position to scroll to
+		 */
 		public function scrollTo(position:int):void {
 			if (position > maxScroll)
 				position = maxScroll;
@@ -72,6 +94,10 @@ package src
 			}
 		}
 		
+		/**
+		 * Scroll quickly to the rightmost position over JUMP_DURATION.
+		 * This can be interrupted with stopScrolling or any other scroll function.
+		 */
 		public function jumpRight():void {
 			if (scroller != null)
 				scroller.kill();
@@ -80,6 +106,10 @@ package src
 				{ x : -maxScroll, ease:Linear.easeInOut, onComplete:stopScrolling } );
 		}
 		
+		/**
+		 * Scroll quickly to the leftmost position over JUMP_DURATION.
+		 * This can be interrupted with stopScrolling or any other scroll function.
+		 */
 		public function jumpLeft():void {
 			if (scroller != null)
 				scroller.kill();

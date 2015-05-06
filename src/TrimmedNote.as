@@ -31,6 +31,10 @@ package src
 			this.oldEndTime = note.endtime;
 		}
 		
+		/**
+		 * Trims the hold. If the hold becomes a note, the end time will be set
+		 * to the same as the start time.
+		 */
 		public function trim():void {
 			if (!staysHold) {
 				note.isHold = false;
@@ -41,6 +45,9 @@ package src
 			note.sprite.refresh();
 		}
 		
+		/**
+		 * Restore the hold to its orginal state.
+		 */
 		public function unTrim():void {
 			note.isHold = true;
 			

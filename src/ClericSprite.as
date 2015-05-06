@@ -23,9 +23,9 @@ package src
 		public static const ANIMATIONS:AnimationCollection =
 		new AnimationCollection(CLERIC_DATA, FRAME_WIDTH, FRAME_HEIGHT,
 		//status, 				yposition, num frames, frames per beat,	(true, different width)
-		Status.MOVING, 					0, 	4, FrameAnimation.TWO_PER_BEAT,
+		Status.MOVING, 					0, 	8, FrameAnimation.FOUR_PER_BEAT,
 		Status.SUMMONING, 	 FRAME_HEIGHT, 	6, FrameAnimation.TWO_PER_BEAT,
-		Status.BLESSING, FRAME_HEIGHT * 2, 	6, FrameAnimation.TWO_PER_BEAT,
+		Status.BLESSING, FRAME_HEIGHT * 2, 	12, FrameAnimation.FOUR_PER_BEAT,
 		Status.FIGHTING, FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_HALVES_PER_BEAT,
 		Status.DYING, 	 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, true, DYING_FRAME_WIDTH,
 		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT);
@@ -83,9 +83,9 @@ package src
 		
 		public static function timeToBless(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (3rd frame)
-			//		?	   *	(2/3)     *  3
+			//		?	   *	(2/3)     *  6
 			
-			return repeater.getBeat() * 2;
+			return repeater.getBeat() * 4;
 		}
 		
 		override public function get center():Point {

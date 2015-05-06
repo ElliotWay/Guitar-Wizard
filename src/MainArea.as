@@ -197,7 +197,7 @@ package src
 			var index:int;
 			var actor:Actor;
 			
-			for (index = 0; index < 12; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = Archer.create(false, false);
 				opponentSummon(actor);
 			}

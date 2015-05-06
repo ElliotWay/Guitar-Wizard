@@ -1,11 +1,15 @@
 package  src
 {
+	import com.greensock.easing.Power2;
 	import com.greensock.TweenLite;
 	import com.greensock.easing.Linear;
 	import flash.display.DisplayObject;
+	import flash.display.GradientType;
+	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
@@ -51,6 +55,19 @@ package  src
 		private var switchTimer:Timer;
 		private var advanceTimer:Timer;
 		
+		private var background:Sprite;
+		private var highToMid:Shape;
+		private var highToLow:Shape;
+		private var midToHigh:Shape;
+		private var midToLow:Shape;
+		private var lowToHigh:Shape;
+		private var lowToMid:Shape;
+		private static const GRADIENT_WIDTH:int = 400; //200
+		private static const HIGH_COLOR:uint = 0xFF00FF;
+		private static const MID_COLOR:uint = 0x00FF00;
+		private static const LOW_COLOR:uint = 0xFF8000;
+		private var currentTransition:Shape;
+		private var transition:TweenLite;
 		
 		private var notesLayer:Sprite;
 		private var scroll:TweenLite;
@@ -66,27 +83,53 @@ package  src
 		
 		private function init(e:Event):void {
 			
-			//Draw Background (there remains no "background" property so far as I'm aware)
-			graphics.lineStyle(0, 0, 0);
-			graphics.beginFill(0xD17519);
-			graphics.drawRect(0, 0, WIDTH, HEIGHT);
-			graphics.endFill();
+			//Create transition gradients.
+			highToMid = createGradient(HIGH_COLOR, MID_COLOR);
+			highToLow = createGradient(HIGH_COLOR, LOW_COLOR);
+			midToHigh = createGradient(MID_COLOR, HIGH_COLOR);
+			midToLow = createGradient(MID_COLOR, LOW_COLOR);
+			lowToHigh = createGradient(LOW_COLOR, HIGH_COLOR);
+			lowToMid = createGradient(LOW_COLOR, MID_COLOR);
+			
+			background = new Sprite();
+			background.addChild(highToMid);
+			highToMid.x = -GRADIENT_WIDTH;
+			highToMid.visible = true;
+			
+			this.addChild(background);
 			
 			//Draw 4 lines.
-			graphics.lineStyle(3);
+			var lineLayer:Shape = new Shape();
+			lineLayer.graphics.lineStyle(3);
 			for (var i:int = 0; i < 4; i++) {
-				graphics.moveTo(0, HEIGHT * ((i + 1) / 5));
-				graphics.lineTo(WIDTH, HEIGHT * ((i + 1) / 5));
+				lineLayer.graphics.moveTo(0, HEIGHT * ((i + 1) / 5));
+				lineLayer.graphics.lineTo(WIDTH, HEIGHT * ((i + 1) / 5));
 			}
 			
 			//Draw "hit here" region
-			graphics.lineStyle(0, 0, 0.0);
-			graphics.beginFill(0xFFA319, 0.7);
-			graphics.drawRect(HIT_LINE - GameUI.HIT_TOLERANCE * POSITION_SCALE, 0,
+			lineLayer.graphics.lineStyle(0, 0, 0.0);
+			lineLayer.graphics.beginFill(0x0, 0.3);//0xFFA319, 0.7);
+			lineLayer.graphics.drawRect(HIT_LINE - GameUI.HIT_TOLERANCE * POSITION_SCALE, 0,
 								2 * GameUI.HIT_TOLERANCE * POSITION_SCALE, HEIGHT);
-			graphics.endFill();
+			lineLayer.graphics.endFill();
+			
+			this.addChild(lineLayer);
 			
 			NoteSprite.global_hit_line_position = this.localToGlobal(new Point(HIT_LINE, 0));
+			
+		}
+		
+		private function createGradient(LEFT_COLOR:uint, RIGHT_COLOR:uint):Shape {
+			var gradientMat:Matrix = new Matrix();
+			gradientMat.createGradientBox(GRADIENT_WIDTH, HEIGHT);
+			
+			var gradient:Shape = new Shape();
+			gradient.graphics.beginGradientFill(GradientType.LINEAR,
+					[LEFT_COLOR, RIGHT_COLOR], [1, 1], [0, 255], gradientMat);
+					
+			gradient.graphics.drawRect(0, 0, WIDTH + GRADIENT_WIDTH, HEIGHT);
+			
+			return gradient;
 		}
 		
 		/**
@@ -215,16 +258,25 @@ package  src
 				nextTrack = track;
 				nextNextTrack = track;
 				
+				doTransition(currentTime, currentBlock);
+				
 			} else {
 				
 				//If we're too late to switch right away, and no switch was scheduled,
 				//we still need to switch numbers around.
 				if (switchTimer == null) {
-					switchTimer = new Timer(blocks[currentBlock] - currentTime, 1);
+					var currentBlockEnd:Number = blocks[currentBlock];
+					var targetBlock:int = currentBlock + 1;
+					
+					switchTimer = new Timer(currentBlockEnd - currentTime, 1);
+					
 					switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						switchLater();
+						doTransition(currentBlockEnd, targetBlock);
 					});
 					switchTimer.start();
+				} else {
+					doTransition(currentTime, currentBlock + 1);
 				}
 				
 				if (advanceTimer != null)
@@ -250,6 +302,60 @@ package  src
 			
 			switchTimer = advanceTimer;
 			advanceTimer = null;
+		}
+		
+		/**
+		 * Transition the color of the area to indicate the pending switch.
+		 * @param	track the track to switch to
+		 */
+		private function doTransition(currentTime:Number, targetBlock:int):void {
+			trace("transition from: " + _currentTrack + " to " + nextTrack);
+			if (targetBlock >= blocks.length)
+				return;
+			
+			if (transition != null) {
+				transition.kill();
+			}
+			if (currentTransition != null) {
+				currentTransition.visible = false;
+			}
+			
+			if (_currentTrack == nextTrack)
+				return;
+			
+			if (_currentTrack == Main.HIGH) {
+				if (nextTrack == Main.MID)
+					currentTransition = highToMid;
+				else // (nextTrack == Main.LOW)
+					currentTransition = highToLow;
+			} else if (_currentTrack == Main.MID) {
+				if (nextTrack == Main.HIGH)
+					currentTransition = midToHigh;
+				else // (nextTrack == Main.LOW)
+					currentTransition = midToLow;
+			} else if (_currentTrack == Main.LOW) {
+				if (nextTrack == Main.HIGH)
+					currentTransition = lowToHigh;
+				else // (nextTRack == Main.MID)
+					currentTransition = lowToMid;
+			}
+			
+			currentTransition.visible = true;
+			background.addChild(currentTransition);
+			
+			currentTransition.x = WIDTH - 50;
+			
+			transition = new TweenLite(currentTransition,
+					(blocks[targetBlock] - currentTime) / 1000,
+					{x: -GRADIENT_WIDTH, ease:Power2.easeIn,
+						onComplete:function():void {
+							currentTransition = null;
+							if (transition != null) {
+								transition.kill();
+								transition = null;
+							}
+						}
+					} );
 		}
 		
 		/**

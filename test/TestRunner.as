@@ -61,15 +61,18 @@ public class TestRunner extends Sprite
 		classNames.push(NoteTest);
 		classNames.push(ProjectileTest);
 		classNames.push(RepeaterTest);
+		classNames.push(ScrollAreaTest);
 		classNames.push(SongLoaderTest);
 		classNames.push(SongTest);
 		classNames.push(TestTest);
+		classNames.push(TrimmedNoteTest);
 //%%%%
 
 		var dispatcher:IEventDispatcher = prepare(
 			ActorSprite,
 			Actor,
 			MiniSprite,
+			Note,
 			NoteSprite,
 			Repeater,
 			Sound);
