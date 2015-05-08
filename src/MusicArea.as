@@ -343,10 +343,15 @@ package  src
 			currentTransition.visible = true;
 			background.addChild(currentTransition);
 			
-			currentTransition.x = WIDTH - 50;
+			currentTransition.x = WIDTH;
 			
 			transition = new TweenLite(currentTransition,
-					(blocks[targetBlock] - currentTime) / 1000,
+					0.1, { x:WIDTH - 200, onComplete:function():void {
+					
+			transition.kill();
+			
+			transition = new TweenLite(currentTransition,
+					(blocks[targetBlock] - currentTime - 100) / 1000,
 					{x: -GRADIENT_WIDTH, ease:Power2.easeIn,
 						onComplete:function():void {
 							currentTransition = null;
@@ -356,6 +361,8 @@ package  src
 							}
 						}
 					} );
+					
+			} });
 		}
 		
 		/**

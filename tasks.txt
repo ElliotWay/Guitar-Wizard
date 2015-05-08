@@ -1,16 +1,15 @@
 ---Might do soon.----------
-- GameUITest - I missed this somehow.
-
 - allow some animations to stop instead of looping
 
 - fix garbage collection
 
-- pending switch indication
-
 - create more frames, they just look better that way - IP
+
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag - ?
+
+- GameUITest - I missed this somehow.
 
 - score counter?
 
@@ -21,6 +20,13 @@
 - quitting while dying causes immediate death on restart
 
 - fix MainAreaTest, needless withArgs
+
+- create better shield sprite
+
+- responsiveness - visual reaction to every hit & miss?
+
+- sync animations to beat better
+
 
 ---Bugs.-------------------	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
@@ -38,6 +44,8 @@
 - fix bug where actors still stand fighting no one
 	- might be fixed?
 	- broke during linked listing?
+	
+- sometimes multiple tracks play at once after reswitching
 
 
 ---Do Later.------------------
@@ -46,10 +54,6 @@
 - proper lag handling
 
 - create better opponent strategies
-
-- create better shield sprite
-
-- responsiveness - visual reaction to every hit & miss?
 
 - create 3 more lightning animations
 
@@ -136,3 +140,4 @@
 - refactor blocks so that blocks of hittable notes and blocks on the screen are associated with the same object
 - create repeater class
 - better test coverage
+- pending switch indication - might still need some tweaking

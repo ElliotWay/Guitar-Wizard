@@ -16,7 +16,10 @@ package  src
 		public static const F_COLOR:uint = 0xC00000;
 		public static const D_COLOR:uint = 0x0000FF;
 		public static const S_COLOR:uint = 0xFFFF00;
-		public static const A_COLOR:uint = 0x00C000;
+		public static const A_COLOR:uint = 0x009000;
+		
+		public static const HIT_COLOR:uint = 0x30FF30;
+		public static const MISS_COLOR:uint = 0xFF0000;
 		
 		/**
 		 * Tells NoteSprite where the hit line is. Affects hold behavior,
@@ -119,8 +122,8 @@ package  src
 		 */
 		public function hit():void {
 			if (_isHit == 0) {
-				this.graphics.lineStyle(4, 0x00FF00);
-				this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
+				this.graphics.lineStyle(4, HIT_COLOR);
+				this.graphics.drawCircle(0, 0, NOTE_SIZE + 2);//3
 				
 				if (associatedNote.isHold) {
 					this.addEventListener(Event.ENTER_FRAME, continueHold);
@@ -136,7 +139,7 @@ package  src
 		 * @param	e enter frame event
 		 */
 		private function continueHold(e:Event):void {
-			this.graphics.lineStyle(4, 0x00FF00);
+			this.graphics.lineStyle(4, HIT_COLOR);
 						
 			var targetX:Number = this.globalToLocal(global_hit_line_position).x;
 			
@@ -180,7 +183,7 @@ package  src
 		 */
 		public function miss():void {
 			if (_isHit == 0) {
-				this.graphics.lineStyle(4, 0xFF0000);
+				this.graphics.lineStyle(4, MISS_COLOR);
 				this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
 				
 				_isHit = -1;
