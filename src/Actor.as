@@ -363,7 +363,6 @@ package src {
 				_status = Status.DYING;
 				_isDead = true;
 				_sprite.animate(Status.DYING, repeater, function():void {
-					_sprite.freeze(repeater);
 					
 					fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
 						onComplete:function():void {

@@ -17,18 +17,15 @@ package src
 		 * @param	width width of most frames
 		 * @param	height height of all frames
 		 * @param	...args these should be formatted:
-			 * 			status, y position, num frames, framesPerBeat
+			 * 			status, y position, num frames, framesPerBeat, loops,
 			 * 		OR
-			 * 			status, y position, num frames, framesPerBeat, true, different width
+			 * 			status, y position, num frames, framesPerBeat, loops, true, different width
 		 */
 		public function AnimationCollection(data:BitmapData, width:int, height:int, ...args) {
-			if (args.length % 2 != 0) {
-				throw new GWError("Bad number of args to Animation Collection");
-			}
 			anim = new Dictionary(false);
 			
 			var status:int, yPosition:Number, numFrames:int, framesPerBeat:int;
-			var localWidth:int;
+			var loops:Boolean, localWidth:int;
 			
 			var index:int = 0;
 			while (index < args.length) {
@@ -36,26 +33,27 @@ package src
 				yPosition = args[index + 1] as Number;
 				numFrames = args[index + 2] as int;
 				framesPerBeat = args[index + 3] as int;
+				loops = args[index + 4] as Boolean;
 				
-				if (args[index + 4] is Boolean) {
-					localWidth = args[index + 5] as int;
+				if (args[index + 5] is Boolean) {
+					localWidth = args[index + 6] as int;
 					
 					anim[status] = createAnimations(data, new Point(0, yPosition),
-						localWidth, height, numFrames, framesPerBeat);
+						localWidth, height, numFrames, framesPerBeat, loops);
 						
-					index += 6;
+					index += 7;
 				} else {
 					
 					anim[status] = createAnimations(data, new Point(0, yPosition),
-						width, height, numFrames, framesPerBeat);
+						width, height, numFrames, framesPerBeat, loops);
 						
-					index += 4;
+					index += 5;
 				}
 			}
 		}
 		
 		private static function createAnimations(data:BitmapData, position:Point,
-				width:int, height:int, numFrames:int, framesPerBeat:int):Vector.<Vector.<FrameAnimation>> {
+				width:int, height:int, numFrames:int, framesPerBeat:int, loops:Boolean):Vector.<Vector.<FrameAnimation>> {
 			
 			var out:Vector.<Vector.<FrameAnimation>> =
 					new Vector.<Vector.<FrameAnimation>>(2, true);
@@ -64,9 +62,9 @@ package src
 					new Vector.<FrameAnimation>(2, true);
 					
 			player[ActorSprite.RIGHT_FACING] = FrameAnimation.create(data, position, width, height,
-					numFrames, framesPerBeat, ActorSprite.PLAYER_COLOR, false);
+					numFrames, framesPerBeat, ActorSprite.PLAYER_COLOR, false, loops);
 			player[ActorSprite.LEFT_FACING] = FrameAnimation.create(data, position, width, height,
-					numFrames, framesPerBeat, ActorSprite.PLAYER_COLOR, true);
+					numFrames, framesPerBeat, ActorSprite.PLAYER_COLOR, true, loops);
 					
 			out[ActorSprite.PLAYER] = player;
 			
@@ -74,9 +72,9 @@ package src
 					new Vector.<FrameAnimation>(2, true);
 					
 			opponent[ActorSprite.RIGHT_FACING] = FrameAnimation.create(data, position, width, height,
-					numFrames, framesPerBeat, ActorSprite.OPPONENT_COLOR, false);
+					numFrames, framesPerBeat, ActorSprite.OPPONENT_COLOR, false, loops);
 			opponent[ActorSprite.LEFT_FACING] = FrameAnimation.create(data, position, width, height,
-					numFrames, framesPerBeat, ActorSprite.OPPONENT_COLOR, true);
+					numFrames, framesPerBeat, ActorSprite.OPPONENT_COLOR, true, loops);
 			
 			out[ActorSprite.OPPONENT] = opponent;
 			

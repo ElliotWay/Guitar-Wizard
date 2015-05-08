@@ -32,6 +32,7 @@ package src
 		private var frameIndex:int;
 		
 		private var frequency:int;
+		private var loops:Boolean;
 		
 		private var frameCount:int;
 		private var runner:Function;
@@ -58,9 +59,10 @@ package src
 		 * @param	framesPerBeat  using <b>FrameAnimation CONSTANTS</b> how many frames per beat
 		 * @param	color  color to set pixels of the flag color to. Ignores the alpha channel.
 		 * @param	flipped whether to flip the animation horizontally
+		 * @param   loops whether the animation restarts when it ends
 		 * @return  the constructed FrameAnimation
 		 */
-		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = FLAG_COLOR, flipped:Boolean = false):FrameAnimation
+		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = FLAG_COLOR, flipped:Boolean = false, loops:Boolean = true):FrameAnimation
 		{
 			var output:FrameAnimation = new FrameAnimation();
 			
@@ -68,6 +70,8 @@ package src
 				throw new Error("Error: use FrameAnimation constants to define frames per beat");
 			else 
 				output.frequency = frequency;
+				
+			output.loops = loops;
 			
 			if (position.x + numFrames * frameWidth > image.width ||
 					position.y + frameHeight > image.height)
@@ -149,6 +153,7 @@ package src
 			}
 			
 			output.frequency = animation.frequency;
+			output.loops = animation.loops;
 			
 			output._frames[0].visible = true;
 			
@@ -165,6 +170,12 @@ package src
 			return FrameAnimation.copy(this);
 		}
 		
+		/**
+		 * Set a function to be called whenever the end of the animation occurs.
+		 * The function is called when as the animation returns to the first frame,
+		 * or advancing past the last frame if the animation does not loop.
+		 * @param	func the function to call
+		 */
 		public function setOnComplete(func:Function):void {
 			onComplete = func;
 		}
@@ -258,7 +269,6 @@ package src
 		
 		/**
 		 * Advances to the next frame. If we're on the last frame, also runs the onComplete function.
-		 * TODO remove check for runner after onComplete, for usage without runner
 		 */
 		public function nextFrame():void {
 			
@@ -267,19 +277,16 @@ package src
 			frameIndex++;
 			
 			if (frameIndex >= frames.length) {
-				if (onComplete != null) {
+				if (onComplete != null)
 					onComplete.call();
 					
-					//The onComplete function may have stopped the animation at the end,
-					//so we need to show the last frame.
-					if (runner == null) {
-						frameIndex--;
-					} else {
-						frameIndex = 0;
-					}
-				} else {
+				if (loops) {
 					frameIndex = 0;
+				} else {
+					onComplete = null;
+					frameIndex--;
 				}
+				
 			}
 			
 			frames[frameIndex].visible = true;

@@ -27,11 +27,11 @@ package src
 		
 		private static const LIGHTNING_ANIMATION:FrameAnimation =
 		FrameAnimation.create(LIGHTNING_DATA, new Point(0, 0), FRAME_WIDTH, FRAME_HEIGHT,
-		5, FrameAnimation.EVERY_FRAME);
+		5, FrameAnimation.EVERY_FRAME, 0x0, false, false);
 		
 		private static const LIGHTNING_ANIMATION_2:FrameAnimation = 
 		FrameAnimation.create(LIGHTNING_DATA_2, new Point(0, 0), 38, 133,
-		5, FrameAnimation.EVERY_FRAME);
+		5, FrameAnimation.EVERY_FRAME, 0x0, false, false);
 		
 		private var animation:FrameAnimation;
 		

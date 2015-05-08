@@ -21,13 +21,13 @@ package src
 		
 		public static const ANIMATIONS:AnimationCollection =
 		new AnimationCollection(ASSASSIN_DATA, FRAME_WIDTH, FRAME_HEIGHT,
-		//status, 					yposition, num frames, frames per beat,	(true, different width)
-		Status.MOVING, 						0, 	4, FrameAnimation.FOUR_PER_BEAT,
-		Status.SUMMONING, 		 FRAME_HEIGHT, 	5, FrameAnimation.TWO_PER_BEAT,
-		Status.ASSASSINATING,FRAME_HEIGHT * 2, 	11, FrameAnimation.FOUR_PER_BEAT,
-		Status.FIGHTING, 	 FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_PER_BEAT,
-		Status.DYING, 		 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, true, DYING_FRAME_WIDTH,
-		Status.STANDING,					0,	1, FrameAnimation.ONE_THIRD_PER_BEAT);
+		//status, 					yposition, num frames, frames per beat,	loops, (true, different width)
+		Status.MOVING, 						0, 	4, FrameAnimation.FOUR_PER_BEAT, true,
+		Status.SUMMONING, 		 FRAME_HEIGHT, 	5, FrameAnimation.TWO_PER_BEAT, false,
+		Status.ASSASSINATING,FRAME_HEIGHT * 2, 	11, FrameAnimation.FOUR_PER_BEAT, false,
+		Status.FIGHTING, 	 FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_PER_BEAT, true,
+		Status.DYING, 		 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
+		Status.STANDING,					0,	1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
 		
 		public static const CENTER:Point = new Point(30, 22);
 		public static const HIT_BOX:Rectangle = new Rectangle(22, 5, 15, 32);

@@ -1,9 +1,9 @@
 ---Might do soon.----------
-- allow some animations to stop instead of looping
-
 - fix garbage collection
 
 - create more frames, they just look better that way - IP
+
+- remove sprite.freeze ?
 
 
 ---Should do at some point.----------------
@@ -141,3 +141,4 @@
 - create repeater class
 - better test coverage
 - pending switch indication - might still need some tweaking
+- allow some animations to stop instead of looping

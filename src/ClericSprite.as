@@ -22,13 +22,13 @@ package src
 		
 		public static const ANIMATIONS:AnimationCollection =
 		new AnimationCollection(CLERIC_DATA, FRAME_WIDTH, FRAME_HEIGHT,
-		//status, 				yposition, num frames, frames per beat,	(true, different width)
-		Status.MOVING, 					0, 	8, FrameAnimation.FOUR_PER_BEAT,
-		Status.SUMMONING, 	 FRAME_HEIGHT, 	6, FrameAnimation.TWO_PER_BEAT,
-		Status.BLESSING, FRAME_HEIGHT * 2, 	12, FrameAnimation.FOUR_PER_BEAT,
-		Status.FIGHTING, FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_HALVES_PER_BEAT,
-		Status.DYING, 	 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, true, DYING_FRAME_WIDTH,
-		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT);
+		//status, 				yposition, num frames, frames per beat,	loops, (true, different width)
+		Status.MOVING, 					0, 	8, FrameAnimation.FOUR_PER_BEAT, true,
+		Status.SUMMONING, 	 FRAME_HEIGHT, 	6, FrameAnimation.TWO_PER_BEAT, false,
+		Status.BLESSING, FRAME_HEIGHT * 2, 	12, FrameAnimation.FOUR_PER_BEAT, false, 
+		Status.FIGHTING, FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_HALVES_PER_BEAT, true,
+		Status.DYING, 	 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
+		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
 
 		
 		public static const CENTER:Point = new Point(16, 32);
