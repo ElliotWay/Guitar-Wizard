@@ -210,15 +210,15 @@ package src
 				opponentSummon(actor);
 			}
 			
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 2; index++) {
 				actor = Archer.create(true, true);
 				playerSummon(actor);
 			}
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 2; index++) {
 				actor = Assassin.create(true, true);
 				playerSummon(actor)
 			}
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 2; index++) {
 				actor = Cleric.create(true, true);
 				playerSummon(actor);
 			}

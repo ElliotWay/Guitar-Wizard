@@ -5,6 +5,8 @@
 
 - remove sprite.freeze ?
 
+- sync animations to beat better - sorta works?
+
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag - ?
@@ -24,8 +26,6 @@
 - create better shield sprite
 
 - responsiveness - visual reaction to every hit & miss?
-
-- sync animations to beat better
 
 
 ---Bugs.-------------------	
