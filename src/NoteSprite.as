@@ -1,7 +1,9 @@
 package  src
 {
-	import flash.display.Sprite;
+	import flash.display.BitmapData;
+	import flash.display.Shape;
 	import flash.events.Event;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
@@ -10,9 +12,10 @@ package  src
 	 * ...
 	 * @author Elliot Way
 	 */
-	public class NoteSprite extends Sprite 
+	public class NoteSprite extends Shape
 	{
 		public static const NOTE_SIZE:int = 20; //radius of the note circle. scales the size of the letter and the hold rectangle
+		
 		public static const F_COLOR:uint = 0xC00000;
 		public static const D_COLOR:uint = 0x0000FF;
 		public static const S_COLOR:uint = 0xFFFF00;
@@ -20,6 +23,34 @@ package  src
 		
 		public static const HIT_COLOR:uint = 0x30FF30;
 		public static const MISS_COLOR:uint = 0xFF0000;
+		
+		private static const LETTER_POSITION:Matrix = new Matrix();
+		LETTER_POSITION.translate( -NOTE_SIZE * .35, -NOTE_SIZE * .6);
+		
+		private static const F_TEXT_FIELD:TextField = new TextField();
+		F_TEXT_FIELD.text = "F";
+		F_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - F_COLOR, true));
+		private static const F_TEXT:BitmapData = new BitmapData(F_TEXT_FIELD.width, F_TEXT_FIELD.height, true, 0x0);
+		F_TEXT.draw(F_TEXT_FIELD);
+
+		private static const D_TEXT_FIELD:TextField = new TextField();
+		D_TEXT_FIELD.text = "D";
+		D_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - D_COLOR, true));
+		private static const D_TEXT:BitmapData = new BitmapData(D_TEXT_FIELD.width, D_TEXT_FIELD.height, true, 0x0);
+		D_TEXT.draw(D_TEXT_FIELD);
+		
+		private static const S_TEXT_FIELD:TextField = new TextField();
+		S_TEXT_FIELD.text = "S";
+		S_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - S_COLOR, true));
+		private static const S_TEXT:BitmapData = new BitmapData(S_TEXT_FIELD.width, S_TEXT_FIELD.height, true, 0x0);
+		S_TEXT.draw(S_TEXT_FIELD);
+		
+		private static const A_TEXT_FIELD:TextField = new TextField();
+		A_TEXT_FIELD.text = "A";
+		A_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - A_COLOR, true));
+		private static const A_TEXT:BitmapData = new BitmapData(A_TEXT_FIELD.width, A_TEXT_FIELD.height, true, 0x0);
+		A_TEXT.draw(A_TEXT_FIELD);
+		
 		
 		/**
 		 * Tells NoteSprite where the hit line is. Affects hold behavior,
@@ -61,42 +92,40 @@ package  src
 		}
 		
 		private function createImage():void {
+			//Determine which letter this is.
 			var noteColor:uint = 0x0;
-			if (associatedNote.letter == Note.NOTE_F)
+			var letterData:BitmapData = null;
+			if (associatedNote.letter == Note.NOTE_F) {
 				noteColor = F_COLOR;
-			if (associatedNote.letter == Note.NOTE_D)
+				letterData = F_TEXT;
+			} else if (associatedNote.letter == Note.NOTE_D) {
 				noteColor = D_COLOR;
-			if (associatedNote.letter == Note.NOTE_S)
+				letterData = D_TEXT;
+			} else if (associatedNote.letter == Note.NOTE_S) {
 				noteColor = S_COLOR;
-			if (associatedNote.letter == Note.NOTE_A)
+				letterData = S_TEXT;
+			} else {// (associatedNote.letter == Note.NOTE_A)
 				noteColor = A_COLOR;
+				letterData = A_TEXT;
+			}
 			
-			//create the image for this note
+			//Create the circle for this note.
 			this.graphics.beginFill(noteColor);
 			this.graphics.drawCircle(0, 0, NOTE_SIZE);
 			this.graphics.endFill();
-			//and the hold rectangle, if applicable
+			
+			//And the hold rectangle, if applicable.
 			if (associatedNote.isHold) {
 				this.graphics.beginFill(noteColor);
 				holdEndPoint = (associatedNote.endtime - associatedNote.time) * MusicArea.POSITION_SCALE;
 				this.graphics.drawRect(0, -NOTE_SIZE * .25, holdEndPoint, NOTE_SIZE * .5);
 				this.graphics.endFill();
 			}
-			//and the letter
-			var letter:TextField = new TextField();
-			letter.text = "?";
-			if (associatedNote.letter == Note.NOTE_F)
-				letter.text = "F";
-			if (associatedNote.letter == Note.NOTE_D)
-				letter.text = "D";
-			if (associatedNote.letter == Note.NOTE_S)
-				letter.text = "S";
-			if (associatedNote.letter == Note.NOTE_A)
-				letter.text = "A";
-			letter.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - noteColor, true));
-			this.addChild(letter);
-			letter.x = -NOTE_SIZE * .35;
-			letter.y = -NOTE_SIZE * .6;
+			
+			//The letter is drawn on top.
+			graphics.beginBitmapFill(letterData, LETTER_POSITION, false);
+			graphics.drawRect(-50, -50, letterData.width, letterData.height);
+			graphics.endFill();
 		}
 		
 		public function refresh():void {
