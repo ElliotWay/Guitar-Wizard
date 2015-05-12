@@ -1,11 +1,13 @@
 ---Might do soon.----------
-- fix garbage collection
+- fix garbage collection - ongoing
 
 - create more frames, they just look better that way - IP
 
 - remove sprite.freeze ?
 
 - sync animations to beat better - sorta works?
+
+- background transitions still have some bugs
 
 
 ---Should do at some point.----------------
@@ -27,6 +29,11 @@
 
 - responsiveness - visual reaction to every hit & miss?
 
+- object reuse: Actors - should be able to use ActorFactory
+- object reuse: Projectiles?
+- object reuse: NoteSprites? they're easy to redraw, after all
+- object reuse: other? that's most of them really, maybe cut down on the number of vectors or something
+
 
 ---Bugs.-------------------	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
@@ -46,6 +53,8 @@
 	- broke during linked listing?
 	
 - sometimes multiple tracks play at once after reswitching
+
+- timing on restart was slightly off? possibly due to memory leaks?
 
 
 ---Do Later.------------------
@@ -142,3 +151,4 @@
 - better test coverage
 - pending switch indication - might still need some tweaking
 - allow some animations to stop instead of looping
+- object reuse: ActorSprites

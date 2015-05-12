@@ -46,14 +46,14 @@ package src
 		{
 			
 			ANIMATIONS.initializeMap(super.animations,
-					isPlayerUnit ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
-					facesRight ? ActorSprite.RIGHT_FACING : ActorSprite.LEFT_FACING);
+					isPlayerUnit ? Actor.PLAYER : Actor.OPPONENT,
+					facesRight ? Actor.RIGHT_FACING : Actor.LEFT_FACING);
 					
 			//Retreating is special because it doesn't have a dedicated animation;
 			//it's just the movement animation facing the other direction.
 			super.animations[Status.RETREATING] = ANIMATIONS.find(Status.MOVING,
-					isPlayerUnit ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
-					facesRight ? ActorSprite.LEFT_FACING : ActorSprite.RIGHT_FACING).copy();
+					isPlayerUnit ? Actor.PLAYER : Actor.OPPONENT,
+					facesRight ? Actor.LEFT_FACING : Actor.RIGHT_FACING).copy();
 			
 			this.addChild(super.animations[Status.MOVING]);
 			this.addChild(super.animations[Status.RETREATING]);

@@ -62,8 +62,14 @@ package src {
 		
 		private var _repeater:Repeater;
 		
+		private var _actorFactory:ActorFactory;
+		
 		public function get repeater():Repeater {
 			return _repeater;
+		}
+		
+		public function get actorFactory():ActorFactory {
+			return _actorFactory;
 		}
 		
 		public function GameUI(repeater:Repeater) 
@@ -74,6 +80,8 @@ package src {
 		}
 		
 		private function init(e:Event):void {
+			_actorFactory = new ActorFactory();
+			
 			musicArea = new MusicArea(this);
 			this.addChild(musicArea);
 			musicArea.x = 0; musicArea.y = 0;
@@ -146,8 +154,10 @@ package src {
 			
 			summoningMeter.reset();
 
-			mainArea.go(Wizard.create(true), Wizard.create(false),
-					Shield.create(true), Shield.create(false));
+			mainArea.go(_actorFactory.create(ActorFactory.WIZARD, Actor.PLAYER, Actor.RIGHT_FACING) as Wizard,
+					_actorFactory.create(ActorFactory.WIZARD, Actor.OPPONENT, Actor.LEFT_FACING) as Wizard,
+					_actorFactory.create(ActorFactory.SHIELD, Actor.PLAYER, Actor.RIGHT_FACING) as Shield,
+					_actorFactory.create(ActorFactory.SHIELD, Actor.OPPONENT, Actor.LEFT_FACING) as Shield);
 			
 			combo = 0;
 			
@@ -157,7 +167,7 @@ package src {
 			//Let the opponent start summoning.
 			opponentTimer = new Timer(opponent.timeToAct, 0); //0 repeats indefinitely.
 			opponentTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-				var opponentSummon:Vector.<Actor> = opponent.act();
+				var opponentSummon:Vector.<Actor> = opponent.act(actorFactory);
 				for each(var actor:Actor in opponentSummon) {
 					mainArea.opponentSummon(actor);
 				}
@@ -184,7 +194,7 @@ package src {
 			musicArea.stop();
 			musicPlayer.stop();
 			
-			song.unload();
+			song.dissociate();
 			
 			if (quitTimer != null)
 				quitTimer.stop();
@@ -342,11 +352,11 @@ package src {
 			var actor:Actor;
 			
 			if (musicArea.currentTrack == Main.HIGH)
-				actor = Assassin.create(true, true);
+				actor = _actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 			else if (musicArea.currentTrack == Main.MID)
-				actor = Archer.create(true, true);
+				actor = _actorFactory.create(ActorFactory.ARCHER, Actor.PLAYER, Actor.RIGHT_FACING);
 			else
-				actor = Cleric.create(true, true);
+				actor = _actorFactory.create(ActorFactory.CLERIC, Actor.PLAYER, Actor.RIGHT_FACING);
 				
 			mainArea.playerSummon(actor);
 		}

@@ -27,12 +27,6 @@ package src
 		private var blessTimer:Timer;
 		private var blessCooldownTimer:Timer;
 		
-		public static function create(isPlayerPiece:Boolean, facesRight:Boolean):Cleric {
-			return new Cleric(isPlayerPiece, facesRight,
-					new ClericSprite(isPlayerPiece, facesRight),
-					new SmallCircleSprite(isPlayerPiece ? 0x0040FF : 0xFF4000));
-		}
-		
 		public function Cleric(isPlayerPiece:Boolean, facesRight:Boolean,
 				sprite:ActorSprite, miniSprite:MiniSprite) {
 			
@@ -134,17 +128,14 @@ package src
 				}
 			}
 			
-			
-			this.checkIfDead(repeater);
 		}
 		
 		override public function clean():void {
 			super.clean();
 			
 			if (blessTimer != null) {
-				//Bless anyone that this cleric was about to bless.
-				blessTimer.dispatchEvent(new TimerEvent(TimerEvent.TIMER_COMPLETE));
-				//The event handler also removes the timer.
+				blessTimer.stop();
+				blessTimer = null;
 			}
 			
 			if (blessCooldownTimer != null) {

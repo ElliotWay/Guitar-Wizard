@@ -16,7 +16,7 @@ package src
 		 * Proceed with whatever the opponent is going to do.
 		 * @return a vector contain the actors to summon.
 		 */
-		function act():Vector.<Actor>;
+		function act(actorFactory:ActorFactory):Vector.<Actor>;
 	}
 	
 }

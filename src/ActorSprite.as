@@ -37,7 +37,13 @@ package src {
 		
 		private var blessedEffect:Bitmap;
 		
+		public function get center():Point {
+			return new Point(this.x + this.width / 2, this.y + this.height / 2);
+		}
 		
+		public function get hitBox():Rectangle {
+			return this.getBounds(this.parent);
+		}
 		
 		public function ActorSprite() 
 		{
@@ -67,9 +73,12 @@ package src {
 		/**
 		 * Animate the given status.
 		 * @param	status the status to animate
+		 * @param   repeater repeater to control the speed of the animation
 		 * @param	onComplete a function to run once we're past the last frame
+		 * @param   args arguments to pass to the onComplete function
 		 */
-		public function animate(status:int, repeater:Repeater, onComplete:Function = null):void {
+		public function animate(status:int, repeater:Repeater,
+				onComplete:Function = null, args:Array = null):void {
 			if (status == Status.DYING)
 				hideBlessed();
 			
@@ -104,7 +113,7 @@ package src {
 			}
 			
 			if (onComplete != null) {
-				currentAnimation.setOnComplete(onComplete);
+				currentAnimation.setOnComplete(onComplete, args);
 			}
 		}
 		
@@ -141,7 +150,8 @@ package src {
 		}
 		
 		/**
-		 * Move this animation to the bottom of its parent container.
+		 * Move this sprite to the bottom of its parent container.
+		 * Does nothing if this sprite has no parent.
 		 */
 		public function moveToBottom():void {
 			if (this.parent != null) {
@@ -149,12 +159,21 @@ package src {
 			}
 		}
 		
-		public function get center():Point {
-			return new Point(this.x + this.width / 2, this.y + this.height / 2);
-		}
-		
-		public function get hitBox():Rectangle {
-			return this.getBounds(this.parent);
+		/**
+		 * Free all data used by this sprite.
+		 * Do not use the sprite after calling this method.
+		 */
+		public function unload(repeater:Repeater):void {
+			
+			currentAnimation = null;
+			defaultAnimation = null;
+			
+			blessedEffect = null;
+			
+			for (var status:* in animations) {
+				(animations[status] as FrameAnimation).unload(repeater);
+				delete animations[status];
+			}
 		}
 	}
 

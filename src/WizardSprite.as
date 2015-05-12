@@ -27,19 +27,19 @@ package src
 		Status.DYING,		  FRAME_WIDTH,	11, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
 		Status.STANDING,                0,   1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
 		
-		ANIMATIONS.find(Status.PLAY_MID, ActorSprite.PLAYER, ActorSprite.RIGHT_FACING)
+		ANIMATIONS.find(Status.PLAY_MID, Actor.PLAYER, Actor.RIGHT_FACING)
 				.setFrequency(FrameAnimation.ON_STEP);
 				
 		public static const CENTER:Point = new Point(18, 26);
 		
 		private var relativeCenter:Point;
 		
-		public function WizardSprite(isPlayerPiece:Boolean) 
+		public function WizardSprite(isPlayerPiece:Boolean, facesRight:Boolean) 
 		{
 			
 			ANIMATIONS.initializeMap(super.animations,
-					isPlayerPiece ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
-					isPlayerPiece ? ActorSprite.RIGHT_FACING : ActorSprite.LEFT_FACING);
+					isPlayerPiece ? Actor.PLAYER : Actor.OPPONENT,
+					facesRight ? Actor.RIGHT_FACING : Actor.LEFT_FACING);
 			
 			this.addChild(super.animations[Status.PLAY_MID]);
 			this.addChild(super.animations[Status.PLAY_HIGH]);

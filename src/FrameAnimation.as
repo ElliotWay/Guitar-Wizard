@@ -38,10 +38,16 @@ package src
 		private var runner:Function;
 		
 		private var onComplete:Function;
+		private var onCompleteArgs:Array;
+		
+		public function get frames():Vector.<Bitmap> 
+		{
+			return _frames;
+		}
 		
 		/**
 		 * Create an empty frame animation.
-		 * Don't call this, use FrameAnimation.create or FrameAnimation.copy or FrameAnimation.flip instead.
+		 * Don't call this, use FrameAnimation.create or FrameAnimation.copy instead.
 		 */
 		public function FrameAnimation() {
 			onComplete = null;
@@ -175,9 +181,11 @@ package src
 		 * The function is called when as the animation returns to the first frame,
 		 * or advancing past the last frame if the animation does not loop.
 		 * @param	func the function to call
+		 * @param   args arguments with which to call the function
 		 */
-		public function setOnComplete(func:Function):void {
+		public function setOnComplete(func:Function, args:Array = null):void {
 			onComplete = func;
+			onCompleteArgs = args;
 		}
 		
 		/**
@@ -277,8 +285,9 @@ package src
 			frameIndex++;
 			
 			if (frameIndex >= frames.length) {
-				if (onComplete != null)
-					onComplete.call();
+				if (onComplete != null) {
+					onComplete.apply(null, onCompleteArgs);
+				}
 					
 				if (loops) {
 					frameIndex = 0;
@@ -305,12 +314,19 @@ package src
 			runner = null;
 		}
 		
-		public function get frames():Vector.<Bitmap> 
-		{
-			return _frames;
+		public function unload(repeater:Repeater):void {
+			this.stop(repeater);
+			
+			for each (var bm:Bitmap in _frames) {
+				this.removeChild(bm);
+			}
+			
+			_frames.splice(0, _frames.length); //Removes internal references.
+			_frames = null;
+			
+			runner = null;
+			onComplete = null;
 		}
-		
-		
 	}
 
 }

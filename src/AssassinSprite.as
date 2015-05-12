@@ -39,8 +39,8 @@ package src
 		{
 			
 			ANIMATIONS.initializeMap(super.animations,
-					isPlayerUnit ? ActorSprite.PLAYER : ActorSprite.OPPONENT,
-					facesRight ? ActorSprite.RIGHT_FACING : ActorSprite.LEFT_FACING);
+					isPlayerUnit ? Actor.PLAYER : Actor.OPPONENT,
+					facesRight ? Actor.RIGHT_FACING : Actor.LEFT_FACING);
 					
 			this.addChild(super.animations[Status.MOVING]);
 			this.addChild(super.animations[Status.SUMMONING]);

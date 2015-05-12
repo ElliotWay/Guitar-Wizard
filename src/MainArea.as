@@ -9,6 +9,7 @@ package src
 	import flash.events.EventDispatcher;
 	import flash.events.EventPhase;
 	import flash.events.TimerEvent;
+	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.utils.Timer;
 	import mx.controls.List;
@@ -68,6 +69,9 @@ package src
 		
 		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
 		
+		private static const NO_COLOR_CHANGE:ColorTransform = new ColorTransform();
+		
+		
 		public static const AUTO_SCROLL_DELAY:int = 3000;
 		public static const REPEATED_SCROLL_DELAY:int = 3000;
 		
@@ -75,6 +79,8 @@ package src
 		
 		public static const MAX_LIGHTNING_DISTANCE:Number = SHIELD_POSITION + 20;
 		public static const LIGHTNING_DAMAGE:Number = 5;
+		
+		private var actorFactory:ActorFactory;
 		
 		private var playerActors:Vector.<Actor>;
 		private var opponentActors:Vector.<Actor>;
@@ -121,6 +127,7 @@ package src
 			this.gameUI = gameUI;
 			mainArea = this;
 			repeater = gameUI.repeater;
+			actorFactory = gameUI.actorFactory;
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -164,6 +171,8 @@ package src
 			
 			prepMinimap(minimap);
 			
+			//Create scrolling timers
+			
 			autoScrollTimer = new Timer(AUTO_SCROLL_DELAY, 1);
 			autoScrollTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 				repeatedScrollTimer.start();
@@ -197,29 +206,29 @@ package src
 			var index:int;
 			var actor:Actor;
 			
-			for (index = 0; index < 0; index++) {
-				actor = Archer.create(false, false);
+			for (index = 0; index < 2; index++) {
+				actor = actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 0; index++) {
-				actor = Assassin.create(false, false);
+			for (index = 0; index < 2; index++) {
+				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 0; index++) {
-				actor = Cleric.create(false, false);
+			for (index = 0; index < 2; index++) {
+				actor = actorFactory.create(ActorFactory.CLERIC, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
 			
 			for (index = 0; index < 2; index++) {
-				actor = Archer.create(true, true);
+				actor = actorFactory.create(ActorFactory.ARCHER, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
 			for (index = 0; index < 2; index++) {
-				actor = Assassin.create(true, true);
+				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor)
 			}
 			for (index = 0; index < 2; index++) {
-				actor = Cleric.create(true, true);
+				actor = actorFactory.create(ActorFactory.CLERIC, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
 			
@@ -227,6 +236,7 @@ package src
 		
 		public function go(playerWizard:Wizard, opponentWizard:Wizard, playerShield:Shield, opponentShield:Shield):void {
 			Actor.resetPlayerBuff();
+			trace("approx actors on start: " + arena.numChildren);
 
 			playerShield.position();
 			arena.addChild(playerShield.sprite);
@@ -299,47 +309,79 @@ package src
 		public function stop():void {
 			repeater.stopRunningEveryFrame(step);
 			
+			//Remove remaining actors.
 			var actor:Actor;
-			for each (actor in playerActors)
-				actor.clean();
-			for each (actor in opponentActors)
-				actor.clean();
+			for each (actor in playerActors) {
+				arena.removeChild(actor.sprite);
+				minimap.removeChild(actor.miniSprite);
+				
+				actorFactory.destroy(actor, repeater);
+			}
+			for each (actor in opponentActors) {
+				arena.removeChild(actor.sprite);
+				minimap.removeChild(actor.miniSprite);
+				
+				actorFactory.destroy(actor, repeater);
+			}
 			
-			playerActors = new Vector.<Actor>();
-			opponentActors = new Vector.<Actor>();
+			playerActors.splice(0, playerActors.length);
+			opponentActors.splice(0, opponentActors.length);
 			
-			scrollable.removeChild(arena);
+			/*scrollable.removeChild(arena);
 			arena = new Sprite();
 			scrollable.addChildAt(arena, 1);
 			
 			this.removeChild(minimap);
 			minimap = new Sprite();
 			this.addChild(minimap);
-			prepMinimap(minimap);
+			prepMinimap(minimap);*/
 			
+			//Remove remaining projectiles.
 			var projectile:Projectile;
 			
 			for each (projectile in projectiles) {
 				projectile.forceFinish();
 			}
-			projectiles = new Vector.<Projectile>();
+			projectiles.splice(0, projectiles.length);
 			
-			
+			//Remove wizards.
+			if (arena.contains(playerWizard.sprite)) {
+				arena.removeChild(playerWizard.sprite);
+			}
+			actorFactory.destroy(playerWizard, repeater);
 			playerWizard = null;
+			
+			if (arena.contains(opponentWizard.sprite)) {
+				arena.removeChild(opponentWizard.sprite);
+			}
+			actorFactory.destroy(opponentWizard, repeater);
 			opponentWizard = null;
 			
-			playerWizardKiller = null;
+			//Remove wizard killers.
+			if (playerWizardKiller != null) {
+				arena.removeChild(playerWizardKiller.sprite);
+				actorFactory.destroy(playerWizardKiller, repeater);
+				playerWizardKiller = null;
+			}
+			
 			if (playerWizardKillerTimer != null) {
 				playerWizardKillerTimer.stop();
 				playerWizardKillerTimer = null;
 			}
 			
-			opponentWizardKiller = null;
+			if (opponentWizardKiller != null) {
+				arena.removeChild(opponentWizardKiller.sprite);
+				actorFactory.destroy(opponentWizardKiller, repeater);
+				opponentWizardKiller = null;
+			}
+			
 			if (opponentWizardKillerTimer != null) {
 				opponentWizardKillerTimer.stop();
 				opponentWizardKillerTimer = null;
 			}
 			
+			//Stop scrolling.
+			scrollable.jumpLeft();
 			autoScrollTimer.stop();
 			repeatedScrollTimer.stop();
 		}
@@ -501,22 +543,23 @@ package src
 		 * @param	actor
 		 */
 		private function wizardKillMode(actor:Actor):void {
-			trace(actor.isDead);
 			arena.removeChild(actor.sprite);
 			minimap.removeChild(actor.miniSprite);
 			
-			//TODO kill actor?
-			
 			var wizardKiller:Actor;
 			
+			var actorClass:int = -1;
 			if (actor is Archer)
-				wizardKiller = Archer.create(actor.isPlayerActor, !actor.facesRight);
+				actorClass = ActorFactory.ARCHER;
 			else if (actor is Assassin)
-				wizardKiller = Assassin.create(actor.isPlayerActor, !actor.facesRight);
-			else
-				wizardKiller = Cleric.create(actor.isPlayerActor, !actor.facesRight);
+				actorClass = ActorFactory.ASSASSIN;
+			else // (actor is Cleric)
+				actorClass = ActorFactory.CLERIC;
 			
-			
+			wizardKiller = actorFactory.create(actorClass,
+					(actor.isPlayerActor ? Actor.PLAYER : Actor.OPPONENT),
+					(actor.facesRight ? Actor.LEFT_FACING : Actor.RIGHT_FACING));
+				
 			wizardKiller.sprite.y = WIZARD_Y - actor.sprite.height;
 			
 			if (actor.isPlayerActor) {
@@ -545,6 +588,9 @@ package src
 				});
 				opponentWizardKillerTimer.start();
 			}
+			
+			//Don't destroy the actor until we're completely finished with it.
+			actorFactory.destroy(actor, repeater);
 		}
 		
 		/**
@@ -552,6 +598,57 @@ package src
 		 */
 		public function updateWizard():void {
 			playerWizard.play();
+		}
+		
+		/**
+		 * Tell all the actors to act.
+		 * @param	e an enter frame event
+		 */
+		public function step():void {
+			var actor:Actor;
+			
+			//Tell actors to act.
+			for each (actor in playerActors) {
+				actor.act(playerActors, opponentActors, repeater);
+			}
+			for each (actor in opponentActors) {
+				actor.act(opponentActors, playerActors, repeater);
+			}
+			
+			
+			checkProjectiles();
+			updateMinimap();
+			
+			//Tell actors to check if they've died.
+			for each (actor in playerActors) {
+				actor.checkIfDead(repeater, fadeActor);
+			}
+			for each (actor in opponentActors) {
+				actor.checkIfDead(repeater, fadeActor);
+			}
+			
+			//Collect dead actors and actors over the edge.
+			playerActors = playerActors.filter(removeFinished);
+			
+			opponentActors = opponentActors.filter(removeFinished);
+			
+			//Tell the wizard killers to act.
+			var wizardList:Vector.<Actor>;
+			if (playerWizardKiller != null && !opponentWizard.isDead) {
+				wizardList = new Vector.<Actor>(1, true);
+				wizardList[0] = opponentWizard;
+				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
+				
+				opponentWizard.checkIfDead(repeater, finishWizard);
+			}
+			
+			if (opponentWizardKiller != null && !playerWizard.isDead) {
+				wizardList = new Vector.<Actor>(1, true);
+				wizardList[0] = playerWizard;
+				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
+				
+				playerWizard.checkIfDead(repeater, finishWizard);
+			}
 		}
 		
 		/**
@@ -592,74 +689,6 @@ package src
 					
 				} else {
 					return true;
-				}
-			}
-		}
-		
-		/**
-		 * Tell all the actors to act.
-		 * @param	e an enter frame event
-		 */
-		public function step():void {
-			var actor:Actor;
-			
-			//Tell actors to act.
-			for each (actor in playerActors) {
-				actor.act(playerActors, opponentActors, repeater);
-			}
-			
-			for each (actor in opponentActors) {
-				actor.act(opponentActors, playerActors, repeater);
-			}
-			
-			checkProjectiles();
-			updateMinimap();
-			
-			//Collect dead actors and actors over the edge.
-			playerActors = playerActors.filter(removeFinished);
-			
-			opponentActors = opponentActors.filter(removeFinished);
-			
-			//Tell the wizard killers to act.
-			var wizardList:Vector.<Actor>;
-			if (playerWizardKiller != null && !opponentWizard.isDead) {
-				wizardList = new Vector.<Actor>(1, true);
-				wizardList[0] = opponentWizard;
-				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
-				
-				opponentWizard.checkIfDead(repeater);
-				if (opponentWizard.isDead) {
-					SoundPlayer.playScream();
-					
-					scrollable.jumpRight();
-					repeatedScrollTimer.reset();
-					autoScrollTimer.reset();
-					autoScrollTimer.start();
-					
-					opponentWizard.die(gameUI.opponentWizardDead, repeater);
-					
-					playerWizardKiller.sprite.animate(Status.STANDING, repeater);
-					
-				}
-			}
-			
-			if (opponentWizardKiller != null && !playerWizard.isDead) {
-				wizardList = new Vector.<Actor>(1, true);
-				wizardList[0] = playerWizard;
-				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
-				
-				playerWizard.checkIfDead(repeater);
-				if (playerWizard.isDead) {
-					SoundPlayer.playScream();
-					
-					scrollable.jumpLeft();
-					repeatedScrollTimer.reset();
-					autoScrollTimer.reset();
-					autoScrollTimer.start();
-					
-					playerWizard.die(gameUI.playerWizardDead, repeater);
-							
-					opponentWizardKiller.sprite.animate(Status.STANDING, repeater);
 				}
 			}
 		}
@@ -711,6 +740,43 @@ package src
 			projectiles = projectiles.filter(function(projectile:Projectile, index:int, vector:Vector.<Projectile>):Boolean {
 				return !projectile.finished;
 			});
+		}
+		
+		private function fadeActor(actor:Actor):void {
+			var	fading:TweenLite = new TweenLite(actor.sprite, 5, { tint : 0xB0D090,
+					onComplete:removeActor, onCompleteParams:[actor] });
+		}
+		
+		private function removeActor(actor:Actor):void {
+			//Restore the sprite to unfaded.
+			actor.sprite.transform.colorTransform = NO_COLOR_CHANGE;
+			
+			arena.removeChild(actor.sprite);
+			
+			if (actor is Wizard) {
+				if (actor.isPlayerActor) {
+					gameUI.playerWizardDead();
+				} else {
+					gameUI.opponentWizardDead();
+				}
+			} else {
+				actorFactory.destroy(actor, repeater);
+			}
+		}
+		
+		private function finishWizard(wizard:Wizard):void {
+			SoundPlayer.playScream();
+			
+			if (wizard.isPlayerActor) 
+				scrollable.jumpLeft();
+			else
+				scrollable.jumpRight();
+				
+			repeatedScrollTimer.reset();
+			autoScrollTimer.reset();
+			autoScrollTimer.start();
+			
+			fadeActor(wizard);
 		}
 		
 		private var scrollDirection:int = 0;

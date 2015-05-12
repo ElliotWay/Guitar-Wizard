@@ -7,9 +7,9 @@ package src
 	public class ThinLineSprite extends MiniSprite 
 	{
 		
-		public function ThinLineSprite(color:uint) 
+		public function ThinLineSprite(isPlayerPiece:Boolean) 
 		{
-			this.graphics.beginFill(color);
+			this.graphics.beginFill(0x00FFFF);
 			this.graphics.drawRect(0, 0, 2, 10);
 			this.graphics.endFill();
 		}

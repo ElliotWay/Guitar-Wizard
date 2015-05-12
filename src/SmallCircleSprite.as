@@ -7,9 +7,9 @@ package src
 	public class SmallCircleSprite extends MiniSprite 
 	{
 		
-		public function SmallCircleSprite(color:uint) 
+		public function SmallCircleSprite(isPlayerPiece:Boolean) 
 		{
-			graphics.beginFill(color);
+			graphics.beginFill(isPlayerPiece ? 0x0040FF : 0xFF4000);
 			graphics.drawCircle(2, 2, 2);
 		}
 		

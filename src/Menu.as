@@ -24,7 +24,7 @@ package src
 			this.graphics.endFill();
 			
 			var goButton:MenuTextButton = new MenuTextButton("GO!!!!1",
-					function():void { Main.switchToGame("../assets/FurElise.gws"); } );
+					function():void { Main.switchToGame(); } );
 			
 			this.addChild(goButton);
 			goButton.x = 100;

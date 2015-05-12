@@ -18,6 +18,13 @@ package src {
 	 */
 	public class Actor
 	{
+		public static const PLAYER:int = 0;
+		public static const OPPONENT:int = 1;
+		
+		public static const RIGHT_FACING:int = 0;
+		public static const LEFT_FACING:int = 1;
+		
+		
 		protected static var player_buff:Number = 1.0;
 		private static var buff_change:Number = 0.0125;
 		
@@ -345,8 +352,13 @@ package src {
 		/**
 		 * Checks if hitpoints is below 0.
 		 * If we're dead, sets status and animation to DYING.
-		 */ 
-		public function checkIfDead(repeater:Repeater):void {
+		 * 
+		 * @param	repeater timing control for potential dying animation.
+		 * @param	remove function to call once the actor has finished dying, if necessary.
+		 * 		This function should take the actor as an argument.
+		 */
+		public function checkIfDead(repeater:Repeater, afterDead:Function):void {
+			//TODO put this somewhere else
 			blessCounter--;
 			if (blessCounter == 0) {
 				_sprite.hideBlessed();
@@ -357,21 +369,11 @@ package src {
 				halt();
 				clean();
 				
-				
 				_sprite.moveToBottom();
 				
 				_status = Status.DYING;
 				_isDead = true;
-				_sprite.animate(Status.DYING, repeater, function():void {
-					
-					fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
-						onComplete:function():void {
-							_sprite.parent.removeChild(_sprite);
-							clean();
-						} } );
-					} );
-				
-				
+				_sprite.animate(Status.DYING, repeater, afterDead, [this]);
 			}
 		}
 		
@@ -386,6 +388,7 @@ package src {
 		/**
 		 * Stops all animations, so they're not leaking memory somewhere.
 		 * Override this method if an actor has its own animations.
+		 * Use unload to completely stop this actor.
 		 */
 		public function clean():void {
 			if (movement != null)
@@ -398,6 +401,18 @@ package src {
 				
 			//TODO needed?
 			//_sprite.freeze();
+		}
+		
+		/**
+		 * Dereferences the sprites of this actor, but otherwise leaves them untouched.
+		 * Calls clean() first (so you don't have to call clean as well).
+		 * Don't use the actor after calling this method.
+		 */
+		public function dispose(repeater:Repeater):void {
+			clean();
+			
+			_miniSprite = null;
+			_sprite = null;
 		}
 	}
 

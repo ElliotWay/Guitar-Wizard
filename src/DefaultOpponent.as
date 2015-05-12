@@ -19,21 +19,21 @@ package src
 			return _timeToAct;
 		}
 		
-		public function act():Vector.<Actor> 
+		public function act(actorFactory:ActorFactory):Vector.<Actor> 
 		{
 			//Basic strategy of summon one DefaultActor.
 			
 			var out:Vector.<Actor> = new Vector.<Actor>();
-			//return out;
+			return out;
 			
 			var type:Number = Math.random() * 3;
 			
 			if (type < 1)
-				out.push(Assassin.create(false, false));
+				out.push(actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING));
 			else if (type < 2)
-				out.push(Archer.create(false, false));
+				out.push(actorFactory.create(ActorFactory.ASSASSIN, Actor.OPPONENT, Actor.LEFT_FACING));
 			else
-				out.push(Cleric.create(false, false));
+				out.push(actorFactory.create(ActorFactory.CLERIC, Actor.OPPONENT, Actor.LEFT_FACING));
 			
 			return out;
 		}

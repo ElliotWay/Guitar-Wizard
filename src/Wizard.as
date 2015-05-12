@@ -9,15 +9,9 @@ package src
 	{
 		private var _isCompletelyDead:Boolean = false;
 		
-		public static function create(isPlayerPiece:Boolean):Wizard {
-			return new Wizard(isPlayerPiece,
-					new WizardSprite(isPlayerPiece),
-					new SmallTriangleSprite(0x000060));
-		}
-		
-		public function Wizard(playerPiece:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		public function Wizard(playerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
 		{
-			super(playerPiece, playerPiece, sprite, miniSprite);
+			super(playerPiece, facesRight, sprite, miniSprite);
 					
 					
 			this._hitpoints = 1;
@@ -50,12 +44,15 @@ package src
 			}
 		}
 		
+		//Make sure this is no longer needed.
+		
 		/**
-		 * Updates isDead. Does NOT start the dieing animation, unlike most actors.
-		 * Use die to kill, then isCompletelyDead to check if the wizard has finished dieing.
+		 * Updates isDead. Does NOT start the dying animation, unlike most actors.
+		 * Use die to kill, then isCompletelyDead to check if the wizard has finished dying.
 		 * @param	repeater
-		 */
-		override public function checkIfDead(repeater:Repeater):void {
+		 * @param   afterDead
+		 *//*
+		override public function checkIfDead(repeater:Repeater, afterDead:Function):void {
 			if (_hitpoints < 0)
 				_isDead = true;
 		}
@@ -73,7 +70,7 @@ package src
 				fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
 				onComplete:function():void {
 						_sprite.parent.removeChild(_sprite);
-						clean();
+						dispose(repeater);
 						
 						_isCompletelyDead = true;
 						
@@ -81,6 +78,7 @@ package src
 				} } );
 			} );
 		}
+		*/
 		
 		/**
 		 * Whether the wizard has finished dying.

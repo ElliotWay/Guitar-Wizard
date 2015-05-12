@@ -30,12 +30,6 @@ package src
 		private var landedTimer:Timer;
 		private var jumpTarget:Number;
 		
-		public static function create(isPlayerPiece:Boolean, facesRight:Boolean):Assassin {
-			return new Assassin(isPlayerPiece, facesRight,
-					new AssassinSprite(isPlayerPiece, facesRight),
-					new SmallSquareSprite(isPlayerPiece ? 0x0000FF : 0xFF0000));
-		}
-		
 		public function Assassin(isPlayerPiece:Boolean, facesRight:Boolean,
 				sprite:ActorSprite, miniSprite:MiniSprite) 
 		{
@@ -132,7 +126,6 @@ package src
 			
 			}//End of check for ongoing status.
 			
-			this.checkIfDead(repeater);
 		}
 		
 		override public function predictPosition(time:Number):Point {
@@ -157,8 +150,15 @@ package src
 		override public function clean():void {
 			super.clean();
 			
-			if (jumping != null)
+			if (landedTimer != null) {
+				landedTimer.stop();
+				landedTimer = null;
+			}
+			
+			if (jumping != null) {
 				jumping.kill();
+				jumping = null;
+			}
 		}
 	}
 

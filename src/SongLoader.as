@@ -20,12 +20,29 @@ package  src
 	{
 		private var loading:Dictionary;
 		
+		private var _isPending:Boolean;
 		private var _isLoading:Boolean;
+		
+		/**
+		 * Whether the loader has music files queued to load.
+		 */
+		public function get isPending():Boolean {
+			return _isPending;
+		}
+		
+		/**
+		 * Whether the music is currently loading.
+		 * isLoading => !isPending
+		 */
+		public function get isLoading():Boolean {
+			return _isLoading;
+		}
 		
 		public function SongLoader() 
 		{
 			loading = new Dictionary();
 			
+			_isPending = false;
 			_isLoading = false;
 		}
 		
@@ -37,8 +54,10 @@ package  src
 		 * @param	url the url of the mp3 file
 		 */
 		public function addSong(s:Sound, url:String):void {
-			if (!_isLoading)
+			if (!_isLoading) {
 				loading[s] = url;
+				_isPending = true;
+			}
 		}
 		
 		/**
@@ -49,7 +68,7 @@ package  src
 		 * Calling this method before loading has finished has been called will have not effect.
 		 */
 		public function load():void {
-			if (!_isLoading) {
+			if (!_isLoading && isPending) {
 				for (var key:Object in loading) {
 					var song:Sound = Sound(key);
 					song.addEventListener(IOErrorEvent.IO_ERROR, songError);
@@ -58,6 +77,7 @@ package  src
 					song.load(new URLRequest(loading[song]));
 				}
 				
+				_isPending = false;
 				_isLoading = true;
 			}
 		}
@@ -82,7 +102,7 @@ package  src
 				if (numKeys == 0) {
 					_isLoading = false;
 					
-					Main.go();
+					Main.musicFileLoaded();
 				}
 			}
 		}

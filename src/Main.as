@@ -45,7 +45,6 @@ package src
 		
 		private function init(e:Event = null):void 
 		{
-			
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
@@ -62,24 +61,35 @@ package src
 			this.addChild(gameUI);
 			gameUI.visible = false;
 			
-			switchToGame("../assets/FurElise.gws");
-		}
-		
-		public static function fileLoaded():void {
-			gameUI.loadSong(song);
+			song = new Song("../assets/FurElise.gws");
 			
-			songLoader.load();
+			switchToGame();
 		}
 		
-		public static function switchToGame(songFile:String):void {
-			song = new Song();
-			song.loadFile(songFile);
+		public static function switchToGame():void {
+			song.loadFile();
 			
 			menu.visible = false;
 			gameUI.visible = true;
 		}
 		
-		public static function go():void {
+		/**
+		 * Callback function for song.loadFile
+		 */
+		public static function songFileReady():void {
+			gameUI.loadSong(song);
+			
+			if (songLoader.isPending) {
+				songLoader.load();
+			} else {
+				gameUI.go();
+			}
+		}
+		
+		/**
+		 * Callback function for songLoader.load
+		 */
+		public static function musicFileLoaded():void {
 			gameUI.go();
 		}
 		

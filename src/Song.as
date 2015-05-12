@@ -24,25 +24,44 @@ package  src
 		private var _highMusic:Sound;
 		private var _baseMusic:Sound;
 		
+		private var fileName:String;
+		private var _fileLoaded:Boolean;
 		private var loader:URLLoader;
 		
-		public function Song() 
-		{
-			
+		public function get fileLoaded():Boolean {
+			return _fileLoaded;
 		}
 		
 		/**
-		 * Load a gsw file, that is a Guitar Wizard Song file.
-		 * @param	fileName the url of the file
+		 * Create a new song from a GWS file.
+		 * Call loadFile to actually load.
+		 * @param	fileName
 		 */
-		public function loadFile(fileName:String):void {
-			loader = new URLLoader(new URLRequest(fileName));
-			
-			loader.addEventListener(Event.COMPLETE, interpretFile);
-			loader.addEventListener(IOErrorEvent.IO_ERROR, fileError);
+		public function Song(fileName:String) 
+		{
+			this.fileName = fileName;
+			_fileLoaded = false;
 		}
 		
-		public function unload():void {
+		/**
+		 * Load the GWS file and call Main.fileLoaded when its finished.
+		 * If the file is already loaded, this will call fileLoaded immediately.
+		 */
+		public function loadFile():void {
+			if (!_fileLoaded) {
+				loader = new URLLoader(new URLRequest(fileName));
+			
+				loader.addEventListener(Event.COMPLETE, interpretFile);
+				loader.addEventListener(IOErrorEvent.IO_ERROR, fileError);
+			} else {
+				Main.songFileReady();
+			}
+		}
+		
+		/**
+		 * Disconnect this song from any note sprites.
+		 */
+		public function dissociate():void {
 			var note:Note;
 			var block:Vector.<Note>;
 			
@@ -51,25 +70,16 @@ package  src
 					note.dissociate();
 				}
 			}
-			_lowPart = null;
 			for each (block in _midPart) {
 				for each (note in block) {
 					note.dissociate();
 				}
 			}
-			_midPart = null;
 			for each (block in _highPart) {
 				for each (note in block) {
 					note.dissociate();
 				}
 			}
-			_highPart = null;
-			
-			_blocks = null;
-			
-			_lowMusic = null;
-			_midMusic = null;
-			_highMusic = null;
 		}
 		
 		private function fileError(e:Event):void {
@@ -120,7 +130,9 @@ package  src
 				Main.showError(error.message);
 			}
 			
-			Main.fileLoaded();
+			_fileLoaded = true;
+			
+			Main.songFileReady();
 		}
 		
 		/**

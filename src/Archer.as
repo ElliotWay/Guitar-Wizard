@@ -42,12 +42,6 @@ package src
 		
 		private var shotFiredTimer:Timer;
 		
-		public static function create(isPlayerPiece:Boolean, facesRight:Boolean):Archer {
-			return new Archer(isPlayerPiece, facesRight,
-					new ArcherSprite(isPlayerPiece, facesRight),
-					new SmallTriangleSprite(isPlayerPiece ? 0x2020B0 : 0xB02020));
-		}
-		
 		public function Archer(isPlayerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
 		{	
 			super(isPlayerPiece, facesRight, sprite, miniSprite);
@@ -70,7 +64,7 @@ package src
 			
 			//Do other stuff.
 			
-			//If we're shooting, we need to finish shooting before doing anything else.
+			//If we're busy, we need to finish before doing anything else.
 			if (_status != Status.SHOOTING && _status != Status.FIGHTING) {
 				
 				//Find the closest valid target.
@@ -126,8 +120,6 @@ package src
 					}
 				}
 			}
-			
-			checkIfDead(repeater);
 		}
 		
 		private function isBehindShield():Boolean {

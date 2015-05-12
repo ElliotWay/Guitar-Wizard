@@ -9,15 +9,11 @@ package src
 	 */
 	public class Shield extends Actor 
 	{
-		public static function create(isPlayerPiece:Boolean):Shield {
-			return new Shield(isPlayerPiece, isPlayerPiece);
-		}
 		
-		public function Shield(playerPiece:Boolean, facesRight:Boolean) 
+		public function Shield(playerPiece:Boolean, facesRight:Boolean,
+				sprite:ActorSprite, miniSprite:MiniSprite) 
 		{
-			super(playerPiece, facesRight,
-					new ShieldSprite(playerPiece, facesRight),
-					new ThinLineSprite(0x00FFFF));
+			super(playerPiece, facesRight, sprite, miniSprite);
 			
 			this.speed = 0;
 			this._hitpoints = 200;
@@ -25,8 +21,10 @@ package src
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			//Do nothing.
-			
-			checkIfDead(repeater);
+		}
+		
+		override public function checkIfDead(repeater:Repeater, afterDead:Function):void {
+			super.checkIfDead(repeater, afterDead);
 			
 			if (isDead) {
 				if (isPlayerPiece) {

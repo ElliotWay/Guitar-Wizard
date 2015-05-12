@@ -61,22 +61,22 @@ package src
 			var player:Vector.<FrameAnimation> =
 					new Vector.<FrameAnimation>(2, true);
 					
-			player[ActorSprite.RIGHT_FACING] = FrameAnimation.create(data, position, width, height,
+			player[Actor.RIGHT_FACING] = FrameAnimation.create(data, position, width, height,
 					numFrames, framesPerBeat, ActorSprite.PLAYER_COLOR, false, loops);
-			player[ActorSprite.LEFT_FACING] = FrameAnimation.create(data, position, width, height,
+			player[Actor.LEFT_FACING] = FrameAnimation.create(data, position, width, height,
 					numFrames, framesPerBeat, ActorSprite.PLAYER_COLOR, true, loops);
 					
-			out[ActorSprite.PLAYER] = player;
+			out[Actor.PLAYER] = player;
 			
 			var opponent:Vector.<FrameAnimation> =
 					new Vector.<FrameAnimation>(2, true);
 					
-			opponent[ActorSprite.RIGHT_FACING] = FrameAnimation.create(data, position, width, height,
+			opponent[Actor.RIGHT_FACING] = FrameAnimation.create(data, position, width, height,
 					numFrames, framesPerBeat, ActorSprite.OPPONENT_COLOR, false, loops);
-			opponent[ActorSprite.LEFT_FACING] = FrameAnimation.create(data, position, width, height,
+			opponent[Actor.LEFT_FACING] = FrameAnimation.create(data, position, width, height,
 					numFrames, framesPerBeat, ActorSprite.OPPONENT_COLOR, true, loops);
 			
-			out[ActorSprite.OPPONENT] = opponent;
+			out[Actor.OPPONENT] = opponent;
 			
 			return out;
 		}
