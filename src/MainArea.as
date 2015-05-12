@@ -315,13 +315,13 @@ package src
 				arena.removeChild(actor.sprite);
 				minimap.removeChild(actor.miniSprite);
 				
-				actorFactory.destroy(actor, repeater);
+				actorFactory.destroy(actor);
 			}
 			for each (actor in opponentActors) {
 				arena.removeChild(actor.sprite);
 				minimap.removeChild(actor.miniSprite);
 				
-				actorFactory.destroy(actor, repeater);
+				actorFactory.destroy(actor);
 			}
 			
 			playerActors.splice(0, playerActors.length);
@@ -348,19 +348,19 @@ package src
 			if (arena.contains(playerWizard.sprite)) {
 				arena.removeChild(playerWizard.sprite);
 			}
-			actorFactory.destroy(playerWizard, repeater);
+			actorFactory.destroy(playerWizard);
 			playerWizard = null;
 			
 			if (arena.contains(opponentWizard.sprite)) {
 				arena.removeChild(opponentWizard.sprite);
 			}
-			actorFactory.destroy(opponentWizard, repeater);
+			actorFactory.destroy(opponentWizard);
 			opponentWizard = null;
 			
 			//Remove wizard killers.
 			if (playerWizardKiller != null) {
 				arena.removeChild(playerWizardKiller.sprite);
-				actorFactory.destroy(playerWizardKiller, repeater);
+				actorFactory.destroy(playerWizardKiller);
 				playerWizardKiller = null;
 			}
 			
@@ -371,7 +371,7 @@ package src
 			
 			if (opponentWizardKiller != null) {
 				arena.removeChild(opponentWizardKiller.sprite);
-				actorFactory.destroy(opponentWizardKiller, repeater);
+				actorFactory.destroy(opponentWizardKiller);
 				opponentWizardKiller = null;
 			}
 			
@@ -590,7 +590,7 @@ package src
 			}
 			
 			//Don't destroy the actor until we're completely finished with it.
-			actorFactory.destroy(actor, repeater);
+			actorFactory.destroy(actor);
 		}
 		
 		/**
@@ -760,7 +760,7 @@ package src
 					gameUI.opponentWizardDead();
 				}
 			} else {
-				actorFactory.destroy(actor, repeater);
+				actorFactory.destroy(actor);
 			}
 		}
 		

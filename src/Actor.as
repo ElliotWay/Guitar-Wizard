@@ -88,6 +88,30 @@ package src {
 			willBeBlessed = false;
 		}
 		
+		/**
+		 * Return the actor to it's original state, ie alive, with hitpoint, etc.
+		 * Extend this method to set hitpoint to a number besides 10.
+		 */
+		factory function restore():void {
+			_isDead = false;
+			
+			blessCounter = 0;
+			willBeBlessed = false;
+		}
+		
+		factory function setOrientation(owner:int, facing:int):void {
+			isPlayerPiece = (owner == PLAYER);
+			_facesRight = (facing == RIGHT_FACING);
+		}
+		
+		factory function set sprite(sprite:ActorSprite):void {
+			_sprite = sprite;
+		}
+		
+		factory function set miniSprite(miniSprite:MiniSprite):void {
+			_miniSprite = miniSprite;
+		}
+		
 		public function get sprite():ActorSprite {
 			return _sprite;
 		}
@@ -408,7 +432,7 @@ package src {
 		 * Calls clean() first (so you don't have to call clean as well).
 		 * Don't use the actor after calling this method.
 		 */
-		public function dispose(repeater:Repeater):void {
+		public function dispose():void {
 			clean();
 			
 			_miniSprite = null;

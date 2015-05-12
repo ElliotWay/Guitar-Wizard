@@ -141,13 +141,6 @@ package src {
 			}
 		}*/
 		
-		/**
-		 * Stop the current animation at its current frame.
-		 */
-		public function freeze(repeater:Repeater):void {
-			if (currentAnimation != null)
-				currentAnimation.stop(repeater);
-		}
 		
 		/**
 		 * Move this sprite to the bottom of its parent container.

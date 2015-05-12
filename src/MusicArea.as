@@ -62,7 +62,7 @@ package  src
 		private var midToLow:Shape;
 		private var lowToHigh:Shape;
 		private var lowToMid:Shape;
-		private static const GRADIENT_WIDTH:int = 400; //200
+		private static const GRADIENT_WIDTH:int = 400;
 		private static const HIGH_COLOR:uint = 0xFF00FF;
 		private static const MID_COLOR:uint = 0x00FF00;
 		private static const LOW_COLOR:uint = 0xFF8000;
@@ -258,7 +258,7 @@ package  src
 				nextTrack = track;
 				nextNextTrack = track;
 				
-				doTransition(currentTime, currentBlock);
+				doTransition(switchTime - currentTime, track);
 				
 			} else {
 				
@@ -266,17 +266,16 @@ package  src
 				//we still need to switch numbers around.
 				if (switchTimer == null) {
 					var currentBlockEnd:Number = blocks[currentBlock];
-					var targetBlock:int = currentBlock + 1;
 					
 					switchTimer = new Timer(currentBlockEnd - currentTime, 1);
 					
 					switchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 						switchLater();
-						doTransition(currentBlockEnd, targetBlock);
+						doTransition(switchTime - currentBlockEnd, track);
 					});
 					switchTimer.start();
 				} else {
-					doTransition(currentTime, currentBlock + 1);
+					doTransition(switchTime - currentTime, track);
 				}
 				
 				if (advanceTimer != null)
@@ -308,10 +307,8 @@ package  src
 		 * Transition the color of the area to indicate the pending switch.
 		 * @param	track the track to switch to
 		 */
-		private function doTransition(currentTime:Number, targetBlock:int):void {
-			trace("transition from: " + _currentTrack + " to " + nextTrack);
-			if (targetBlock >= blocks.length)
-				return;
+		private function doTransition(delay:Number, targetTrack:int):void {
+			trace("transition from: " + _currentTrack + " to " + targetTrack);
 			
 			if (transition != null) {
 				transition.kill();
@@ -320,23 +317,23 @@ package  src
 				currentTransition.visible = false;
 			}
 			
-			if (_currentTrack == nextTrack)
+			if (_currentTrack == targetTrack)
 				return;
 			
 			if (_currentTrack == Main.HIGH) {
-				if (nextTrack == Main.MID)
+				if (targetTrack == Main.MID)
 					currentTransition = highToMid;
-				else // (nextTrack == Main.LOW)
+				else // (targetTrack == Main.LOW)
 					currentTransition = highToLow;
 			} else if (_currentTrack == Main.MID) {
-				if (nextTrack == Main.HIGH)
+				if (targetTrack == Main.HIGH)
 					currentTransition = midToHigh;
-				else // (nextTrack == Main.LOW)
+				else // (targetTrack == Main.LOW)
 					currentTransition = midToLow;
 			} else if (_currentTrack == Main.LOW) {
-				if (nextTrack == Main.HIGH)
+				if (targetTrack == Main.HIGH)
 					currentTransition = lowToHigh;
-				else // (nextTRack == Main.MID)
+				else // (targetTrack == Main.MID)
 					currentTransition = lowToMid;
 			}
 			
@@ -350,8 +347,7 @@ package  src
 					
 			transition.kill();
 			
-			transition = new TweenLite(currentTransition,
-					(blocks[targetBlock] - currentTime - 100) / 1000,
+			transition = new TweenLite(currentTransition, (delay - 100) / 1000,
 					{x: -GRADIENT_WIDTH, ease:Power2.easeIn,
 						onComplete:function():void {
 							currentTransition = null;

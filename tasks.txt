@@ -3,12 +3,6 @@
 
 - create more frames, they just look better that way - IP
 
-- remove sprite.freeze ?
-
-- sync animations to beat better - sorta works?
-
-- background transitions still have some bugs
-
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag - ?
@@ -29,6 +23,7 @@
 
 - responsiveness - visual reaction to every hit & miss?
 
+- ReuseManager class
 - object reuse: Actors - should be able to use ActorFactory
 - object reuse: Projectiles?
 - object reuse: NoteSprites? they're easy to redraw, after all
@@ -55,6 +50,8 @@
 - sometimes multiple tracks play at once after reswitching
 
 - timing on restart was slightly off? possibly due to memory leaks?
+
+- background transitions still have some bugs
 
 
 ---Do Later.------------------
@@ -88,7 +85,7 @@
 	
 - classes that definitely don't need tests, because they are just data
 	EmptyAnimation, GWError, MiniSprite, SmallCircleSprite, SmallSquareSprite,
-	SmallTriangleSprite, ThinLineSprite,
+	SmallTriangleSprite, ThinLineSprite, WizardMiniSprite
 	
 
 ---Completed.---------------
@@ -152,3 +149,4 @@
 - pending switch indication - might still need some tweaking
 - allow some animations to stop instead of looping
 - object reuse: ActorSprites
+- sync animations to beat better - sorta works?

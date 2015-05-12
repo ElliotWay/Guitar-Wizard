@@ -96,12 +96,6 @@ package test
 			assertThat(fighting, received().method("nextFrame"));
 		}
 		
-		[Test]
-		public function freezeStops():void {
-			actorSprite.freeze(repeater);
-			
-			assertThat(fighting, received().method("stop"));
-		}
 		
 		[Test]
 		public function movesToBottom():void {

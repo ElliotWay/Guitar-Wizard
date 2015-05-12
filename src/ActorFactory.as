@@ -19,9 +19,9 @@ package src
 		private var spriteClasses:Vector.<Class>;
 		private var miniSpriteClasses:Vector.<Class>;
 		
-		//				indexed by	  type,   owner,  facing, (num available)
-		private var availableSprites:Vector.<Vector.<Vector.<Vector.<ActorSprite>>>>;
-		private var availableMiniSprites:Vector.<Vector.<Vector.<Vector.<MiniSprite>>>>;
+		//				indexed by	  type,   owner,  facing,
+		private var availableSprites:Vector.<Vector.<Vector.<ReuseManager>>>;
+		private var availableMiniSprites:Vector.<Vector.<ReuseManager>>;
 		
 		/**
 		 * Create a factory through which to create actor classes. This class manages object reuse;
@@ -53,27 +53,26 @@ package src
 			
 			var typeIndex:int, ownerIndex:int, facingIndex:int;
 			
-			availableSprites = new Vector.<Vector.<Vector.<Vector.<ActorSprite>>>>(NUM_CLASSES, false);
+			availableSprites = new Vector.<Vector.<Vector.<ReuseManager>>>(NUM_CLASSES, false);
 			for (typeIndex = 0; typeIndex < NUM_CLASSES; typeIndex++) {
-				availableSprites[typeIndex] = new Vector.<Vector.<Vector.<ActorSprite>>>(2, true);
+				availableSprites[typeIndex] = new Vector.<Vector.<ReuseManager>>(2, true);
 				for (ownerIndex = 0; ownerIndex < 2; ownerIndex++) {
-					availableSprites[typeIndex][ownerIndex] = new Vector.<Vector.<ActorSprite>>(2, true);
+					availableSprites[typeIndex][ownerIndex] = new Vector.<ReuseManager>(2, true);
 					for (facingIndex = 0; facingIndex < 2; facingIndex++) {
-						availableSprites[typeIndex][ownerIndex][facingIndex]
-							= new Vector.<ActorSprite>();
+						availableSprites[typeIndex][ownerIndex][facingIndex] =
+							new ReuseManager(spriteClasses[typeIndex],
+								[(ownerIndex == Actor.PLAYER), (facingIndex == Actor.RIGHT_FACING)]);
 					}
 				}
 			}
 			
-			availableMiniSprites = new Vector.<Vector.<Vector.<Vector.<MiniSprite>>>>(NUM_CLASSES, false);
+			availableMiniSprites = new Vector.<Vector.<ReuseManager>>(NUM_CLASSES, false);
 			for (typeIndex = 0; typeIndex < NUM_CLASSES; typeIndex++) {
-				availableMiniSprites[typeIndex] = new Vector.<Vector.<Vector.<MiniSprite>>>(2, true);
+				availableMiniSprites[typeIndex] = new Vector.<ReuseManager>(2, true);
 				for (ownerIndex = 0; ownerIndex < 2; ownerIndex++) {
-					availableMiniSprites[typeIndex][ownerIndex] = new Vector.<Vector.<MiniSprite>>(2, true);
-					for (facingIndex = 0; facingIndex < 2; facingIndex++) {
-						availableMiniSprites[typeIndex][ownerIndex][facingIndex]
-							= new Vector.<MiniSprite>();
-					}
+					availableMiniSprites[typeIndex][ownerIndex] =
+							new ReuseManager(miniSpriteClasses[typeIndex],
+								[(ownerIndex == Actor.PLAYER)]);
 				}
 			}
 		}
@@ -86,19 +85,9 @@ package src
 		 * @return  the newly created actor
 		 */
 		public function create(actorClass:int, owner:int, facing:int):Actor {
-			var sprite:ActorSprite, miniSprite:MiniSprite;
-			trace("CREATE: " + availableSprites[actorClass][owner][facing].length + " sprites available.");
-			if (availableSprites[actorClass][owner][facing].length > 0) {
-				sprite = availableSprites[actorClass][owner][facing].pop();
-			} else {
-				sprite = new spriteClasses[actorClass](owner == Actor.PLAYER, facing == Actor.RIGHT_FACING);
-			}
+			var sprite:ActorSprite = availableSprites[actorClass][owner][facing].create();
 			
-			if (availableMiniSprites[actorClass][owner][facing].length > 0) {
-				miniSprite = availableMiniSprites[actorClass][owner][facing].pop();
-			} else {
-				miniSprite = new miniSpriteClasses[actorClass](owner == Actor.PLAYER);
-			}
+			var miniSprite:MiniSprite = availableMiniSprites[actorClass][owner].create();
 			
 			return new actorClasses[actorClass](owner == Actor.PLAYER, facing == Actor.RIGHT_FACING,
 					sprite, miniSprite);
@@ -108,9 +97,8 @@ package src
 		 * Destroy this actor, freeing its sprites to be reeused.
 		 * Calls the dispose method on the actor, so don't use the actor after this method.
 		 * @param	actor the actor to destroy
-		 * @param   repeater damn if i'm not regetting leaving this thing global static right now
 		 */
-		public function destroy(actor:Actor, repeater:Repeater):void {
+		public function destroy(actor:Actor):void {
 			var actorClass:int = -1, owner:int, facing:int;
 			
 			if (actor is Archer) {
@@ -129,10 +117,10 @@ package src
 			
 			facing = actor.facesRight ? Actor.RIGHT_FACING : Actor.LEFT_FACING;
 			
-			availableSprites[actorClass][owner][facing].push(actor.sprite);
-			availableMiniSprites[actorClass][owner][facing].push(actor.miniSprite);
-			trace("DESTROY: " + availableSprites[actorClass][owner][facing].length + " sprites available.");
-			actor.dispose(repeater);
+			availableSprites[actorClass][owner][facing].remove(actor.sprite);
+			availableMiniSprites[actorClass][owner].remove(actor.miniSprite);
+			
+			actor.dispose();
 		}
 		
 	}
