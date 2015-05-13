@@ -24,14 +24,16 @@ package src
 		 */
 		public function ReuseManager(constructor:Class, args:Array = null) 
 		{
-			if (args.length > MAX_CONSTRUCTOR_ARGS) {
+			
+			
+			this.constructor = constructor;
+			this.args = (args == null) ? [] : args;
+			
+			if (this.args.length > MAX_CONSTRUCTOR_ARGS) {
 				throw new GWError("Too many arguments for ctor passed to ReuseManager.\n" +
 						"I could support more arguments, but really you should think about " + 
 						"requring fewer than " + MAX_CONSTRUCTOR_ARGS + " arguments.");
 			}
-			
-			this.constructor = constructor;
-			this.args = (args == null) ? [] : args;
 			
 			things = [];
 		}

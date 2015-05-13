@@ -10,13 +10,12 @@ package src
 	public class Shield extends Actor 
 	{
 		
-		public function Shield(playerPiece:Boolean, facesRight:Boolean,
-				sprite:ActorSprite, miniSprite:MiniSprite) 
+		public function Shield() 
 		{
-			super(playerPiece, facesRight, sprite, miniSprite);
+			super();
 			
 			this.speed = 0;
-			this._hitpoints = 200;
+			this.maxHitpoints = 200;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {

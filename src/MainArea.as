@@ -21,7 +21,6 @@ package src
 	 */
 	public class MainArea extends Sprite 
 	{
-		
 		[Embed(source = "../assets/tower.png")]
 		private static const TowerImage:Class;
 		

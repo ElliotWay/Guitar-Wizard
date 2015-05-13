@@ -27,15 +27,11 @@ package src
 		private var blessTimer:Timer;
 		private var blessCooldownTimer:Timer;
 		
-		public function Cleric(isPlayerPiece:Boolean, facesRight:Boolean,
-				sprite:ActorSprite, miniSprite:MiniSprite) {
-			
-			super(isPlayerPiece, facesRight, sprite, miniSprite);
+		public function Cleric() {
+			super();
 			
 			this.speed = 45;
-			this._hitpoints = 20; //30
-			
-			blessIsReady = true;
+			this.maxHitpoints = 20;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
@@ -142,6 +138,8 @@ package src
 				blessCooldownTimer.stop();
 				blessCooldownTimer = null;
 			}
+			
+			blessIsReady = true;
 		}
 	}
 

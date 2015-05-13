@@ -44,22 +44,25 @@ package src {
 		protected var _miniSprite : MiniSprite;
 		
 		protected var _status:int;
-		protected var _hitpoints:Number;
+		
+		protected var maxHitpoints:int;
 		
 		protected var isPlayerPiece : Boolean;
 		protected var _facesRight:Boolean;
 		
 		protected var speed : Number; // pxl/s
 		
-		protected var movement : TweenLite;
+		
+		private var _hitpoints:Number;
+		
+		private var _isDead:Boolean;
+		
+		private var movement : TweenLite;
 		
 		private var fightingTimer:Timer;
 		
-		protected var fading:TweenLite;
-		protected var _isDead:Boolean;
-		
-		protected var willBeBlessed:Boolean;
-		protected var blessCounter:int;
+		private var willBeBlessed:Boolean;
+		private var blessCounter:int;
 		
 		public static function resetPlayerBuff():void {
 			player_buff = 1.0;
@@ -69,34 +72,28 @@ package src {
 			trace("current buff: " + player_buff);
 		}
 		
-		
-		public function Actor(playerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		/**
+		 * Don't use this constructor; use ActorFactory instead.
+		 */
+		public function Actor() 
 		{
-			_sprite = sprite;
-			_miniSprite = miniSprite;
-			
-			_hitpoints = 10;
-			isPlayerPiece = playerPiece;
-			this._facesRight = facesRight;
 			speed = 50;
-			
+			maxHitpoints = 10;
+		}
+		
+		/**
+		 * Return the actor to it's original state, ie alive, with hitpoints, etc.
+		 * Extend this method to set hitpoints to a number besides 10.
+		 */
+		factory function restore():void {
 			_status = Status.STANDING;
 			
 			_isDead = false;
 			
 			blessCounter = 0;
 			willBeBlessed = false;
-		}
-		
-		/**
-		 * Return the actor to it's original state, ie alive, with hitpoint, etc.
-		 * Extend this method to set hitpoint to a number besides 10.
-		 */
-		factory function restore():void {
-			_isDead = false;
 			
-			blessCounter = 0;
-			willBeBlessed = false;
+			_hitpoints = maxHitpoints;
 		}
 		
 		factory function setOrientation(owner:int, facing:int):void {
@@ -104,13 +101,14 @@ package src {
 			_facesRight = (facing == RIGHT_FACING);
 		}
 		
-		factory function set sprite(sprite:ActorSprite):void {
+		factory function setSprite(sprite:ActorSprite):void {
 			_sprite = sprite;
 		}
 		
-		factory function set miniSprite(miniSprite:MiniSprite):void {
+		factory function setMiniSprite(miniSprite:MiniSprite):void {
 			_miniSprite = miniSprite;
 		}
+		
 		
 		public function get sprite():ActorSprite {
 			return _sprite;
@@ -417,8 +415,6 @@ package src {
 		public function clean():void {
 			if (movement != null)
 				movement.kill();
-			if (fading != null)
-				fading.kill();
 				
 			if (fightingTimer != null)
 				fightingTimer.stop();

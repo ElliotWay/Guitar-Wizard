@@ -23,6 +23,8 @@ package src
 		private var availableSprites:Vector.<Vector.<Vector.<ReuseManager>>>;
 		private var availableMiniSprites:Vector.<Vector.<ReuseManager>>;
 		
+		private var availableActors:Vector.<ReuseManager>;
+		
 		/**
 		 * Create a factory through which to create actor classes. This class manages object reuse;
 		 * sprites don't change so it's better to reuse them when creating new actors.
@@ -53,7 +55,7 @@ package src
 			
 			var typeIndex:int, ownerIndex:int, facingIndex:int;
 			
-			availableSprites = new Vector.<Vector.<Vector.<ReuseManager>>>(NUM_CLASSES, false);
+			availableSprites = new Vector.<Vector.<Vector.<ReuseManager>>>(NUM_CLASSES, true);
 			for (typeIndex = 0; typeIndex < NUM_CLASSES; typeIndex++) {
 				availableSprites[typeIndex] = new Vector.<Vector.<ReuseManager>>(2, true);
 				for (ownerIndex = 0; ownerIndex < 2; ownerIndex++) {
@@ -66,7 +68,7 @@ package src
 				}
 			}
 			
-			availableMiniSprites = new Vector.<Vector.<ReuseManager>>(NUM_CLASSES, false);
+			availableMiniSprites = new Vector.<Vector.<ReuseManager>>(NUM_CLASSES, true);
 			for (typeIndex = 0; typeIndex < NUM_CLASSES; typeIndex++) {
 				availableMiniSprites[typeIndex] = new Vector.<ReuseManager>(2, true);
 				for (ownerIndex = 0; ownerIndex < 2; ownerIndex++) {
@@ -74,6 +76,11 @@ package src
 							new ReuseManager(miniSpriteClasses[typeIndex],
 								[(ownerIndex == Actor.PLAYER)]);
 				}
+			}
+			
+			availableActors = new Vector.<ReuseManager>(NUM_CLASSES, true);
+			for (typeIndex = 0; typeIndex < NUM_CLASSES; typeIndex++) {
+				availableActors[typeIndex] = new ReuseManager(actorClasses[typeIndex]);
 			}
 		}
 		
@@ -89,12 +96,20 @@ package src
 			
 			var miniSprite:MiniSprite = availableMiniSprites[actorClass][owner].create();
 			
-			return new actorClasses[actorClass](owner == Actor.PLAYER, facing == Actor.RIGHT_FACING,
-					sprite, miniSprite);
+			var actor:Actor = availableActors[actorClass].create();
+			
+			use namespace factory;
+			
+			actor.restore();
+			actor.setSprite(sprite);
+			actor.setMiniSprite(miniSprite);
+			actor.setOrientation(owner, facing);
+			
+			return actor;
 		}
 		
 		/**
-		 * Destroy this actor, freeing its sprites to be reeused.
+		 * Destroy this actor, freeing it and its sprites to be reeused.
 		 * Calls the dispose method on the actor, so don't use the actor after this method.
 		 * @param	actor the actor to destroy
 		 */
@@ -120,7 +135,8 @@ package src
 			availableSprites[actorClass][owner][facing].remove(actor.sprite);
 			availableMiniSprites[actorClass][owner].remove(actor.miniSprite);
 			
-			actor.dispose();
+			actor.dispose(); //Important, as it dereferences the sprites.
+			availableActors[actorClass].remove(actor);
 		}
 		
 	}

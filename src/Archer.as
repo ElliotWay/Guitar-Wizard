@@ -42,18 +42,16 @@ package src
 		
 		private var shotFiredTimer:Timer;
 		
-		public function Archer(isPlayerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		public function Archer() 
 		{	
-			super(isPlayerPiece, facesRight, sprite, miniSprite);
+			super();
 			
 			this.speed = 70;
-			this._hitpoints = 5;
+			this.maxHitpoints = 5;
 			
 			range = BASE_RANGE + (Math.random() * RANGE_VARIABILITY) - (RANGE_VARIABILITY / 2);
 			
 			skirmishDistance = BASE_SKIRMISH_DISTANCE + (Math.random() * SKIRMISH_VARIABILITY) - (SKIRMISH_VARIABILITY / 2);
-			
-			shotFiredTimer = null;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {

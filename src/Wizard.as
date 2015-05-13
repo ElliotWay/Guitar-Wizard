@@ -7,14 +7,12 @@ package src
 	 */
 	public class Wizard extends Actor 
 	{
-		private var _isCompletelyDead:Boolean = false;
 		
-		public function Wizard(playerPiece:Boolean, facesRight:Boolean, sprite:ActorSprite, miniSprite:MiniSprite) 
+		public function Wizard() 
 		{
-			super(playerPiece, facesRight, sprite, miniSprite);
+			super();
 					
-					
-			this._hitpoints = 1;
+			this.maxHitpoints = 1;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
@@ -79,16 +77,6 @@ package src
 			} );
 		}
 		*/
-		
-		/**
-		 * Whether the wizard has finished dying.
-		 */
-		public function get isCompletelyDead():Boolean 
-		{
-			return _isCompletelyDead;
-		}
-		
-		
 	}
 
 }

@@ -23,11 +23,13 @@
 
 - responsiveness - visual reaction to every hit & miss?
 
-- ReuseManager class
-- object reuse: Actors - should be able to use ActorFactory
 - object reuse: Projectiles?
 - object reuse: NoteSprites? they're easy to redraw, after all
 - object reuse: other? that's most of them really, maybe cut down on the number of vectors or something
+
+- fix Archer dithering
+
+- Archers are still overpowered. Not sure how I'll fix this.
 
 
 ---Bugs.-------------------	
@@ -150,3 +152,5 @@
 - allow some animations to stop instead of looping
 - object reuse: ActorSprites
 - sync animations to beat better - sorta works?
+- ReuseManager class
+- object reuse: Actors

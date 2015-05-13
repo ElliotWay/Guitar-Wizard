@@ -7,14 +7,17 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	
+	use namespace factory;
+	
 	/**
 	 * ...
 	 * @author ...
 	 */
 	public class Assassin extends Actor
 	{
-		//pixels
-		public static const MAX_JUMP_DISTANCE:int = 200;
+		
+		public static const MAX_JUMP_DISTANCE:int = 200;//pixels
 		
 		public static const MIN_JUMP_DISTANCE:int = 150;
 		
@@ -30,13 +33,16 @@ package src
 		private var landedTimer:Timer;
 		private var jumpTarget:Number;
 		
-		public function Assassin(isPlayerPiece:Boolean, facesRight:Boolean,
-				sprite:ActorSprite, miniSprite:MiniSprite) 
+		public function Assassin() 
 		{
-			super(isPlayerPiece, facesRight, sprite, miniSprite);
 			
 			this.speed = 150;
+			this.maxHitpoints = 10;
 		}
+		
+		/*override src.factory function restore():void {
+			super.restore();
+		}*/
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			//Check if we're dead. If we're dead, we have to stop now.
