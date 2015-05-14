@@ -11,8 +11,15 @@ package src
 		public function Wizard() 
 		{
 			super();
-					
-			this.maxHitpoints = 1;
+		}
+		
+		override protected function get speed():int {
+			return 0; //Hopefully wizards aren't asked to move at all, but if they are,
+						//they should stand still.
+		}
+		
+		override protected function get maxHP():int {
+			return 1; //Wizards die immediately when they're hit.
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {

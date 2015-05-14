@@ -3,6 +3,14 @@
 
 - create more frames, they just look better that way - IP
 
+- cut down on the number of anonymous functions; I don't like it, but the fact that they create
+	a new object with every new function AND add every single available object to it is such an
+	inefficient way of handling it, means that I really need to do it differently
+
+- quitting while dying causes immediate death on restart
+
+- shield invisible on restart
+
 
 ---Should do at some point.----------------
 - fix miss/hit detection, possibly related to lag - ?
@@ -12,10 +20,6 @@
 - score counter?
 
 - indicate buffedness somehow - could be part of the responsiveness changes
-
-- refactor even more of track switching into music area; give music area a referance back up to game ui
-
-- quitting while dying causes immediate death on restart
 
 - fix MainAreaTest, needless withArgs
 
@@ -30,6 +34,8 @@
 - fix Archer dithering
 
 - Archers are still overpowered. Not sure how I'll fix this.
+
+- get rid of MainArea.mainArea
 
 
 ---Bugs.-------------------	

@@ -9,13 +9,19 @@ package src
 	 */
 	public class Shield extends Actor 
 	{
+		public static const MAX_HP:int = 200;
 		
 		public function Shield() 
 		{
 			super();
-			
-			this.speed = 0;
-			this.maxHitpoints = 200;
+		}
+		
+		override protected function get speed():int {
+			return 0;
+		}
+		
+		override protected function get maxHP():int {
+			return MAX_HP;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {

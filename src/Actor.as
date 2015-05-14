@@ -4,6 +4,7 @@ package src {
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TweenLite;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -28,6 +29,11 @@ package src {
 		protected static var player_buff:Number = 1.0;
 		private static var buff_change:Number = 0.0125;
 		
+		public static const DEFUALT_SPEED:int = 50; //pxl/s
+		public static const DEFAULT_MAX_HP:int = 10;
+		public static const DEFAULT_MELEE_RANGE:int = 15; //pxl
+		public static const DEFAULT_BASE_MELEE_DAMAGE:int = 2;
+		
 		public static const Y_POSITION:int = 357;
 		
 		public static const MINI_Y_POSITION:int = 35;
@@ -50,8 +56,6 @@ package src {
 		protected var isPlayerPiece : Boolean;
 		protected var _facesRight:Boolean;
 		
-		protected var speed : Number; // pxl/s
-		
 		
 		private var _hitpoints:Number;
 		
@@ -60,6 +64,7 @@ package src {
 		private var movement : TweenLite;
 		
 		private var fightingTimer:Timer;
+		private var meleeTarget:Actor;
 		
 		private var willBeBlessed:Boolean;
 		private var blessCounter:int;
@@ -77,7 +82,6 @@ package src {
 		 */
 		public function Actor() 
 		{
-			speed = 50;
 			maxHitpoints = 10;
 		}
 		
@@ -93,7 +97,7 @@ package src {
 			blessCounter = 0;
 			willBeBlessed = false;
 			
-			_hitpoints = maxHitpoints;
+			_hitpoints = maxHP;
 		}
 		
 		factory function setOrientation(owner:int, facing:int):void {
@@ -109,6 +113,34 @@ package src {
 			_miniSprite = miniSprite;
 		}
 		
+		/**
+		 * Override this to set a different speed.
+		 */
+		protected function get speed():int {
+			return DEFUALT_SPEED;
+		}
+		
+		/**
+		 * Override this to set a different amount of hitpoints at full health.
+		 */
+		protected function get maxHP():int {
+			return DEFAULT_MAX_HP;
+		}
+		
+		/**
+		 * Override this to set a different default range at which melee will continue.
+		 */
+		protected function get meleeRange():int {
+			return DEFAULT_MELEE_RANGE;
+		}
+		
+		/**
+		 * Override this to set a different amount of damage each melee attack.
+		 * This value is before multiplying by the current player_buff.
+		 */
+		protected function get baseMeleeDamage():int {
+			return DEFAULT_BASE_MELEE_DAMAGE;
+		}
 		
 		public function get sprite():ActorSprite {
 			return _sprite;
@@ -279,38 +311,41 @@ package src {
 			return Math.abs(getPosition().x - other.getPosition().x) < range;
 		}
 		
-		/**
+		/** TODO change this so more value are set by constants instead of passed as arguments?
 		 * Stops moving and starts attacking the other actor.
 		 * Attacks immediately, then may repeatedly if the actor is within range and a valid target when the next blow occurs.
 		 * @param	other the actor to attack
-		 * @param	range the melee range for this attack
 		 * @param	damage the damage after buff to the other's hitpoints each blow should do
 		 * @param	timeBetweenBlows time before the next range comparison and attack
 		 */
-		public function meleeAttack(other:Actor, range:Number, damage:Number, timeBetweenBlows:Number, repeater:Repeater):void {
+		public function meleeAttack(other:Actor, timeBetweenBlows:Number, repeater:Repeater):void {
 			halt();
 			_status = Status.FIGHTING;
 			_sprite.animate(Status.FIGHTING, repeater);
 			
-			other.hit(damage);
+			meleeTarget = other;
+			meleeTarget.hit(isPlayerPiece ? baseMeleeDamage * player_buff : baseMeleeDamage);
 			
 			fightingTimer = new Timer(timeBetweenBlows, 0);
-			fightingTimer.addEventListener(TimerEvent.TIMER, function():void {
-				//Check if we're still in range, and the target is still valid.
-				if (withinRange(other, range) && isValidTarget(other)) {
-					other.hit(damage);
-				} else {
-					_status = Status.STANDING;
-					
-					fightingTimer.stop();
-					fightingTimer = null;
-					
-					//The fighting animation ideally continues smoothly if there
-					//is another target in range.
-				}
-			});
+			fightingTimer.addEventListener(TimerEvent.TIMER, continueMelee);
 					
 			fightingTimer.start();
+		}
+		
+		private function continueMelee(event:Event):void {
+			if (withinRange(meleeTarget, meleeRange) && isValidTarget(meleeTarget)) {
+				meleeTarget.hit(isPlayerPiece ? baseMeleeDamage * player_buff : baseMeleeDamage);
+			} else {
+				_status = Status.STANDING;
+				
+				fightingTimer.stop();
+				fightingTimer = null;
+				
+				meleeTarget = null;
+					
+				//The fighting animation ideally continues smoothly if there
+				//is another target in range.
+			}
 		}
 		
 		public function getHitBox():Rectangle {
@@ -329,6 +364,7 @@ package src {
 		 */
 		public function go(repeater:Repeater) : void {
 			halt();
+			
 			
 			var realSpeed:Number = speed;
 			if (isPlayerActor)
@@ -419,8 +455,7 @@ package src {
 			if (fightingTimer != null)
 				fightingTimer.stop();
 				
-			//TODO needed?
-			//_sprite.freeze();
+			meleeTarget = null;
 		}
 		
 		/**

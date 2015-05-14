@@ -39,7 +39,7 @@ package src
 		[Embed(source="../assets/arch_fore.png")]
 		private static const ArchForeImage:Class;
 		
-		//TODO replace this; am I even still using this?
+		//TODO replace this; am I even still using this? Yes, in Archer's request to addProjectile.
 		public static var mainArea:MainArea;
 		
 		public static const WIDTH:int = 600;
@@ -87,8 +87,16 @@ package src
 		private var playerWizard:Wizard;
 		private var opponentWizard:Wizard;
 		
+		/**
+		 * Wizard killer belonging to the player, who will kill the opponent wizard.
+		 * NOT killer of player wizards.
+		 */
 		private var playerWizardKiller:Actor;
 		private var playerWizardKillerTimer:Timer;
+		/**
+		 * Wizard killer belonging to the opponent, who will kill the player wizard.
+		 * NOT killer of opponent wizards.
+		 */
 		private var opponentWizardKiller:Actor;
 		private var opponentWizardKillerTimer:Timer;
 		
@@ -205,28 +213,28 @@ package src
 			var index:int;
 			var actor:Actor;
 			
-			for (index = 0; index < 2; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 2; index++) {
+			for (index = 0; index < 1; index++) {
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 2; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.CLERIC, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
 			
-			for (index = 0; index < 2; index++) {
+			for (index = 0; index < 1; index++) {
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
-			for (index = 0; index < 2; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor)
 			}
-			for (index = 0; index < 2; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.CLERIC, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
@@ -358,7 +366,8 @@ package src
 			
 			//Remove wizard killers.
 			if (playerWizardKiller != null) {
-				arena.removeChild(playerWizardKiller.sprite);
+				if (arena.contains(playerWizardKiller.sprite))
+					arena.removeChild(playerWizardKiller.sprite);
 				actorFactory.destroy(playerWizardKiller);
 				playerWizardKiller = null;
 			}
@@ -369,7 +378,8 @@ package src
 			}
 			
 			if (opponentWizardKiller != null) {
-				arena.removeChild(opponentWizardKiller.sprite);
+				if (arena.contains(opponentWizardKiller.sprite))
+					arena.removeChild(opponentWizardKiller.sprite);
 				actorFactory.destroy(opponentWizardKiller);
 				opponentWizardKiller = null;
 			}
@@ -562,7 +572,6 @@ package src
 			wizardKiller.sprite.y = WIZARD_Y - actor.sprite.height;
 			
 			if (actor.isPlayerActor) {
-				playerWizardKiller = wizardKiller;
 				wizardKiller.sprite.x = ARENA_WIDTH + 100;
 				
 				playerWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
@@ -570,12 +579,13 @@ package src
 					arena.addChild(wizardKiller.sprite);
 					wizardKiller.go(repeater);
 					
+					
+					playerWizardKiller = wizardKiller;
 					playerWizardKillerTimer = null;
 				});
 				playerWizardKillerTimer.start();
 				
 			} else {
-				opponentWizardKiller = wizardKiller;
 				wizardKiller.sprite.x = -100 - wizardKiller.sprite.width;
 				
 				opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
@@ -583,6 +593,7 @@ package src
 					arena.addChild(wizardKiller.sprite);
 					wizardKiller.go(repeater);
 					
+					opponentWizardKiller = wizardKiller;
 					opponentWizardKillerTimer = null;
 				});
 				opponentWizardKillerTimer.start();
@@ -638,7 +649,14 @@ package src
 				wizardList[0] = opponentWizard;
 				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
 				
-				opponentWizard.checkIfDead(repeater, finishWizard);
+				opponentWizard.checkIfDead(repeater, fadeActor);
+				if (opponentWizard.isDead) {
+					SoundPlayer.playScream();
+					scrollable.jumpRight();
+					repeatedScrollTimer.reset();
+					autoScrollTimer.reset();
+					autoScrollTimer.start();
+				}
 			}
 			
 			if (opponentWizardKiller != null && !playerWizard.isDead) {
@@ -646,7 +664,14 @@ package src
 				wizardList[0] = playerWizard;
 				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
 				
-				playerWizard.checkIfDead(repeater, finishWizard);
+				playerWizard.checkIfDead(repeater, fadeActor);
+				if (playerWizard.isDead) {
+					SoundPlayer.playScream();
+					scrollable.jumpLeft();
+					repeatedScrollTimer.reset();
+					autoScrollTimer.reset();
+					autoScrollTimer.start();
+				}
 			}
 		}
 		
@@ -666,7 +691,7 @@ package src
 				if (actor.isPlayerActor && actor.getPosition().x > ARENA_WIDTH - END_POINT) {
 					
 					//The first actor to do this attempts to kill the wizard.
-					if (playerWizardKiller == null) {
+					if (playerWizardKillerTimer == null) {
 						wizardKillMode(actor);
 					} else {
 						arena.removeChild(actor.sprite);
@@ -677,7 +702,7 @@ package src
 					
 				} else if (!actor.isPlayerActor && actor.getPosition().x < END_POINT) {
 					
-					if (opponentWizardKiller == null) {
+					if (opponentWizardKillerTimer == null) {
 						wizardKillMode(actor);
 					} else {
 						arena.removeChild(actor.sprite);
@@ -761,21 +786,6 @@ package src
 			} else {
 				actorFactory.destroy(actor);
 			}
-		}
-		
-		private function finishWizard(wizard:Wizard):void {
-			SoundPlayer.playScream();
-			
-			if (wizard.isPlayerActor) 
-				scrollable.jumpLeft();
-			else
-				scrollable.jumpRight();
-				
-			repeatedScrollTimer.reset();
-			autoScrollTimer.reset();
-			autoScrollTimer.start();
-			
-			fadeActor(wizard);
 		}
 		
 		private var scrollDirection:int = 0;

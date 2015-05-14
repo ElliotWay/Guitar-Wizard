@@ -3,6 +3,7 @@ package src
 	import com.greensock.TweenLite;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.plugins.TintPlugin;
+	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
@@ -13,6 +14,11 @@ package src
 	 */
 	public class Archer extends Actor 
 	{
+		public static const SPEED:int = 70;
+		public static const MAX_HP:int = 5;
+		
+		public static const MELEE_RANGE:int = 15;
+		public static const BASE_MELEE_DAMAGE:int = 1;
 		
 		public static const NO_RETREAT_DISTANCE:Number = 50;
 		
@@ -28,8 +34,6 @@ package src
 		
 		private static const WIZARD_RANGE:Number = 130;
 		
-		public static const MELEE_RANGE:int = 15;
-		private static const MELEE_DAMAGE:int = 1;
 		
 		/**
 		 * Amount of time the Archer estimates it will take for the arrow to hit its target,
@@ -42,16 +46,31 @@ package src
 		
 		private var shotFiredTimer:Timer;
 		
+		private var currentShootingTarget:Actor;
+		
 		public function Archer() 
 		{	
 			super();
 			
-			this.speed = 70;
-			this.maxHitpoints = 5;
-			
 			range = BASE_RANGE + (Math.random() * RANGE_VARIABILITY) - (RANGE_VARIABILITY / 2);
 			
 			skirmishDistance = BASE_SKIRMISH_DISTANCE + (Math.random() * SKIRMISH_VARIABILITY) - (SKIRMISH_VARIABILITY / 2);
+		}
+		
+		override protected function get speed():int {
+			return SPEED;
+		}
+		
+		override protected function get maxHP():int {
+			return MAX_HP;
+		}
+		
+		override protected function get meleeRange():int {
+			return MELEE_RANGE;
+		}
+		
+		override protected function get baseMeleeDamage():int {
+			return BASE_MELEE_DAMAGE;
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
@@ -72,16 +91,14 @@ package src
 						(closest is Wizard && !withinRange(closest, WIZARD_RANGE))) {
 					if (_status != Status.MOVING)
 						go(repeater);
+						
 				} else if (withinRange(closest, MELEE_RANGE)) {
-					if (isPlayerPiece)
-						this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE * player_buff,
-								ArcherSprite.timeBetweenBlows(repeater), repeater);
-					else
-						this.meleeAttack(closest, MELEE_RANGE, MELEE_DAMAGE,
-								ArcherSprite.timeBetweenBlows(repeater), repeater);
+					this.meleeAttack(closest, ArcherSprite.timeBetweenBlows(repeater), repeater);
+					
 				} else if (isBehindShield()) {
 					if (_status != Status.MOVING)
 						go(repeater);
+						
 				} else {
 					var expectedDistance:Number = Math.abs(this.getPosition().x
 							- closest.predictPosition(ArcherSprite.ARROW_TIME).x);
@@ -94,30 +111,38 @@ package src
 						halt();
 						_status = Status.SHOOTING;
 						
-						_sprite.animate(Status.SHOOTING, repeater,
-							function():void { _status = Status.STANDING; } );
+						currentShootingTarget = closest;
+						
+						_sprite.animate(Status.SHOOTING, repeater, finishShooting);
 						
 						shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(repeater), 1);
-						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-							
-							var arrow:Projectile = new Projectile(
-									ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0),
-									(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
-									closest.predictPosition(LEAD_TIME));
-						
-							var arrowPosition:Point = (_sprite as ArcherSprite).arrowPosition;
-							
-							arrow.x = arrowPosition.x;
-							arrow.y = arrowPosition.y;
-							
-							MainArea.mainArea.addProjectile(arrow);
-						});
-						
+						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
 						
 						shotFiredTimer.start();
 					}
 				}
 			}
+		}
+		
+		private function finishShooting():void {
+			_status = Status.STANDING;
+		}
+		
+		private function spawnArrow(event:Event):void {
+			var arrow:Projectile = new Projectile(
+					ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0),
+					(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
+					currentShootingTarget.predictPosition(LEAD_TIME));
+			
+			var arrowPosition:Point = (_sprite as ArcherSprite).arrowPosition;
+			
+			arrow.x = arrowPosition.x;
+			arrow.y = arrowPosition.y;
+			
+			MainArea.mainArea.addProjectile(arrow);
+			
+			shotFiredTimer = null;
+			currentShootingTarget = null;
 		}
 		
 		private function isBehindShield():Boolean {
@@ -157,6 +182,7 @@ package src
 				shotFiredTimer.stop();
 				shotFiredTimer = null;
 			}
+			currentShootingTarget = null;
 		}
 	}
 }
