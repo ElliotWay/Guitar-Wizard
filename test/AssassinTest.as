@@ -18,6 +18,7 @@ package test
 	import src.Repeater;
 	import src.SmallSquareSprite;
 	import src.Status;
+	import src.factory;
 	
 	MockolateRunner;
 	/**
@@ -70,7 +71,16 @@ package test
 				spriteX = num;
 			});
 			
-			assassin = new Assassin(true, true, sprite, miniSprite);
+			stub(opponentActor).getter("status").returns(Status.MOVING);
+			stub(opponentActor2).getter("status").returns(Status.MOVING);
+			
+			use namespace factory;
+			
+			assassin = new Assassin();
+			assassin.restore();
+			assassin.setSprite(sprite);
+			assassin.setMiniSprite(miniSprite);
+			assassin.setOrientation(Actor.PLAYER, Actor.RIGHT_FACING);
 			
 			repeater = nice(Repeater);
 			
@@ -182,15 +192,6 @@ package test
 		}
 		
 		//Test jumping through shields
-		
-		[Test]
-		public function diesIfHit():void {
-			assassin.hit(MainArea.MASSIVE_DAMAGE);
-			
-			assassin.act(emptyVector, emptyVector, repeater);
-			
-			assertThat(assassin.isDead);
-		}
 		
 		[After]
 		public function tearDown():void {

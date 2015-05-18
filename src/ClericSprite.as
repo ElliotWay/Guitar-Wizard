@@ -26,7 +26,7 @@ package src
 		Status.MOVING, 					0, 	8, FrameAnimation.FOUR_PER_BEAT, true,
 		Status.SUMMONING, 	 FRAME_HEIGHT, 	6, FrameAnimation.TWO_PER_BEAT, false,
 		Status.BLESSING, FRAME_HEIGHT * 2, 	12, FrameAnimation.FOUR_PER_BEAT, false, 
-		Status.FIGHTING, FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_HALVES_PER_BEAT, true,
+		Status.FIGHTING, FRAME_HEIGHT * 3, 	18, FrameAnimation.THREE_PER_BEAT, true,
 		Status.DYING, 	 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
 		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
 
@@ -75,8 +75,8 @@ package src
 		}
 		
 		public static function timeBetweenBlows(repeater:Repeater):Number {
-			// (time/beat) * (beat/frame) * (3 frames)
-			//		?	   *	(2/3)     *  3
+			// (time/beat) * (beat/frame) * (6 frames)
+			//		?	   *	(1/3)     *  6
 			
 			return repeater.getBeat() * 2;
 		}

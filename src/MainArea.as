@@ -226,7 +226,7 @@ package src
 				opponentSummon(actor);
 			}
 			
-			for (index = 0; index < 1; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
@@ -234,7 +234,7 @@ package src
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor)
 			}
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 1; index++) {
 				actor = actorFactory.create(ActorFactory.CLERIC, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
@@ -243,15 +243,14 @@ package src
 		
 		public function go(playerWizard:Wizard, opponentWizard:Wizard, playerShield:Shield, opponentShield:Shield):void {
 			Actor.resetPlayerBuff();
-			trace("approx actors on start: " + arena.numChildren);
 
-			playerShield.position();
+			playerShield.position(repeater);
 			arena.addChild(playerShield.sprite);
 			minimap.addChild(playerShield.miniSprite);
 			
 			playerShieldIsUp = true;
 			
-			opponentShield.position();
+			opponentShield.position(repeater);
 			arena.addChild(opponentShield.sprite);
 			minimap.addChild(opponentShield.miniSprite);
 			
@@ -574,13 +573,12 @@ package src
 			if (actor.isPlayerActor) {
 				wizardKiller.sprite.x = ARENA_WIDTH + 100;
 				
+				playerWizardKiller = wizardKiller;
 				playerWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
 				playerWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					arena.addChild(wizardKiller.sprite);
 					wizardKiller.go(repeater);
 					
-					
-					playerWizardKiller = wizardKiller;
 					playerWizardKillerTimer = null;
 				});
 				playerWizardKillerTimer.start();
@@ -588,12 +586,12 @@ package src
 			} else {
 				wizardKiller.sprite.x = -100 - wizardKiller.sprite.width;
 				
+				opponentWizardKiller = wizardKiller;
 				opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
 				opponentWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					arena.addChild(wizardKiller.sprite);
 					wizardKiller.go(repeater);
 					
-					opponentWizardKiller = wizardKiller;
 					opponentWizardKillerTimer = null;
 				});
 				opponentWizardKillerTimer.start();
@@ -631,10 +629,10 @@ package src
 			
 			//Tell actors to check if they've died.
 			for each (actor in playerActors) {
-				actor.checkIfDead(repeater, fadeActor);
+				actor.checkIfDead(repeater, removeActor);
 			}
 			for each (actor in opponentActors) {
-				actor.checkIfDead(repeater, fadeActor);
+				actor.checkIfDead(repeater, removeActor);
 			}
 			
 			//Collect dead actors and actors over the edge.
@@ -644,12 +642,12 @@ package src
 			
 			//Tell the wizard killers to act.
 			var wizardList:Vector.<Actor>;
-			if (playerWizardKiller != null && !opponentWizard.isDead) {
+			if (playerWizardKiller != null && playerWizardKillerTimer == null && !opponentWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = opponentWizard;
 				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
 				
-				opponentWizard.checkIfDead(repeater, fadeActor);
+				opponentWizard.checkIfDead(repeater, removeActor);
 				if (opponentWizard.isDead) {
 					SoundPlayer.playScream();
 					scrollable.jumpRight();
@@ -659,12 +657,12 @@ package src
 				}
 			}
 			
-			if (opponentWizardKiller != null && !playerWizard.isDead) {
+			if (opponentWizardKiller != null && opponentWizardKillerTimer == null && !playerWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = playerWizard;
 				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
 				
-				playerWizard.checkIfDead(repeater, fadeActor);
+				playerWizard.checkIfDead(repeater, removeActor);
 				if (playerWizard.isDead) {
 					SoundPlayer.playScream();
 					scrollable.jumpLeft();
@@ -691,7 +689,7 @@ package src
 				if (actor.isPlayerActor && actor.getPosition().x > ARENA_WIDTH - END_POINT) {
 					
 					//The first actor to do this attempts to kill the wizard.
-					if (playerWizardKillerTimer == null) {
+					if (playerWizardKiller == null) {
 						wizardKillMode(actor);
 					} else {
 						arena.removeChild(actor.sprite);
@@ -702,7 +700,7 @@ package src
 					
 				} else if (!actor.isPlayerActor && actor.getPosition().x < END_POINT) {
 					
-					if (opponentWizardKillerTimer == null) {
+					if (opponentWizardKiller == null) {
 						wizardKillMode(actor);
 					} else {
 						arena.removeChild(actor.sprite);
@@ -764,11 +762,6 @@ package src
 			projectiles = projectiles.filter(function(projectile:Projectile, index:int, vector:Vector.<Projectile>):Boolean {
 				return !projectile.finished;
 			});
-		}
-		
-		private function fadeActor(actor:Actor):void {
-			var	fading:TweenLite = new TweenLite(actor.sprite, 5, { tint : 0xB0D090,
-					onComplete:removeActor, onCompleteParams:[actor] });
 		}
 		
 		private function removeActor(actor:Actor):void {

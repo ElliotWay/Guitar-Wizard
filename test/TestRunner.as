@@ -48,6 +48,7 @@ public class TestRunner extends Sprite
 		classNames = new Vector.<Class>();
 		
 		//#### Populate classNames here.
+		classNames.push(ActorFactoryTest);
 		classNames.push(ActorSpriteTest);
 		classNames.push(ActorTest);
 		classNames.push(ArcherTest);
@@ -61,6 +62,7 @@ public class TestRunner extends Sprite
 		classNames.push(NoteTest);
 		classNames.push(ProjectileTest);
 		classNames.push(RepeaterTest);
+		classNames.push(ReuseManagerTest);
 		classNames.push(ScrollAreaTest);
 		classNames.push(SongLoaderTest);
 		classNames.push(SongTest);

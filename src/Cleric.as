@@ -14,7 +14,7 @@ package src
 	public class Cleric extends Actor 
 	{
 		public static const SPEED:int = 45;
-		public static const MAX_HP:int = 20;
+		public static const MAX_HP:int = 30; //20?
 		
 		public static const MELEE_RANGE:int = 20;
 		public static const BASE_MELEE_DAMAGE:int = 3;

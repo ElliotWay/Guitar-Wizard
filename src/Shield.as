@@ -28,7 +28,7 @@ package src
 			//Do nothing.
 		}
 		
-		override public function checkIfDead(repeater:Repeater, afterDead:Function):void {
+		override public function checkIfDead(repeater:Repeater, afterDead:Function = null):void {
 			super.checkIfDead(repeater, afterDead);
 			
 			if (isDead) {
@@ -41,14 +41,16 @@ package src
 		}
 		
 		/**
-		 * Position the shield in its correct starting position.
+		 * Position the shield in its correct starting position and tell it to stand there.
 		 */
-		public function position():void {
+		public function position(repeater:Repeater):void {
 			if (isPlayerPiece) {
 				_sprite.x = MainArea.SHIELD_POSITION - _sprite.width;
 			} else {
 				_sprite.x = MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION;
 			}
+			
+			_sprite.animate(Status.STANDING, repeater);
 			
 			_sprite.y = Actor.Y_POSITION - _sprite.height + 30;
 		}

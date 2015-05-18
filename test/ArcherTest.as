@@ -17,6 +17,7 @@ package test
 	import src.Repeater;
 	import src.SmallTriangleSprite;
 	import src.Status;
+	import src.factory;
 	
 	MockolateRunner;
 	/**
@@ -45,10 +46,10 @@ package test
 		public var opponentActor:Actor, opponentActor2:Actor;
 		
 		[Mock]
-		public var archerSprite:ArcherSprite;
+		public var sprite:ArcherSprite;
 		
 		[Mock]
-		public var archerMiniSprite:SmallTriangleSprite;
+		public var miniSprite:SmallTriangleSprite;
 		
 		[Before]
 		public function setup():void {
@@ -59,11 +60,20 @@ package test
 			MainArea.playerShieldIsUp = false;
 			MainArea.opponentShieldIsUp = false;
 			
-			stub(archerSprite).getter("arrowPosition").returns(new Point());
+			stub(sprite).getter("arrowPosition").returns(new Point());
+			
+			stub(opponentActor).getter("status").returns(Status.MOVING);
+			stub(opponentActor2).getter("status").returns(Status.MOVING);
 			
 			repeater = nice(Repeater);
 			
-			archer = new Archer(true, true, archerSprite, archerMiniSprite);
+			use namespace factory;
+			
+			archer = new Archer();
+			archer.restore();
+			archer.setSprite(sprite);
+			archer.setMiniSprite(miniSprite);
+			archer.setOrientation(Actor.PLAYER, Actor.RIGHT_FACING);
 		}
 		
 		private function positionOpponent(position:Number):void {
@@ -73,7 +83,7 @@ package test
 		
 		[Test]
 		public function movesCloserIfFar():void {
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(ADVANCE_DISTANCE + BEHIND_SHIELD);
 			
 			archer.act(emptyVector, opponentVector, repeater);
@@ -83,18 +93,18 @@ package test
 		
 		[Test]
 		public function shootsIfInRange():void {
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + BEHIND_SHIELD);
 					
 			archer.act(emptyVector, opponentVector, repeater);
 			
 			assertThat(archer.status, Status.SHOOTING);
-			assertThat(archerSprite, received().method("animate").args(Status.SHOOTING, repeater, isA(Function)));
+			assertThat(sprite, received().method("animate").args(Status.SHOOTING, repeater, isA(Function)));
 		}
 		
 		[Test]
 		public function retreatsIfTooClose():void {
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(RETREAT_DISTANCE + BEHIND_SHIELD);
 					
 			archer.act(emptyVector, opponentVector, repeater);
@@ -104,7 +114,7 @@ package test
 		
 		[Test]
 		public function fightsIfReallyClose():void {
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(MELEE_DISTANCE + BEHIND_SHIELD);
 					
 			archer.act(emptyVector, opponentVector, repeater);
@@ -116,7 +126,7 @@ package test
 		public function doesNotShootIfBehindShield():void {
 			MainArea.playerShieldIsUp = true;
 			
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + BEHIND_SHIELD);
 					
 			archer.act(emptyVector, opponentVector, repeater);
@@ -128,7 +138,7 @@ package test
 		public function doesNotRetreatIfBehindShield():void {
 			MainArea.playerShieldIsUp = true;
 			
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(RETREAT_DISTANCE + BEHIND_SHIELD);
 					
 			archer.act(emptyVector, opponentVector, repeater);
@@ -140,7 +150,7 @@ package test
 		public function stillFightsBehindShield():void {
 			MainArea.playerShieldIsUp = true;
 			
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(MELEE_DISTANCE + BEHIND_SHIELD);
 			
 			archer.act(emptyVector, opponentVector, repeater);
@@ -152,7 +162,7 @@ package test
 		public function shootsIfPastShield():void {
 			MainArea.playerShieldIsUp = true;
 			
-			stub(archerSprite).getter("center").returns(new Point(PAST_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(PAST_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + PAST_SHIELD);
 			
 			archer.act(emptyVector, opponentVector, repeater);
@@ -164,7 +174,7 @@ package test
 		public function retreatsIfPastShield():void {
 			MainArea.playerShieldIsUp = true;
 			
-			stub(archerSprite).getter("center").returns(new Point(PAST_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(PAST_SHIELD, 0));
 			positionOpponent(RETREAT_DISTANCE + PAST_SHIELD);
 			
 			archer.act(emptyVector, opponentVector, repeater);
@@ -174,7 +184,7 @@ package test
 		
 		[Test(order = 1)]
 		public function doesNotStopShooting():void {
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(SHOOT_DISTANCE + BEHIND_SHIELD);
 					
 			archer.act(emptyVector, opponentVector, repeater);
@@ -193,7 +203,7 @@ package test
 		
 		[Test(order = 1)]
 		public function doesNotStopFighting():void {
-			stub(archerSprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
+			stub(sprite).getter("center").returns(new Point(BEHIND_SHIELD, 0));
 			positionOpponent(MELEE_DISTANCE + BEHIND_SHIELD);
 					
 			archer.act(emptyVector, opponentVector, repeater);
@@ -208,15 +218,6 @@ package test
 			archer.act(emptyVector, newVector, repeater);
 			
 			assertThat(archer.status, Status.FIGHTING);
-		}
-		
-		[Test]
-		public function diesIfHit():void {
-			archer.hit(MainArea.MASSIVE_DAMAGE);
-			
-			archer.act(emptyVector, emptyVector, repeater);
-			
-			assertThat(archer.isDead);
 		}
 		
 		[After]

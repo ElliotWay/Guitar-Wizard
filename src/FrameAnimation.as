@@ -255,7 +255,7 @@ package src
 			
 			if (runner != null)
 				stop(repeater);
-			
+				
 			runner = function():void {
 				frameCount++;
 				

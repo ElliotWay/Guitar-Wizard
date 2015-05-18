@@ -49,7 +49,7 @@ package test
 			func2Called = false;
 			func3Called = false;
 			
-			later = new Timer(TIME, 1);
+			later = new Timer(TIME * 4, 1);
 			
 			dispatcher = new EventDispatcher();
 			repeater = new Repeater(dispatcher);
@@ -122,7 +122,7 @@ package test
 			var laterHandler:Function = Async.asyncHandler(this, function():void {
 				assertThat(func1Called, false);
 				assertThat(func2Called, false);
-			}, TIME * 2);
+			}, TIME * 5);
 			
 			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
 			
@@ -141,7 +141,7 @@ package test
 				assertThat(func1Called, true);
 				assertThat(func2Called, true);
 				assertThat(func3Called, true);
-			}, TIME * 2);
+			}, TIME * 5);
 			
 			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
 			
@@ -163,7 +163,7 @@ package test
 				assertThat(func1Called, false);
 				assertThat(func2Called, false);
 				assertThat(func3Called, true);
-			}, TIME * 2);
+			}, TIME * 5);
 			
 			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
 			
@@ -185,7 +185,7 @@ package test
 				assertThat(repeater.isRunningEveryQuarterBeat(func1), false);
 				assertThat(repeater.isRunningEveryQuarterBeat(func2), false);
 				assertThat(repeater.isRunningEveryQuarterBeat(func3), true);
-			}, TIME * 2);
+			}, TIME * 5);
 			
 			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
 			
@@ -203,7 +203,7 @@ package test
 				assertThat(func1Called, true);
 				assertThat(func2Called, true);
 				assertThat(func3Called, true);
-			}, TIME * 2);
+			}, TIME * 5);
 			
 			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
 			
@@ -225,7 +225,7 @@ package test
 				assertThat(func1Called, false);
 				assertThat(func2Called, false);
 				assertThat(func3Called, true);
-			}, TIME * 2);
+			}, TIME * 5);
 			
 			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
 			
@@ -247,7 +247,7 @@ package test
 				assertThat(repeater.isRunningEveryThirdBeat(func1), true);
 				assertThat(repeater.isRunningEveryThirdBeat(func2), false);
 				assertThat(repeater.isRunningEveryThirdBeat(func3), false);
-			}, TIME * 2);
+			}, TIME * 5);
 			
 			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
 			

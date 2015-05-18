@@ -25,7 +25,7 @@ package test
 		private const TARGET_POSITION:Number = 300;
 		
 		
-		private const MOMENT:Number = 100;
+		private const MOMENT:Number = 75;//100
 		private const JUMP_TIME:Number = ScrollArea.JUMP_DURATION * 1000 + MOMENT;
 		private const SCROLL_TIME:Number = ScrollArea.SCROLL_TO_DURATION * 1000 + MOMENT;
 		

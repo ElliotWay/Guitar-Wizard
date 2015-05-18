@@ -83,10 +83,19 @@ package test
 		}
 		
 		[Test]
-		public function setsOnComplete():void {
+		public function setsOnCompleteWithoutArgs():void {
 			actorSprite.animate(Status.RETREATING, repeater, onCompleteFunction);
 			
-			assertThat(retreating, received().method("setOnComplete").arg(onCompleteFunction));
+			assertThat(retreating, received().method("setOnComplete").args(onCompleteFunction, null));
+		}
+		
+		[Test]
+		public function setsOnCompleteWithArgs():void {
+			var args:Array = [9001, 1337];
+			
+			actorSprite.animate(Status.RETREATING, repeater, onCompleteFunction, args);
+			
+			assertThat(retreating, received().method("setOnComplete").args(onCompleteFunction, args));
 		}
 		
 		[Test]

@@ -69,6 +69,9 @@ package src {
 		private var willBeBlessed:Boolean;
 		private var blessCounter:int;
 		
+		private var fading:TweenLite;
+		private var deathCallback:Function;
+		
 		public static function resetPlayerBuff():void {
 			player_buff = 1.0;
 		}
@@ -187,7 +190,7 @@ package src {
 		 * Returns false if the target is dying, or in the wrong direction.
 		 */
 		public function isValidTarget(other:Actor) : Boolean {
-			if (other._status == Status.DYING)
+			if (other.status == Status.DYING)
 				return false;
 			
 			if (facesRight) {
@@ -208,8 +211,8 @@ package src {
 				return null;
 			
 			var closest:Actor = null;
-			var closeDistance : Number = maxDistance;
-			var distance : Number;
+			var closeDistance:Number = maxDistance;
+			var distance:Number;
 			
 			var other:Actor;
 			for each (other in others) {
@@ -412,10 +415,10 @@ package src {
 		 * If we're dead, sets status and animation to DYING.
 		 * 
 		 * @param	repeater timing control for potential dying animation.
-		 * @param	remove function to call once the actor has finished dying, if necessary.
+		 * @param	remove function to call once the actor has finished dying, should the actor die.
 		 * 		This function should take the actor as an argument.
 		 */
-		public function checkIfDead(repeater:Repeater, afterDead:Function):void {
+		public function checkIfDead(repeater:Repeater, afterDead:Function = null):void {
 			//TODO put this somewhere else
 			blessCounter--;
 			if (blessCounter == 0) {
@@ -431,8 +434,24 @@ package src {
 				
 				_status = Status.DYING;
 				_isDead = true;
-				_sprite.animate(Status.DYING, repeater, afterDead, [this]);
+				deathCallback = afterDead;
+				_sprite.animate(Status.DYING, repeater, fadeOut);
 			}
+		}
+		
+		private function fadeOut():void {
+			//It's possible that we needed to quit in the middle of the dying animation,
+			//in which case this actor no longer has the sprite.
+			if (_sprite != null)
+				fading = new TweenLite(_sprite, 5, { tint : 0xB0D090,
+						onComplete:finishDying});
+		}
+		
+		private function finishDying():void {
+			fading.kill();
+			fading = null;
+			
+			deathCallback.call(null, this);
 		}
 		
 		/**
@@ -449,12 +468,24 @@ package src {
 		 * Use unload to completely stop this actor.
 		 */
 		public function clean():void {
-			if (movement != null)
+			
+			if (movement != null) {
 				movement.kill();
+				movement = null;
+			}
 				
-			if (fightingTimer != null)
+			if (fightingTimer != null) {
 				fightingTimer.stop();
+				fightingTimer = null;
+			}
 				
+			if (fading != null) {
+				fading.restart(); //Restore the sprite to unfaded.
+				fading.kill();
+				fading = null;
+			}
+			
+			deathCallback = null;
 			meleeTarget = null;
 		}
 		

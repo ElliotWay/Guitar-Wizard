@@ -6,10 +6,8 @@
 - cut down on the number of anonymous functions; I don't like it, but the fact that they create
 	a new object with every new function AND add every single available object to it is such an
 	inefficient way of handling it, means that I really need to do it differently
-
-- quitting while dying causes immediate death on restart
-
-- shield invisible on restart
+	
+- funny issue with Assassins
 
 
 ---Should do at some point.----------------
@@ -36,6 +34,12 @@
 - Archers are still overpowered. Not sure how I'll fix this.
 
 - get rid of MainArea.mainArea
+
+- assassins don't assassinate accurately enough
+
+- Timer reuse in Actor behavior, maybe TweenLites as well?
+
+- get ActorFactoryTest to work
 
 
 ---Bugs.-------------------	
@@ -78,12 +82,13 @@
 - test-unbacked classes: **GameUI**
 	*AnimationCollection*, ArcherSprite, AssassinSprite, ClericSprite, DefaultOpponent,
 	DefaultSprite, InfoArea, Lightning, Main, Menu, MenuTextButton, OpponentStrategy,
-	Shield, ShieldSprite, SoundPlayer, Status,*SummoningMeter*, Wizard, WizardSprite
+	Shield, ShieldSprite, SoundPlayer, Status, *SummoningMeter*, Wizard, WizardSprite
 
 - untested stuff:
 	arrows created by shooting<Archer>
 	standing after shooting<Archer>
 	wizard kill mode<MainArea>
+	stopping destroys stuff<MainArea>
 	jumping through shields<Assassin>
 	*movement actually moves*<Actor>
 	*starting and stopping, frequency*<FrameAnimation>
@@ -160,3 +165,5 @@
 - sync animations to beat better - sorta works?
 - ReuseManager class
 - object reuse: Actors
+- quitting while dying causes immediate death on restart - fixed incedentally
+- shield invisible on restart - shields originally had no starting animation call

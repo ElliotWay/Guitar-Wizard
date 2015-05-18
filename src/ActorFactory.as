@@ -1,6 +1,5 @@
 package src
 {
-	import flash.utils.getQualifiedClassName;
 	/**
 	 * ...
 	 * @author ...

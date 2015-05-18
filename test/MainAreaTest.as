@@ -4,7 +4,6 @@ package test
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 	import mockolate.runner.MockolateRunner;
@@ -17,6 +16,7 @@ package test
 	import org.hamcrest.number.closeTo;
 	import org.hamcrest.number.lessThanOrEqualTo;
 	import src.Actor;
+	import src.ActorFactory;
 	import src.ActorSprite;
 	import src.GameUI;
 	import src.Main;
@@ -39,14 +39,17 @@ package test
 		
 		private var mainArea:MainArea;
 		
-		private var repeater:Repeater;
-		
 		private var beforeScroll:Timer;
 		private var afterScroll:Timer;
 		private var afterSecondScroll:Timer;
 		
 		[Mock]
 		public var gameUI:GameUI;
+		
+		[Mock]
+		public var repeater:Repeater;
+		[Mock]
+		public var actorFactory:ActorFactory;
 		
 		[Mock]
 		public var scrollable:ScrollArea;
@@ -147,8 +150,8 @@ package test
 					MainArea.REPEATED_SCROLL_DELAY + MainArea.REPEATED_SCROLL_DELAY + 100, 1);
 			
 			
-			repeater = nice(Repeater);
 			stub(gameUI).getter("repeater").returns(repeater);
+			stub(gameUI).getter("actorFactory").returns(actorFactory);
 					
 			mainArea = new MainArea(gameUI);
 			mainArea.setScrollable(scrollable);
@@ -464,8 +467,6 @@ package test
 				afterSecondScroll.stop();
 				afterSecondScroll = null;
 			}
-			
-			mainArea.stop();
 		}
 	}
 

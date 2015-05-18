@@ -8,8 +8,6 @@ package test
 	import flash.geom.Vector3D;
 	import flash.utils.Timer;
 	import mockolate.nice;
-	import mockolate.partial;
-	import mockolate.prepare;
 	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
@@ -23,7 +21,7 @@ package test
 	import src.MiniSprite;
 	import src.Repeater;
 	import src.Status;
-	
+	import src.factory;
 	
 	MockolateRunner;
 	/**
@@ -36,20 +34,21 @@ package test
 		private var playerActor:Actor;
 		private var opponentActor:Actor;
 		
-		private var dyingLeft450:Actor, dyingRight550:Actor, left450:Actor, right550:Actor;
-		private var left350:Actor, right650:Actor, movingActor:Actor;
+		//It's usually better not to use partial mocks, but  this _is_ the Actor test.
+		[Mock(type = "partial")]
+		public var dyingCloseLeft:Actor, dyingCloseRight:Actor, closeLeft:Actor, closeRight:Actor;
+		[Mock(type = "partial")]
+		public var farLeft:Actor, farRight:Actor, movingActor:Actor;
 		
 		private var repeater:Repeater;
-		
-		private static const HP:int = 10; //What the default HP is expected to be.
 		
 		[Mock]
 		public var sprite:ActorSprite;
 		
 		[Mock]
-		public var sprite450:ActorSprite, sprite550:ActorSprite;
+		public var spriteCloseLeft:ActorSprite, spriteCloseRight:ActorSprite;
 		[Mock]
-		public var sprite350:ActorSprite, sprite650:ActorSprite;
+		public var spriteFarLeft:ActorSprite, spriteFarRight:ActorSprite;
 		[Mock]
 		public var movingSprite:ActorSprite;
 		
@@ -70,46 +69,80 @@ package test
 		
 		private var afterFirstBlow:Timer;
 		private var afterSecondBlow:Timer;
-		/*
-		[Before(async, timeout = 5000)]
-		public function prepMocks():void {
-			Async.proceedOnEvent(this,
-				prepare(Actor),
-				Event.COMPLETE);
-		}*/
+		
+		private const middlePoint:int = 500;
+		private const closeLeftPoint:int = middlePoint - Actor.DEFAULT_MELEE_RANGE + 1;
+		private const closeRightPoint:int = middlePoint + Actor.DEFAULT_MELEE_RANGE - 1;
+		private const farLeftPoint:int = closeLeftPoint - Actor.DEFAULT_MELEE_RANGE;
+		private const farRightPoint:int = closeRightPoint + Actor.DEFAULT_MELEE_RANGE;
+		
+		private const CLOSE_RANGE:int = Actor.DEFAULT_MELEE_RANGE;
+		private const LONG_RANGE:int = Actor.DEFAULT_MELEE_RANGE * 2.5;
 		
 		[Before(order = 1)]
 		public function setup():void {
-			spriteCenter = new Point(500, 10);
+			use namespace factory;
+			
+			
+			
+			spriteCenter = new Point(middlePoint, 10);
 			stub(sprite).getter("center").returns(spriteCenter);
 			spriteHitBox = new Rectangle(10, 20, 40, 30);
 			stub(sprite).getter("hitBox").returns(spriteHitBox);
 			
-			stub(sprite450).getter("center").returns(new Point(450, 10));
-			dyingLeft450 = partial(Actor, "Dying Left 450", [true, true, sprite450, miniSprite]);
-			dyingLeft450.hit(HP);
-			dyingLeft450.checkIfDead(repeater);
-			left450 = partial(Actor, "Left 450", [true, true, sprite450, miniSprite]);
+			stub(spriteCloseLeft).getter("center").returns(new Point(closeLeftPoint, 10));
+			dyingCloseLeft.restore();
+			dyingCloseLeft.setSprite(spriteCloseLeft); dyingCloseLeft.setMiniSprite(miniSprite);
+			dyingCloseLeft.setOrientation(Actor.PLAYER, Actor.RIGHT_FACING);
+			dyingCloseLeft.hit(Actor.DEFAULT_MAX_HP);
+			dyingCloseLeft.checkIfDead(repeater);
 			
-			stub(sprite550).getter("center").returns(new Point(550, 10));
-			dyingRight550 = partial(Actor, "Dying Right 550", [false, false, sprite550, miniSprite]);
-			dyingRight550.hit(HP);
-			dyingRight550.checkIfDead(repeater);
-			right550 = partial(Actor, "Right 550", [false, false, sprite550, miniSprite]);
+			closeLeft.restore();
+			closeLeft.setSprite(spriteCloseLeft); closeLeft.setMiniSprite(miniSprite);
+			closeLeft.setOrientation(Actor.PLAYER, Actor.RIGHT_FACING);
 			
-			stub(sprite350).getter("center").returns(new Point(350, 10));
-			left350 = partial(Actor, "Left 350", [true, false, sprite350, miniSprite]);
+			stub(spriteCloseRight).getter("center").returns(new Point(closeRightPoint, 10));
+			dyingCloseRight.restore();
+			dyingCloseRight.setSprite(spriteCloseRight); dyingCloseRight.setMiniSprite(miniSprite);
+			dyingCloseRight.setOrientation(Actor.OPPONENT, Actor.LEFT_FACING);
+			dyingCloseRight.hit(Actor.DEFAULT_MAX_HP);
+			dyingCloseRight.checkIfDead(repeater);
 			
-			stub(sprite650).getter("center").returns(new Point(650, 10));
-			right650 = partial(Actor, "Right 650", [false, false, sprite650, miniSprite]);
+			closeRight.restore();
+			closeRight.setSprite(spriteCloseRight); closeRight.setMiniSprite(miniSprite);
+			closeRight.setOrientation(Actor.OPPONENT, Actor.LEFT_FACING);
+			
+			stub(spriteFarLeft).getter("center").returns(new Point(farLeftPoint, 10));
+			farLeft.restore();
+			farLeft.setSprite(spriteFarLeft); farLeft.setMiniSprite(miniSprite);
+			farLeft.setOrientation(Actor.PLAYER, Actor.LEFT_FACING);
+			
+			stub(spriteFarRight).getter("center").returns(new Point(farRightPoint, 10));
+			farRight.restore();
+			farRight.setSprite(spriteFarRight); farRight.setMiniSprite(miniSprite);
+			farRight.setOrientation(Actor.OPPONENT, Actor.LEFT_FACING);
 
-			movingActor = partial(Actor, "Moving Actor", [false, false, movingSprite, miniSprite]);
+			movingActor.restore();
+			movingActor.setSprite(movingSprite); movingActor.setMiniSprite(miniSprite);
+			movingActor.setOrientation(Actor.OPPONENT, Actor.LEFT_FACING);
 			
 			afterFirstBlow = new Timer(1.5 * TIME_BETWEEN_BLOWS, 1);
 			afterSecondBlow = new Timer(2.5 * TIME_BETWEEN_BLOWS, 1);
 			
-			playerActor = new Actor(true, true, sprite, miniSprite);
-			opponentActor = new Actor(false, false, sprite, miniSprite);
+			
+			
+			playerActor = new Actor();
+			playerActor.restore();
+			playerActor.setSprite(sprite);
+			playerActor.setMiniSprite(miniSprite);
+			playerActor.setOrientation(Actor.PLAYER, Actor.RIGHT_FACING);
+			
+			
+			opponentActor = new Actor();
+			opponentActor.restore();
+			opponentActor.setSprite(sprite);
+			opponentActor.setMiniSprite(miniSprite);
+			opponentActor.setOrientation(Actor.OPPONENT, Actor.LEFT_FACING);
 			
 			repeater = nice(Repeater);
 		}
@@ -152,15 +185,15 @@ package test
 		
 		[Test(order = 1)]
 		public function checksWithinRange():void {
-			assertThat(playerActor.withinRange(left450, 100), true);
-			assertThat(playerActor.withinRange(left350, 100), false);
-			assertThat(playerActor.withinRange(right550, 100), true);
-			assertThat(playerActor.withinRange(right650, 100), false)
+			assertThat(playerActor.withinRange(closeLeft, Actor.DEFAULT_MELEE_RANGE), true);
+			assertThat(playerActor.withinRange(farLeft, Actor.DEFAULT_MELEE_RANGE), false);
+			assertThat(playerActor.withinRange(closeRight, Actor.DEFAULT_MELEE_RANGE), true);
+			assertThat(playerActor.withinRange(farRight, Actor.DEFAULT_MELEE_RANGE), false)
 		}
 		
 		[Test(order = 1)]
 		public function diesIfHit():void {
-			playerActor.hit(HP);
+			playerActor.hit(Actor.DEFAULT_MAX_HP);
 			playerActor.checkIfDead(repeater);
 			
 			assertThat(playerActor.status, Status.DYING);
@@ -189,7 +222,7 @@ package test
 		[Test(order = 1)]
 		public function resistantIfBlessed():void {
 			playerActor.bless();
-			playerActor.hit(HP);
+			playerActor.hit(Actor.DEFAULT_MAX_HP);
 			
 			assertThat(playerActor.status, not(Status.DYING));
 			assertThat(sprite, not(received().method("animate").args(Status.DYING, isA(Function))));
@@ -199,23 +232,23 @@ package test
 		
 		[Test(order = 2)]
 		public function notValidIfDying():void {
-			assertThat(playerActor.isValidTarget(dyingRight550), false);
+			assertThat(playerActor.isValidTarget(dyingCloseRight), false);
 			
-			assertThat(opponentActor.isValidTarget(dyingLeft450), false);
+			assertThat(opponentActor.isValidTarget(dyingCloseLeft), false);
 		}
 		
 		[Test(order = 2)]
 		public function notValidIfWrongDirection():void {
-			assertThat(playerActor.isValidTarget(left450), false);
+			assertThat(playerActor.isValidTarget(closeLeft), false);
 			
-			assertThat(opponentActor.isValidTarget(right550), false);
+			assertThat(opponentActor.isValidTarget(closeRight), false);
 		}
 		
 		[Test(order = 2)]
 		public function validIfAliveCorrectDirection():void {
-			assertThat(playerActor.isValidTarget(right550), true);
+			assertThat(playerActor.isValidTarget(closeRight), true);
 			
-			assertThat(opponentActor.isValidTarget(left450), true);
+			assertThat(opponentActor.isValidTarget(closeLeft), true);
 		}
 		
 		// Actor.getClosest tests.
@@ -224,65 +257,65 @@ package test
 		public function nullWithEmptyList():void {
 			var empty:Vector.<Actor> = new Vector.<Actor>();
 			
-			assertThat(playerActor.getClosest(empty, 1000), null);
+			assertThat(playerActor.getClosest(empty, LONG_RANGE), null);
 		}
 		
 		[Test(order = 3)]
 		public function nullIfNoneInRange():void {
-			var tooFar:Vector.<Actor> = new <Actor>[left350, right650];
+			var tooFar:Vector.<Actor> = new <Actor>[farLeft, farRight];
 			
-			assertThat(playerActor.getClosest(tooFar, 100), null);
+			assertThat(playerActor.getClosest(tooFar, CLOSE_RANGE), null);
 			
-			assertThat(opponentActor.getClosest(tooFar, 100), null);
+			assertThat(opponentActor.getClosest(tooFar, CLOSE_RANGE), null);
 		}
 		
 		[Test(order = 3)]
 		public function findsClosest():void {
-			var left:Vector.<Actor> = new <Actor>[left350, left450];
-			var right:Vector.<Actor> = new <Actor>[right550, right650];
+			var left:Vector.<Actor> = new <Actor>[farLeft, closeLeft];
+			var right:Vector.<Actor> = new <Actor>[closeRight, farRight];
 			
-			assertThat(playerActor.getClosest(right, 400), right550);
+			assertThat(playerActor.getClosest(right, LONG_RANGE), closeRight);
 			
-			assertThat(opponentActor.getClosest(left, 400), left450);
+			assertThat(opponentActor.getClosest(left, LONG_RANGE), closeLeft);
 		}
 		
 		[Test(order = 3)]
 		public function nullIfNoneValid():void {
-			var leftInvalid:Vector.<Actor> = new <Actor>[dyingLeft450, left350, left450, dyingRight550];
-			var rightInvalid:Vector.<Actor> = new <Actor>[right650, dyingRight550, dyingLeft450, right550];
+			var leftInvalid:Vector.<Actor> = new <Actor>[dyingCloseLeft, farLeft, closeLeft, dyingCloseRight];
+			var rightInvalid:Vector.<Actor> = new <Actor>[farRight, dyingCloseRight, dyingCloseLeft, closeRight];
 			
-			assertThat(playerActor.getClosest(leftInvalid, 400), null);
+			assertThat(playerActor.getClosest(leftInvalid, LONG_RANGE), null);
 			
-			assertThat(opponentActor.getClosest(rightInvalid, 400), null);
+			assertThat(opponentActor.getClosest(rightInvalid, LONG_RANGE), null);
 		}
 		
 		[Test(order = 3)]
 		public function nullIfOnlyCloseInvalid():void {
-			var closeInvalidForPlayer:Vector.<Actor> = new <Actor>[left450, dyingRight550, right650];
-			var closeInvalidForOpponent:Vector.<Actor> = new <Actor>[right550, dyingLeft450, left350];
+			var closeInvalidForPlayer:Vector.<Actor> = new <Actor>[closeLeft, dyingCloseRight, farRight];
+			var closeInvalidForOpponent:Vector.<Actor> = new <Actor>[closeRight, dyingCloseLeft, farLeft];
 			
-			assertThat(playerActor.getClosest(closeInvalidForPlayer, 100), null);
+			assertThat(playerActor.getClosest(closeInvalidForPlayer, CLOSE_RANGE), null);
 			
-			assertThat(opponentActor.getClosest(closeInvalidForOpponent, 100), null);
+			assertThat(opponentActor.getClosest(closeInvalidForOpponent, CLOSE_RANGE), null);
 		}
 		
 		[Test(order = 3)]
 		public function findsClosestIfFarInvalid():void {
-			var invalidFar:Vector.<Actor> = new <Actor>[left350, left450, right550, right650];
+			var invalidFar:Vector.<Actor> = new <Actor>[farLeft, closeLeft, closeRight, farRight];
 			
-			assertThat(playerActor.getClosest(invalidFar, 100), right550);
+			assertThat(playerActor.getClosest(invalidFar, CLOSE_RANGE), closeRight);
 			
-			assertThat(opponentActor.getClosest(invalidFar, 100), left450);
+			assertThat(opponentActor.getClosest(invalidFar, CLOSE_RANGE), closeLeft);
 		}
 		
 		[Test(order = 3)]
 		public function findsClosestIfInvalidIsCloser():void {
-			var closeInvalidForPlayer:Vector.<Actor> = new <Actor>[dyingRight550, right650];
-			var closeInvalidForOpponent:Vector.<Actor> = new <Actor>[dyingLeft450, left350];
+			var closeInvalidForPlayer:Vector.<Actor> = new <Actor>[dyingCloseRight, farRight];
+			var closeInvalidForOpponent:Vector.<Actor> = new <Actor>[dyingCloseLeft, farLeft];
 		
-			assertThat(playerActor.getClosest(closeInvalidForPlayer, 400), right650);
+			assertThat(playerActor.getClosest(closeInvalidForPlayer, LONG_RANGE), farRight);
 			
-			assertThat(opponentActor.getClosest(closeInvalidForOpponent, 400), left350);
+			assertThat(opponentActor.getClosest(closeInvalidForOpponent, LONG_RANGE), farLeft);
 		}
 		
 		//End Actor.getClosest tests.
@@ -292,23 +325,25 @@ package test
 		
 		[Test(order = 4)]
 		public function meleeStartsImmediately():void {
-			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS, repeater);
+			playerActor.meleeAttack(closeRight, TIME_BETWEEN_BLOWS, repeater);
 			
 			assertThat(sprite, received().method("animate").args(Status.FIGHTING, repeater));
 			assertThat(playerActor.status, Status.FIGHTING);
-			assertThat(right550, received().method("hit").arg(10));
+			assertThat(closeRight, received().method("hit").arg(Actor.DEFAULT_BASE_MELEE_DAMAGE));
 		}
 		
 		[Test(async, order = 4)]
 		public function hitsAgain():void {
-			playerActor.meleeAttack(right550, 60, 10, TIME_BETWEEN_BLOWS, repeater);
+			playerActor.meleeAttack(closeRight, TIME_BETWEEN_BLOWS, repeater);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(right550, received().method("hit").arg(10).twice());
+				assertThat(closeRight, received().method("hit")
+						.arg(Actor.DEFAULT_BASE_MELEE_DAMAGE).twice());
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(right550, received().method("hit").arg(10).thrice());
+				assertThat(closeRight, received().method("hit")
+						.arg(Actor.DEFAULT_BASE_MELEE_DAMAGE).thrice());
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);
@@ -320,15 +355,18 @@ package test
 		
 		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetMoves():void {
-			stub(movingSprite).getter("center").returns(new Point(550, 10), new Point(650, 10));
-			playerActor.meleeAttack(movingActor, 100, 10, TIME_BETWEEN_BLOWS, repeater);
+			stub(movingSprite).getter("center").returns(
+					new Point(closeRightPoint, 10), new Point(farRightPoint, 10));
+			playerActor.meleeAttack(movingActor, TIME_BETWEEN_BLOWS, repeater);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(movingActor, received().method("hit").arg(10).twice());
+				assertThat(movingActor, received().method("hit")
+						.arg(Actor.DEFAULT_BASE_MELEE_DAMAGE).twice());
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(movingActor, received().method("hit").arg(10).twice());
+				assertThat(movingActor, received().method("hit")
+						.arg(Actor.DEFAULT_BASE_MELEE_DAMAGE).twice());
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);
@@ -340,17 +378,20 @@ package test
 		
 		[Test(async, order = 4)]
 		public function meleeStopsWhenTargetDies():void {
-			playerActor.meleeAttack(right550, 100, 10, TIME_BETWEEN_BLOWS, repeater);
+			playerActor.meleeAttack(closeRight, TIME_BETWEEN_BLOWS, repeater);
 			
 			var firstHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(right550, received().method("hit").arg(10).twice());
-				right550.hit(HP);
-				right550.checkIfDead(repeater);
+				assertThat(closeRight, received().method("hit")
+						.arg(Actor.DEFAULT_BASE_MELEE_DAMAGE).twice());
+				closeRight.hit(Actor.DEFAULT_MAX_HP);
+				closeRight.checkIfDead(repeater);
 			}, 2*TIME_BETWEEN_BLOWS - 1);
 					
 			var secondHandler:Function = Async.asyncHandler(this, function():void {
-				//It's hit twice by player actor, and once by firstHandler.
-				assertThat(right550, received().method("hit").arg(10).thrice());
+				//It's hit twice by player actor, then stops.
+				//(Though it is hit by closeRight for a different amount.)
+				assertThat(closeRight, received().method("hit")
+						.arg(Actor.DEFAULT_BASE_MELEE_DAMAGE).twice());
 			}, 3*TIME_BETWEEN_BLOWS - 1);
 			
 			afterFirstBlow.addEventListener(TimerEvent.TIMER_COMPLETE, firstHandler, false, 0, true);

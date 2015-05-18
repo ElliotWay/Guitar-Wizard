@@ -17,6 +17,7 @@ package test
 	import src.Repeater;
 	import src.SmallCircleSprite;
 	import src.Status;
+	import src.factory;
 	
 	MockolateRunner;
 	/**
@@ -63,7 +64,15 @@ package test
 			});
 			stub(sprite).getter("center").returns(new Point(0, 0));
 			
-			cleric = new Cleric(true, true, sprite, miniSprite);
+			stub(opponentActor).getter("status").returns(Status.MOVING);
+			
+			use namespace factory;
+			
+			cleric = new Cleric();
+			cleric.restore();
+			cleric.setSprite(sprite);
+			cleric.setMiniSprite(miniSprite);
+			cleric.setOrientation(Actor.PLAYER, Actor.RIGHT_FACING);
 			
 			playerVector = new <Actor>[playerActor, playerActor2, cleric];
 			
@@ -229,15 +238,6 @@ package test
 			cleric.act(playerVector, emptyVector, repeater);
 			
 			afterBless.start();
-		}
-		
-		[Test]
-		public function diesIfHit():void {
-			cleric.hit(MainArea.MASSIVE_DAMAGE);
-			
-			cleric.act(emptyVector, emptyVector, repeater);
-			
-			assertThat(cleric.isDead);
 		}
 		
 		[After]

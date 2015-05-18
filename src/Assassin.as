@@ -21,7 +21,7 @@ package src
 		public static const MAX_HP:int = 10;
 		
 		public static const MELEE_RANGE:int = 30;
-		public static const BASE_MELEE_DAMAGE:int = 99; //3
+		public static const BASE_MELEE_DAMAGE:int = 3;
 		
 		public static const MAX_JUMP_DISTANCE:int = 200;//pixels
 		
