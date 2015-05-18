@@ -85,25 +85,28 @@ package src
 			if (_status != Status.SHOOTING && _status != Status.FIGHTING) {
 				
 				//Find the closest valid target.
-				var closest:Actor = this.getClosest(enemies, range);
+				var closestMelee:Actor = this.getClosest(enemies, range, true);
 				
-				if (closest == null ||
-						(closest is Wizard && !withinRange(closest, WIZARD_RANGE))) {
+				if (closestMelee == null ||
+						(closestMelee is Wizard && !withinRange(closestMelee, WIZARD_RANGE))) {
 					if (_status != Status.MOVING)
 						go(repeater);
 						
-				} else if (withinRange(closest, MELEE_RANGE)) {
-					this.meleeAttack(closest, ArcherSprite.timeBetweenBlows(repeater), repeater);
+				} else if (withinRange(closestMelee, MELEE_RANGE)) {
+					this.meleeAttack(closestMelee, ArcherSprite.timeBetweenBlows(repeater), repeater);
 					
 				} else if (isBehindShield()) {
 					if (_status != Status.MOVING)
 						go(repeater);
 						
 				} else {
-					var expectedDistance:Number = Math.abs(this.getPosition().x
-							- closest.predictPosition(ArcherSprite.ARROW_TIME).x);
+					//Melee locks a target, but ranged does not.
+					var closestRanged:Actor = this.getClosest(enemies, range, false);
 					
-					if (expectedDistance < skirmishDistance && canRetreat() && !(closest is Wizard)) {
+					var expectedDistance:Number = Math.abs(this.getPosition().x
+							- closestRanged.predictPosition(ArcherSprite.ARROW_TIME).x);
+					
+					if (expectedDistance < skirmishDistance && canRetreat() && !(closestRanged is Wizard)) {
 						if (_status != Status.RETREATING) {
 							this.retreat(repeater);
 						}
@@ -111,7 +114,7 @@ package src
 						halt();
 						_status = Status.SHOOTING;
 						
-						currentShootingTarget = closest;
+						currentShootingTarget = closestRanged;
 						
 						_sprite.animate(Status.SHOOTING, repeater, finishShooting);
 						

@@ -65,6 +65,7 @@ package src {
 		
 		private var fightingTimer:Timer;
 		private var meleeTarget:Actor;
+		private var attackLocked:Boolean;
 		
 		private var willBeBlessed:Boolean;
 		private var blessCounter:int;
@@ -101,6 +102,8 @@ package src {
 			willBeBlessed = false;
 			
 			_hitpoints = maxHP;
+			
+			attackLocked = false;
 		}
 		
 		factory function setOrientation(owner:int, facing:int):void {
@@ -173,8 +176,12 @@ package src {
 		 * Whether the actor has started dying and shoud not act.
 		 * Override this method if necessary.
 		 */
-		public function get isDead() : Boolean {
+		public function get isDead():Boolean {
 			return _isDead;
+		}
+		
+		public function get isAttackLocked():Boolean {
+			return attackLocked;
 		}
 		
 		/**
@@ -189,7 +196,7 @@ package src {
 		/**
 		 * Returns false if the target is dying, or in the wrong direction.
 		 */
-		public function isValidTarget(other:Actor) : Boolean {
+		public function isValidTarget(other:Actor):Boolean {
 			if (other.status == Status.DYING)
 				return false;
 			
@@ -205,8 +212,11 @@ package src {
 		 * within the maximum distance. Returns null if there are no actors in range.
 		 * @param	others  the list of other actors to search
 		 * @param	maxDistance  the maximum distance away the other actor can be
+		 * @param   unlockedForMelee if the other actor must be unlocked for melee
 		 */
-		public function getClosest(others:Vector.<Actor>, maxDistance:Number):Actor {
+		public function getClosest(others:Vector.<Actor>, maxDistance:Number,
+				unlockedForMelee:Boolean = true):Actor {
+			
 			if (others.length <= 0)
 				return null;
 			
@@ -217,7 +227,7 @@ package src {
 			var other:Actor;
 			for each (other in others) {
 				
-				if (isValidTarget(other)) {
+				if (isValidTarget(other) && (unlockedForMelee ? !other.isAttackLocked : true)) {
 					distance = Math.abs(other.getPosition().x - this.getPosition().x);
 					
 					if (distance <= closeDistance) {
@@ -327,6 +337,7 @@ package src {
 			_sprite.animate(Status.FIGHTING, repeater);
 			
 			meleeTarget = other;
+			meleeTarget.lockAttack();
 			meleeTarget.hit(isPlayerPiece ? baseMeleeDamage * player_buff : baseMeleeDamage);
 			
 			fightingTimer = new Timer(timeBetweenBlows, 0);
@@ -344,11 +355,24 @@ package src {
 				fightingTimer.stop();
 				fightingTimer = null;
 				
+				meleeTarget.unlockAttack();
 				meleeTarget = null;
 					
 				//The fighting animation ideally continues smoothly if there
 				//is another target in range.
 			}
+		}
+		
+		private function lockAttack():void {
+			if (attackLocked) {
+				throw new GWError("Attack already locked.");
+			} else {
+				attackLocked = true;
+			}
+		}
+		
+		private function unlockAttack():void {
+			attackLocked = false;
 		}
 		
 		public function getHitBox():Rectangle {
