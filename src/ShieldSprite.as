@@ -21,7 +21,7 @@ package src
 		new AnimationCollection(SHIELD_DATA, FRAME_WIDTH, FRAME_HEIGHT,
 		//status, 		yposition, num frames, frames per beat, loops,
 		Status.DYING, 			0,			5, FrameAnimation.FOUR_PER_BEAT, false,
-		Status.STANDING,		0,			1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
+		Status.STANDING,		0,			1, FrameAnimation.ON_STEP, false);
 		
 		public static const CENTER:Point = new Point(86, 114);
 		

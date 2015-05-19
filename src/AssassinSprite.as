@@ -27,7 +27,7 @@ package src
 		Status.ASSASSINATING,FRAME_HEIGHT * 2, 	11, FrameAnimation.FOUR_PER_BEAT, false,
 		Status.FIGHTING, 	 FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_PER_BEAT, true,
 		Status.DYING, 		 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
-		Status.STANDING,					0,	1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
+		Status.STANDING,					0,	1, FrameAnimation.ON_STEP, false);
 		
 		public static const CENTER:Point = new Point(30, 22);
 		public static const HIT_BOX:Rectangle = new Rectangle(22, 5, 15, 32);
@@ -74,9 +74,9 @@ package src
 		
 		public static function timeToLand(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (7th frame)
-			//		?	   *	(1/3)     *  7
+			//		?	   *	(1/3)     *  9
 			
-			return repeater.getBeat() * (7.0 / 3.0);
+			return repeater.getBeat() * (9.0 / 3.0);
 		}
 		
 		public static function timeBetweenStabs(repeater:Repeater):Number {

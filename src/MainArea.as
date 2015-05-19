@@ -217,7 +217,7 @@ package src
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 1; index++) {
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
@@ -234,7 +234,7 @@ package src
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor)
 			}
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 1; index++) {
 				actor = actorFactory.create(ActorFactory.CLERIC, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}

@@ -25,7 +25,7 @@ package src
 		Status.PLAY_HIGH,				0,  14, FrameAnimation.ONE_PER_BEAT, true,
 		Status.PLAY_MID,				0,  14, FrameAnimation.ONE_PER_BEAT, true,
 		Status.DYING,		  FRAME_WIDTH,	11, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
-		Status.STANDING,                0,   1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
+		Status.STANDING,                0,   1, FrameAnimation.ON_STEP, false);
 		
 		ANIMATIONS.find(Status.PLAY_MID, Actor.PLAYER, Actor.RIGHT_FACING)
 				.setFrequency(FrameAnimation.ON_STEP);

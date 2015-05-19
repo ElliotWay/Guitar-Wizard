@@ -32,7 +32,7 @@ package src
 		private var frameIndex:int;
 		
 		private var frequency:int;
-		private var loops:Boolean;
+		private var _loops:Boolean;
 		
 		private var frameCount:int;
 		private var runner:Function;
@@ -43,6 +43,14 @@ package src
 		public function get frames():Vector.<Bitmap> 
 		{
 			return _frames;
+		}
+		
+		/**
+		 * Whether the animation restarts when it reaches its end.
+		 */
+		public function get loops():Boolean 
+		{
+			return _loops;
 		}
 		
 		/**
@@ -77,7 +85,7 @@ package src
 			else 
 				output.frequency = frequency;
 				
-			output.loops = loops;
+			output._loops = loops;
 			
 			if (position.x + numFrames * frameWidth > image.width ||
 					position.y + frameHeight > image.height)
@@ -159,7 +167,7 @@ package src
 			}
 			
 			output.frequency = animation.frequency;
-			output.loops = animation.loops;
+			output._loops = animation._loops;
 			
 			output._frames[0].visible = true;
 			
@@ -209,12 +217,16 @@ package src
 		
 		/**
 		 * Play animation.
-		 * @param	repeater repeater to control frame stepping
+		 * @param	repeater repeater to control frame stepping (this can be null if the animation is on_step)
 		 */
 		public function go(repeater:Repeater):void {
 			if (frameIndex >= 0) {
 				frames[frameIndex].visible = false;
 				frames[0].visible = true;
+			}
+			
+			if (frequency == ON_STEP) {
+				return;
 			}
 			
 			frameCount = 0;
@@ -245,9 +257,6 @@ package src
 				case ONE_THIRD_PER_BEAT:
 					countMax = 9;
 					break;
-				case ON_STEP:
-					//Wait for the user to call nextFrame()
-					return;
 				case EVERY_FRAME:
 					countMax = 1;
 					break;

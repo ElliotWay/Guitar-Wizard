@@ -4,6 +4,7 @@ package src
 	import com.greensock.plugins.TintPlugin;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TweenLite;
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
@@ -21,7 +22,7 @@ package src
 		public static const MAX_HP:int = 10;
 		
 		public static const MELEE_RANGE:int = 30;
-		public static const BASE_MELEE_DAMAGE:int = 3;
+		public static const BASE_MELEE_DAMAGE:int = 99;//3;
 		
 		public static const MAX_JUMP_DISTANCE:int = 200;//pixels
 		
@@ -84,7 +85,8 @@ package src
 				var targetPositionAfterJump:Number =
 						closest.predictPosition(AssassinSprite.timeToLand(repeater)).x;
 				
-				if (isPlayerPiece) {
+				//TODO find a better way or writing this or just remove it altogether
+				/*if (isPlayerPiece) {
 					if (MainArea.opponentShieldIsUp) {
 						targetPositionAfterJump = Math.min(
 								targetPositionAfterJump,
@@ -96,7 +98,7 @@ package src
 								targetPositionAfterJump,
 								MainArea.SHIELD_POSITION);
 					}
-				}
+				}*/
 						
 				var targetAfterJumpDistance:Number =
 						Math.abs(targetPositionAfterJump - this.getPosition().x);
@@ -115,7 +117,6 @@ package src
 									-targetAfterJumpDistance + MELEE_RANGE);
 						
 					_status = Status.ASSASSINATING;
-					
 						
 					_sprite.animate(Status.ASSASSINATING, repeater, finishAssassinating);
 					
@@ -158,7 +159,7 @@ package src
 		private function whoosh_shing(event:Event):void {
 			if (withinRange(currentAssassinateTarget, MELEE_RANGE*1.1))//A little extra leeway on assassination.
 				currentAssassinateTarget.hit(2 * BASE_MELEE_DAMAGE * (isPlayerPiece ? player_buff : 1.0)); //Double damage on assassination
-			
+				
 			landedTimer = null;
 			currentAssassinateTarget = null;
 		}

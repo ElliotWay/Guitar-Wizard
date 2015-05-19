@@ -6,8 +6,8 @@
 - cut down on the number of anonymous functions; I don't like it, but the fact that they create
 	a new object with every new function AND add every single available object to it is such an
 	inefficient way of handling it, means that I really need to do it differently
-	
-- funny issue with Assassins
+
+- mid-summon actors aren't removed on quit
 
 
 ---Should do at some point.----------------
@@ -40,6 +40,8 @@
 - Timer reuse in Actor behavior, maybe TweenLites as well?
 
 - get ActorFactoryTest to work
+
+- find a _better_ way of syncing animations to beat
 
 
 ---Bugs.-------------------	
@@ -167,3 +169,4 @@
 - object reuse: Actors
 - quitting while dying causes immediate death on restart - fixed incedentally
 - shield invisible on restart - shields originally had no starting animation call
+- funny issue with Assassins - consecutive assassinate animations wouldn't restart the animation, so the onComplete function never got called

@@ -77,10 +77,14 @@ package src {
 		 * @param	onComplete a function to run once we're past the last frame
 		 * @param   args arguments to pass to the onComplete function
 		 */
-		public function animate(status:int, repeater:Repeater,
+		public function animate(status:int, repeater:Repeater = null,
 				onComplete:Function = null, args:Array = null):void {
 			if (status == Status.DYING)
 				hideBlessed();
+				
+			if (this is AssassinSprite && status == Status.ASSASSINATING) {
+				trace("animate assassination: animation: " + animations[status] + " onComplete: " + onComplete);
+			}
 			
 			var animation:FrameAnimation;
 			var value:* = animations[status];
@@ -92,7 +96,8 @@ package src {
 			}
 			
 			//If we're already animating this status, just keep doing that.
-			if (animation == currentAnimation && currentAnimation != null) {
+			//If the animation doesn't loop, however, it's better we restart it.
+			if (animation == currentAnimation && animation.loops && currentAnimation != null) {
 				return;
 			}
 			

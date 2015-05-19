@@ -31,7 +31,7 @@ package src
 		Status.SHOOTING, FRAME_HEIGHT * 2, 	12, FrameAnimation.THREE_PER_BEAT, true,
 		Status.FIGHTING, FRAME_HEIGHT * 3, 	8, FrameAnimation.FOUR_PER_BEAT, true,
 		Status.DYING, 	 FRAME_HEIGHT * 4, 	9, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
-		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
+		Status.STANDING,				0,	1, FrameAnimation.ON_STEP, false);
 		
 		public static const ARROW_TIME:Number = 6000;
 		public static const ARROW_POSITION:Point = new Point(30, 12);

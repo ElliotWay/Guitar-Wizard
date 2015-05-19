@@ -30,7 +30,7 @@ package src
 		public static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - 50;
 		private static const RANGE_VARIABILITY:Number = 50;
 		
-		trace("min range/skirmish diff " + ((BASE_RANGE - RANGE_VARIABILITY) - (BASE_SKIRMISH_DISTANCE + 75)));
+		trace("min range/skirmish diff " + ((BASE_RANGE - RANGE_VARIABILITY) - (BASE_SKIRMISH_DISTANCE + SKIRMISH_VARIABILITY)));
 		
 		private static const WIZARD_RANGE:Number = 130;
 		
@@ -55,6 +55,9 @@ package src
 			range = BASE_RANGE + (Math.random() * RANGE_VARIABILITY) - (RANGE_VARIABILITY / 2);
 			
 			skirmishDistance = BASE_SKIRMISH_DISTANCE + (Math.random() * SKIRMISH_VARIABILITY) - (SKIRMISH_VARIABILITY / 2);
+			
+			if (range < skirmishDistance)
+				trace("Warning: bad archer configuration");
 		}
 		
 		override protected function get speed():int {
@@ -99,6 +102,10 @@ package src
 					if (_status != Status.MOVING)
 						go(repeater);
 						
+				} else if (withinRange(closestMelee, skirmishDistance) && canRetreat() && !(closestMelee is Wizard)) {
+					if (_status != Status.RETREATING) {
+						this.retreat(repeater);
+					}
 				} else {
 					//Melee locks a target, but ranged does not.
 					var closestRanged:Actor = this.getClosest(enemies, range, false);
@@ -106,11 +113,11 @@ package src
 					var expectedDistance:Number = Math.abs(this.getPosition().x
 							- closestRanged.predictPosition(ArcherSprite.ARROW_TIME).x);
 					
-					if (expectedDistance < skirmishDistance && canRetreat() && !(closestRanged is Wizard)) {
+					/*if (expectedDistance < skirmishDistance && canRetreat() && !(closestRanged is Wizard)) {
 						if (_status != Status.RETREATING) {
 							this.retreat(repeater);
 						}
-					} else {	
+					} else {*/	
 						halt();
 						_status = Status.SHOOTING;
 						
@@ -122,7 +129,7 @@ package src
 						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
 						
 						shotFiredTimer.start();
-					}
+					//}
 				}
 			}
 		}

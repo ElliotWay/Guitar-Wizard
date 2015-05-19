@@ -1,6 +1,7 @@
 package src 
 {
 	import flash.display.DisplayObject;
+	import flash.display.Sprite;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	/**
@@ -24,6 +25,13 @@ package src
 			return MAX_HP;
 		}
 		
+		/**
+		 * Shields can have infinite attackers.
+		 */
+		override public function get isAttackLocked():Boolean {
+			return false;
+		}
+		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			//Do nothing.
 		}
@@ -38,6 +46,13 @@ package src
 					MainArea.opponentShieldIsUp = false;
 				}
 			}
+		}
+		
+		/**
+		 * Always allow locking an attack; ie don't throw an exception if already locked.
+		 */
+		override protected function lockAttack():void {
+			;
 		}
 		
 		/**

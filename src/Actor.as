@@ -180,6 +180,9 @@ package src {
 			return _isDead;
 		}
 		
+		/**
+		 * Override this to handle attack locking differently.
+		 */
 		public function get isAttackLocked():Boolean {
 			return attackLocked;
 		}
@@ -344,6 +347,10 @@ package src {
 			fightingTimer.addEventListener(TimerEvent.TIMER, continueMelee);
 					
 			fightingTimer.start();
+			
+			if (other is Shield) {
+				trace("attack shield: time between blows: " + timeBetweenBlows);
+			}
 		}
 		
 		private function continueMelee(event:Event):void {
@@ -363,7 +370,7 @@ package src {
 			}
 		}
 		
-		private function lockAttack():void {
+		protected function lockAttack():void {
 			if (attackLocked) {
 				throw new GWError("Attack already locked.");
 			} else {
@@ -371,7 +378,7 @@ package src {
 			}
 		}
 		
-		private function unlockAttack():void {
+		protected function unlockAttack():void {
 			attackLocked = false;
 		}
 		

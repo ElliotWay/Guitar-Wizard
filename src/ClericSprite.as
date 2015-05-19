@@ -28,7 +28,7 @@ package src
 		Status.BLESSING, FRAME_HEIGHT * 2, 	12, FrameAnimation.FOUR_PER_BEAT, false, 
 		Status.FIGHTING, FRAME_HEIGHT * 3, 	18, FrameAnimation.THREE_PER_BEAT, true,
 		Status.DYING, 	 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
-		Status.STANDING,				0,	1, FrameAnimation.ONE_THIRD_PER_BEAT, false);
+		Status.STANDING,				0,	1, FrameAnimation.ON_STEP, false);
 
 		
 		public static const CENTER:Point = new Point(16, 32);
