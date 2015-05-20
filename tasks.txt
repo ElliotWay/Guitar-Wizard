@@ -1,13 +1,13 @@
 ---Might do soon.----------
-- fix garbage collection - ongoing
+- fix garbage collection - IP
 
 - create more frames, they just look better that way - IP
 
 - cut down on the number of anonymous functions; I don't like it, but the fact that they create
 	a new object with every new function AND add every single available object to it is such an
-	inefficient way of handling it, means that I really need to do it differently
+	inefficient way of handling it, means that I really need to do it differently - IP
 
-- mid-summon actors aren't removed on quit
+- fix Archer dithering
 
 
 ---Should do at some point.----------------
@@ -28,8 +28,6 @@
 - object reuse: Projectiles?
 - object reuse: NoteSprites? they're easy to redraw, after all
 - object reuse: other? that's most of them really, maybe cut down on the number of vectors or something
-
-- fix Archer dithering
 
 - Archers are still overpowered. Not sure how I'll fix this.
 
@@ -170,3 +168,4 @@
 - quitting while dying causes immediate death on restart - fixed incedentally
 - shield invisible on restart - shields originally had no starting animation call
 - funny issue with Assassins - consecutive assassinate animations wouldn't restart the animation, so the onComplete function never got called
+- mid-summon actors aren't removed on quit

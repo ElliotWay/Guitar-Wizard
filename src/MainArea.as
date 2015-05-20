@@ -217,7 +217,7 @@ package src
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
-			for (index = 0; index < 1; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
@@ -234,7 +234,7 @@ package src
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor)
 			}
-			for (index = 0; index < 1; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.CLERIC, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
@@ -394,7 +394,7 @@ package src
 			repeatedScrollTimer.stop();
 		}
 		
-		public function playerSummon(actor : Actor):void {
+		public function playerSummon(actor:Actor):void {
 			if (playerWizard == null || playerWizard.isDead)
 				return;
 			
@@ -402,31 +402,25 @@ package src
 			arena.addChild(actor.sprite);
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			
+			minimap.addChild(actor.miniSprite);
+			playerActors.push(actor);
+			
 			createSummoningLine(actor, playerWizard);
 			
-			actor.sprite.animate(Status.SUMMONING, repeater, function():void {
-				
-				minimap.addChild(actor.miniSprite);
-				playerActors.push(actor);
-				
-				actor.go(repeater);
-			});
+			actor.summon(repeater);
 		}
 		
-		public function opponentSummon(actor : Actor):void {
+		public function opponentSummon(actor:Actor):void {
 			var position : Number = ARENA_WIDTH - (Math.random() * (SHIELD_POSITION - 80) + 50);
 			arena.addChild(actor.sprite);
 			actor.setPosition(new Point(position, Actor.Y_POSITION - actor.sprite.height));
 			
+			minimap.addChild(actor.miniSprite);
+			opponentActors.push(actor);
+			
 			createSummoningLine(actor, opponentWizard);
 			
-			actor.sprite.animate(Status.SUMMONING, repeater, function():void {
-				
-				minimap.addChild(actor.miniSprite);
-				opponentActors.push(actor);
-				
-				actor.go(repeater);
-			});
+			actor.summon(repeater);
 		}
 		
 		/**

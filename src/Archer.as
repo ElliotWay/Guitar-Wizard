@@ -1,5 +1,4 @@
-package src 
-{
+package src {
 	import com.greensock.TweenLite;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.plugins.TintPlugin;
@@ -12,8 +11,7 @@ package src
 	 * ...
 	 * @author ...
 	 */
-	public class Archer extends Actor 
-	{
+	public class Archer extends Actor {
 		public static const SPEED:int = 70;
 		public static const MAX_HP:int = 5;
 		
@@ -34,7 +32,6 @@ package src
 		
 		private static const WIZARD_RANGE:Number = 130;
 		
-		
 		/**
 		 * Amount of time the Archer estimates it will take for the arrow to hit its target,
 		 * as the Archer attempt to lead the target. Expressed in milliseconds.
@@ -48,8 +45,7 @@ package src
 		
 		private var currentShootingTarget:Actor;
 		
-		public function Archer() 
-		{	
+		public function Archer() {
 			super();
 			
 			range = BASE_RANGE + (Math.random() * RANGE_VARIABILITY) - (RANGE_VARIABILITY / 2);
@@ -77,72 +73,55 @@ package src
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
-			//Check if we're dead. If we're dead, we have to stop now.
-			if (_status == Status.DYING) {
+			if (this.isPreoccupied)
 				return;
-			}
 			
-			//Do other stuff.
+			//Find the closest valid target.
+			var closestMelee:Actor = this.getClosest(enemies, range, true);
 			
-			//If we're busy, we need to finish before doing anything else.
-			if (_status != Status.SHOOTING && _status != Status.FIGHTING) {
+			if (closestMelee == null || (closestMelee is Wizard && !withinRange(closestMelee, WIZARD_RANGE))) {
+				if (_status != Status.MOVING)
+					go(repeater);
 				
-				//Find the closest valid target.
-				var closestMelee:Actor = this.getClosest(enemies, range, true);
+			} else if (withinRange(closestMelee, MELEE_RANGE)) {
+				this.meleeAttack(closestMelee, ArcherSprite.timeBetweenBlows(repeater), repeater);
 				
-				if (closestMelee == null ||
-						(closestMelee is Wizard && !withinRange(closestMelee, WIZARD_RANGE))) {
-					if (_status != Status.MOVING)
-						go(repeater);
-						
-				} else if (withinRange(closestMelee, MELEE_RANGE)) {
-					this.meleeAttack(closestMelee, ArcherSprite.timeBetweenBlows(repeater), repeater);
-					
-				} else if (isBehindShield()) {
-					if (_status != Status.MOVING)
-						go(repeater);
-						
-				} else if (withinRange(closestMelee, skirmishDistance) && canRetreat() && !(closestMelee is Wizard)) {
-					if (_status != Status.RETREATING) {
-						this.retreat(repeater);
-					}
-				} else {
-					//Melee locks a target, but ranged does not.
-					var closestRanged:Actor = this.getClosest(enemies, range, false);
-					
-					var expectedDistance:Number = Math.abs(this.getPosition().x
-							- closestRanged.predictPosition(ArcherSprite.ARROW_TIME).x);
-					
-					/*if (expectedDistance < skirmishDistance && canRetreat() && !(closestRanged is Wizard)) {
-						if (_status != Status.RETREATING) {
-							this.retreat(repeater);
-						}
-					} else {*/	
-						halt();
-						_status = Status.SHOOTING;
-						
-						currentShootingTarget = closestRanged;
-						
-						_sprite.animate(Status.SHOOTING, repeater, finishShooting);
-						
-						shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(repeater), 1);
-						shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
-						
-						shotFiredTimer.start();
-					//}
+			} else if (isBehindShield()) {
+				if (_status != Status.MOVING)
+					go(repeater);
+				
+			} else if (withinRange(closestMelee, skirmishDistance) && canRetreat() && !(closestMelee is Wizard)) {
+				if (_status != Status.RETREATING) {
+					this.retreat(repeater);
 				}
+			} else {
+				//Melee locks a target, but ranged does not.
+				var closestRanged:Actor = this.getClosest(enemies, range, false);
+				
+				var expectedDistance:Number = Math.abs(this.getPosition().x - closestRanged.predictPosition(ArcherSprite.ARROW_TIME).x);
+				
+				/*if (expectedDistance < skirmishDistance && canRetreat() && !(closestRanged is Wizard)) {
+				   if (_status != Status.RETREATING) {
+				   this.retreat(repeater);
+				   }
+				 } else {*/
+				halt();
+				_status = Status.SHOOTING;
+				
+				currentShootingTarget = closestRanged;
+				
+				_sprite.animate(Status.SHOOTING, repeater, resetToStanding);
+				
+				shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(repeater), 1);
+				shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
+				
+				shotFiredTimer.start();
+					//}
 			}
-		}
-		
-		private function finishShooting():void {
-			_status = Status.STANDING;
 		}
 		
 		private function spawnArrow(event:Event):void {
-			var arrow:Projectile = new Projectile(
-					ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0),
-					(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
-					currentShootingTarget.predictPosition(LEAD_TIME));
+			var arrow:Projectile = new Projectile(ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0), (isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS), currentShootingTarget.predictPosition(LEAD_TIME));
 			
 			var arrowPosition:Point = (_sprite as ArcherSprite).arrowPosition;
 			

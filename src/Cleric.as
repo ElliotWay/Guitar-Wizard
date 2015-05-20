@@ -1,5 +1,4 @@
-package src 
-{
+package src {
 	import com.greensock.plugins.TintPlugin;
 	import com.greensock.plugins.TweenPlugin;
 	import com.greensock.TweenLite;
@@ -7,12 +6,12 @@ package src
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
+	
 	/**
 	 * ...
 	 * @author ...
 	 */
-	public class Cleric extends Actor 
-	{
+	public class Cleric extends Actor {
 		public static const SPEED:int = 45;
 		public static const MAX_HP:int = 30; //20?
 		
@@ -54,85 +53,75 @@ package src
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
-			//Check if we're dead. If we're dead, we have to stop now.
-			if (_status == Status.DYING) {
+			if (this.isPreoccupied)
 				return;
-			}
 			
-			if (_status != Status.FIGHTING && status != Status.BLESSING) {
+			var finished:Boolean = false;
+			
+			if (blessIsReady) {
+				//Find allies withing bless range.
+				var nearbyAllies:Vector.<Actor> = new Vector.<Actor>();
+				var ally:Actor;
 				
-				var finished:Boolean = false;
-				
-				if (blessIsReady) {
-					//Find allies withing bless range.
-					var nearbyAllies:Vector.<Actor> = new Vector.<Actor>();
-					var ally:Actor;
-					
-					for each (ally in allies) {
-						if (withinRange(ally, BLESS_RANGE) && !(ally is Shield))
-							nearbyAllies.push(ally);
-					}
-					
-					//Count how many aren't already blessed.
-					var unblessed:int = 0;
-					for each(ally in nearbyAllies) {
-						if (!ally.isBlessed)
-							unblessed++;
-					}
-					
-					//Bless if there are enough.
-					if (unblessed >= MIN_UNBLESSED) {
-						
-						for each (ally in nearbyAllies) {
-							ally.preBless();
-						}
-						
-						//Start bless animation.
-						this.halt();
-						
-						_status = Status.BLESSING;
-						_sprite.animate(Status.BLESSING, repeater, finishBlessing);
-						
-						//Do bless at the "peak" of the animation.
-						currentBlessTargets = nearbyAllies;
-						
-						blessTimer = new Timer(ClericSprite.timeToBless(repeater), 1);
-						blessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, blessAllies);
-						blessTimer.start();
-						
-						//Start cooldown timer for the next bless.
-						blessIsReady = false;
-						blessCooldownTimer = new Timer(BLESS_COOLDOWN, 1);
-						blessCooldownTimer.addEventListener(TimerEvent.TIMER_COMPLETE, readyBless);
-						blessCooldownTimer.start();
-						
-						finished = true;
-						
-					} else {
-						//Make sure references to the actors don't pile up.
-						nearbyAllies.splice(0, nearbyAllies.length);
-					}
+				for each (ally in allies) {
+					if (withinRange(ally, BLESS_RANGE) && !(ally is Shield))
+						nearbyAllies.push(ally);
 				}
 				
-				if (!finished) {
-					//Find the closest valid target.
-					var closest:Actor = this.getClosest(enemies, MELEE_RANGE);
+				//Count how many aren't already blessed.
+				var unblessed:int = 0;
+				for each (ally in nearbyAllies) {
+					if (!ally.isBlessed)
+						unblessed++;
+				}
 				
-					if (closest != null) {
-						this.meleeAttack(closest, ClericSprite.timeBetweenBlows(repeater), repeater);
-						
-					} else {
-						if (_status != Status.MOVING) {
-							this.go(repeater);
-						}
+				//Bless if there are enough.
+				if (unblessed >= MIN_UNBLESSED) {
+					
+					for each (ally in nearbyAllies) {
+						ally.preBless();
 					}
+					
+					//Start bless animation.
+					this.halt();
+					
+					_status = Status.BLESSING;
+					_sprite.animate(Status.BLESSING, repeater, resetToStanding);
+					
+					//Do bless at the "peak" of the animation.
+					currentBlessTargets = nearbyAllies;
+					
+					blessTimer = new Timer(ClericSprite.timeToBless(repeater), 1);
+					blessTimer.addEventListener(TimerEvent.TIMER_COMPLETE, blessAllies);
+					blessTimer.start();
+					
+					//Start cooldown timer for the next bless.
+					blessIsReady = false;
+					blessCooldownTimer = new Timer(BLESS_COOLDOWN, 1);
+					blessCooldownTimer.addEventListener(TimerEvent.TIMER_COMPLETE, readyBless);
+					blessCooldownTimer.start();
+					
+					finished = true;
+					
+				} else {
+					//Make sure references to the actors don't pile up.
+					nearbyAllies.splice(0, nearbyAllies.length);
 				}
 			}
 			
-		}
-		
-		private function finishBlessing():void {
-			_status = Status.STANDING;
+			if (!finished) {
+				//Find the closest valid target.
+				var closest:Actor = this.getClosest(enemies, MELEE_RANGE);
+				
+				if (closest != null) {
+					this.meleeAttack(closest, ClericSprite.timeBetweenBlows(repeater), repeater);
+					
+				} else {
+					if (_status != Status.MOVING) {
+						this.go(repeater);
+					}
+				}
+			}
 		}
 		
 		private function blessAllies(event:Event):void {

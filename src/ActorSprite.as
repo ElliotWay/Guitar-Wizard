@@ -81,10 +81,6 @@ package src {
 				onComplete:Function = null, args:Array = null):void {
 			if (status == Status.DYING)
 				hideBlessed();
-				
-			if (this is AssassinSprite && status == Status.ASSASSINATING) {
-				trace("animate assassination: animation: " + animations[status] + " onComplete: " + onComplete);
-			}
 			
 			var animation:FrameAnimation;
 			var value:* = animations[status];

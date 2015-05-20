@@ -188,6 +188,18 @@ package src {
 		}
 		
 		/**
+		 * Whether the actor is in the middle of something that shouldn't be interrupted.
+		 */
+		public function get isPreoccupied():Boolean {
+			return (_status == Status.DYING ||
+					_status == Status.SUMMONING ||
+					_status == Status.FIGHTING ||
+					_status == Status.SHOOTING ||
+					_status == Status.ASSASSINATING ||
+					_status == Status.BLESSING);
+		}
+		
+		/**
 		 * Override this method.
 		 * @param	allies friendly actors to help or ignore
 		 * @param   enemies hostile actors to attack
@@ -200,7 +212,7 @@ package src {
 		 * Returns false if the target is dying, or in the wrong direction.
 		 */
 		public function isValidTarget(other:Actor):Boolean {
-			if (other.status == Status.DYING)
+			if (other.status == Status.DYING || other.status == Status.SUMMONING)
 				return false;
 			
 			if (facesRight) {
@@ -347,10 +359,6 @@ package src {
 			fightingTimer.addEventListener(TimerEvent.TIMER, continueMelee);
 					
 			fightingTimer.start();
-			
-			if (other is Shield) {
-				trace("attack shield: time between blows: " + timeBetweenBlows);
-			}
 		}
 		
 		private function continueMelee(event:Event):void {
@@ -370,6 +378,9 @@ package src {
 			}
 		}
 		
+		/**
+		 * Stop actors from being able to attack this actor.
+		 */
 		protected function lockAttack():void {
 			if (attackLocked) {
 				throw new GWError("Attack already locked.");
@@ -378,6 +389,9 @@ package src {
 			}
 		}
 		
+		/**
+		 * Allow other actors to attack this actor again.
+		 */
 		protected function unlockAttack():void {
 			attackLocked = false;
 		}
@@ -393,12 +407,24 @@ package src {
 		}
 		
 		/**
+		 * Start the summoning animation.
+		 * @param	repeater
+		 */
+		public function summon(repeater:Repeater):void {
+			_status = Status.SUMMONING;
+			_sprite.animate(Status.SUMMONING, repeater, resetToStanding);
+		}
+		
+		protected function resetToStanding():void {
+			_status = Status.STANDING;
+		}
+		
+		/**
 		 * Starts the sprite moving, direction depending on ownership.
 		 * Updates status and animation to MOVING.
 		 */
 		public function go(repeater:Repeater) : void {
 			halt();
-			
 			
 			var realSpeed:Number = speed;
 			if (isPlayerActor)
@@ -509,6 +535,11 @@ package src {
 				fightingTimer.stop();
 				fightingTimer = null;
 			}
+			
+			if (meleeTarget != null) {
+				meleeTarget.unlockAttack();
+				meleeTarget = null;
+			}
 				
 			if (fading != null) {
 				fading.restart(); //Restore the sprite to unfaded.
@@ -516,17 +547,23 @@ package src {
 				fading = null;
 			}
 			
+			
 			deathCallback = null;
-			meleeTarget = null;
 		}
 		
 		/**
 		 * Dereferences the sprites of this actor, but otherwise leaves them untouched.
 		 * Calls clean() first (so you don't have to call clean as well).
-		 * Don't use the actor after calling this method.
+		 * Don't use the actor after calling this method, isDead will return true after
+		 * calling this method.
 		 */
 		public function dispose():void {
 			clean();
+			
+			//This actor is effectively dead, if anyone has a reference to it
+			//to do something to it later, such as a Cleric blessing allies,
+			//they'll check whether the unit is still alive.
+			_isDead = true;
 			
 			_miniSprite = null;
 			_sprite = null;

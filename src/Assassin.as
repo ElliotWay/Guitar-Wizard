@@ -22,7 +22,7 @@ package src
 		public static const MAX_HP:int = 10;
 		
 		public static const MELEE_RANGE:int = 30;
-		public static const BASE_MELEE_DAMAGE:int = 99;//3;
+		public static const BASE_MELEE_DAMAGE:int = 3;
 		
 		public static const MAX_JUMP_DISTANCE:int = 200;//pixels
 		
@@ -66,15 +66,8 @@ package src
 		}
 		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
-			//Check if we're dead. If we're dead, we have to stop now.
-			if (_status == Status.DYING) {
+			if (this.isPreoccupied)
 				return;
-			}
-			
-			//Do other stuff.
-			
-			
-			if (_status != Status.ASSASSINATING && _status != Status.FIGHTING) {
 				
 			
 			//Find the closest valid target.
@@ -118,7 +111,7 @@ package src
 						
 					_status = Status.ASSASSINATING;
 						
-					_sprite.animate(Status.ASSASSINATING, repeater, finishAssassinating);
+					_sprite.animate(Status.ASSASSINATING, repeater, resetToStanding);
 					
 					
 					currentAssassinateTarget = closest;
@@ -142,14 +135,6 @@ package src
 					this.go(repeater);
 			}
 			
-			
-			
-			}//End of check for ongoing status.
-			
-		}
-		
-		private function finishAssassinating():void {
-			_status = Status.STANDING;
 		}
 		
 		/**
