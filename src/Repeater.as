@@ -17,13 +17,8 @@ package src
 		
 		private var millisecondsPerBeat:int = 500;
 		
-		private var quarterTicks:int;
-		private var quarterBeatPending:Dictionary;
 		private var quarterBeatRun:Dictionary;
 		private var quarterBeatTimer:Timer;
-		
-		private var thirdTicks:int;
-		private var thirdBeatPending:Dictionary;
 		private var thirdBeatRun:Dictionary;
 		private var thirdBeatTimer:Timer;
 		
@@ -52,13 +47,8 @@ package src
 				
 			everyFrameRun = new Dictionary(true);
 			
-			quarterTicks = 0;
-			quarterBeatPending = new Dictionary(true);
 			quarterBeatRun = new Dictionary(true);
 			quarterBeatTimer = null;
-			
-			thirdTicks = 0;
-			thirdBeatPending = new Dictionary(true);
 			thirdBeatRun = new Dictionary(true);
 			thirdBeatTimer = null;
 			
@@ -152,7 +142,7 @@ package src
 		 * @param	func the function to run every quarter beat
 		 */
 		public function runEveryQuarterBeat(func:Function):void {
-			quarterBeatPending[func] = func;
+			quarterBeatRun[func] = func;
 		}
 		
 		/**
@@ -160,13 +150,11 @@ package src
 		 * @param	func the function to stop running
 		 */
 		public function stopRunningEveryQuarterBeat(func:Function):void {
-			delete quarterBeatPending[func];
 			delete quarterBeatRun[func];
 		}
 		
 		public function isRunningEveryQuarterBeat(func:Function):Boolean {
-			return (quarterBeatRun[func] != undefined ||
-					quarterBeatPending[func] != undefined);
+			return (quarterBeatRun[func] != undefined);
 		}
 		
 		/**
@@ -174,7 +162,7 @@ package src
 		 * @param	func the function to run every third beat
 		 */
 		public function runEveryThirdBeat(func:Function):void {
-			thirdBeatPending[func] = func;
+			thirdBeatRun[func] = func;
 		}
 		
 		/**
@@ -182,13 +170,11 @@ package src
 		 * @param	func the function to stop running
 		 */
 		public function stopRunningEveryThirdBeat(func:Function):void {
-			delete thirdBeatPending[func];
 			delete thirdBeatRun[func];
 		}
 		
 		public function isRunningEveryThirdBeat(func:Function):Boolean {
-			return (thirdBeatRun[func] != undefined ||
-					thirdBeatPending[func] != undefined);
+			return (thirdBeatRun[func] != undefined);
 		}
 		
 		private function frameRunner(e:Event):void {
@@ -199,35 +185,13 @@ package src
 		}
 		
 		private function quarterBeatRunner(e:Event):void {
-			var func:Object;
-			
-			quarterTicks++;
-			if (quarterTicks >= 4) {
-				quarterTicks = 0;
-				for (func in quarterBeatPending) {
-					quarterBeatRun[func] = func;
-					delete quarterBeatPending[func];
-				}
-			}
-			
-			for (func in quarterBeatRun) {
+			for (var func:Object in quarterBeatRun) {
 				(func as Function).call();
 			}
 		}
 		
 		private function thirdBeatRunner(e:Event):void {
-			var func:Object;
-			
-			thirdTicks++;
-			if (thirdTicks >= 3) {
-				thirdTicks = 0;
-				for (func in thirdBeatPending) {
-					thirdBeatRun[func] = func;
-					delete thirdBeatPending[func];
-				}
-			}
-			
-			for (func in thirdBeatRun) {
+			for (var func:Object in thirdBeatRun) {
 				
 				(func as Function).call();
 			}
