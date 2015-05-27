@@ -3,6 +3,7 @@ package src
 	import flash.display.Sprite;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
@@ -68,10 +69,7 @@ package src
 		
 		public function go(repeater:Repeater):void {
 			var lightningFadeTimer:Timer = new Timer(100, 1);
-			var self:Lightning = this;
-			lightningFadeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-				self.parent.removeChild(self);
-			});
+			lightningFadeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, removeFromParent);
 			
 			animation.setOnComplete(function():void {
 				lightningFadeTimer.start();
@@ -80,6 +78,12 @@ package src
 			});
 			
 			animation.go(repeater);
+		}
+		
+		private function removeFromParent(event:Event):void {
+			if (parent) {
+				this.parent.removeChild(this);
+			}
 		}
 		
 	}

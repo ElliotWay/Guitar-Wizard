@@ -368,6 +368,7 @@ package src {
 				_status = Status.STANDING;
 				
 				fightingTimer.stop();
+				fightingTimer.removeEventListener(TimerEvent.TIMER, continueMelee);
 				fightingTimer = null;
 				
 				meleeTarget.unlockAttack();
@@ -533,6 +534,7 @@ package src {
 				
 			if (fightingTimer != null) {
 				fightingTimer.stop();
+				fightingTimer.removeEventListener(TimerEvent.TIMER, continueMelee);
 				fightingTimer = null;
 			}
 			

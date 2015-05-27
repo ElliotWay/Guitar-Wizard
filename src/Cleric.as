@@ -13,7 +13,7 @@ package src {
 	 */
 	public class Cleric extends Actor {
 		public static const SPEED:int = 45;
-		public static const MAX_HP:int = 30; //20?
+		public static const MAX_HP:int = 30;//20;
 		
 		public static const MELEE_RANGE:int = 20;
 		public static const BASE_MELEE_DAMAGE:int = 3;
@@ -34,6 +34,9 @@ package src {
 			super();
 			
 			blessIsReady = true;
+			
+			blessCooldownTimer = new Timer(BLESS_COOLDOWN, 1);
+			blessCooldownTimer.addEventListener(TimerEvent.TIMER_COMPLETE, readyBless);
 		}
 		
 		override protected function get speed():int {
@@ -97,8 +100,7 @@ package src {
 					
 					//Start cooldown timer for the next bless.
 					blessIsReady = false;
-					blessCooldownTimer = new Timer(BLESS_COOLDOWN, 1);
-					blessCooldownTimer.addEventListener(TimerEvent.TIMER_COMPLETE, readyBless);
+					blessCooldownTimer.reset();
 					blessCooldownTimer.start();
 					
 					finished = true;
@@ -125,6 +127,8 @@ package src {
 		}
 		
 		private function blessAllies(event:Event):void {
+			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, blessAllies);
+			
 			for each (var actor:Actor in currentBlessTargets) {
 				if (!actor.isDead)
 					actor.bless();
@@ -137,8 +141,6 @@ package src {
 		
 		private function readyBless(event:Event):void {
 			blessIsReady = true;
-			
-			blessCooldownTimer = null;
 		}
 		
 		override public function clean():void {
@@ -153,10 +155,7 @@ package src {
 				currentBlessTargets = null;
 			}
 			
-			if (blessCooldownTimer != null) {
-				blessCooldownTimer.stop();
-				blessCooldownTimer = null;
-			}
+			blessCooldownTimer.stop();
 			
 			blessIsReady = true;
 		}

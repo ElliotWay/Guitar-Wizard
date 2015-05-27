@@ -181,22 +181,20 @@ package src
 			//Create scrolling timers
 			
 			autoScrollTimer = new Timer(AUTO_SCROLL_DELAY, 1);
-			autoScrollTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-				repeatedScrollTimer.start();
-			});
+			autoScrollTimer.addEventListener(TimerEvent.TIMER_COMPLETE, startRepeatedScrollTimer);
 			
 			repeatedScrollTimer = new Timer(REPEATED_SCROLL_DELAY, 0);
-			repeatedScrollTimer.addEventListener(TimerEvent.TIMER, function():void {
-				var rightMost:Number = 0;
-				
-				var actor:Actor;
-				for each (actor in playerActors) {
-					if (!(actor is Shield) && actor.getPosition().x > rightMost)
-						rightMost = actor.getPosition().x;
-				}
-				
-				scrollable.scrollTo(rightMost - WIDTH / 3);
-			});
+			repeatedScrollTimer.addEventListener(TimerEvent.TIMER, scrollToRightMostPlayerActor);
+			
+			//Create wizard killing timers. These represent the delay between when
+			//an actor reaches the edge of the arena and when it appears near the wizard.
+			
+			playerWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
+			playerWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, startPlayerWizardKiller);
+			
+			opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
+			opponentWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, startOpponentWizardKiller);
+			
 		}
 		
 		private function prepMinimap(minimap:Sprite):void {
@@ -208,12 +206,39 @@ package src
 			minimap.y = 0;
 		}
 		
+		private function startRepeatedScrollTimer(event:Event):void {
+			
+			repeatedScrollTimer.start();
+		}
+		
+		private function scrollToRightMostPlayerActor(event:Event):void {
+			var rightMost:Number = 0;
+				
+				var actor:Actor;
+				for each (actor in playerActors) {
+					if (!(actor is Shield) && actor.getPosition().x > rightMost)
+						rightMost = actor.getPosition().x;
+				}
+				
+				scrollable.scrollTo(rightMost - WIDTH / 3);
+		}
+		
+		private function startPlayerWizardKiller(event:Event):void {
+			arena.addChild(playerWizardKiller.sprite);
+			playerWizardKiller.go(repeater);
+		}
+		
+		private function startOpponentWizardKiller(event:Event):void {
+			arena.addChild(opponentWizardKiller.sprite);
+			opponentWizardKiller.go(repeater);
+		}
+		
 		private function hardCode():void {
 			
 			var index:int;
 			var actor:Actor;
 			
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 10; index++) {
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
@@ -230,7 +255,7 @@ package src
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
-			for (index = 0; index < 0; index++) {
+			for (index = 0; index < 3; index++) {
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor)
 			}
@@ -271,9 +296,10 @@ package src
 			
 			
 			playerWizardKiller = null;
-			playerWizardKillerTimer = null;
+			playerWizardKillerTimer.reset();
+			
 			opponentWizardKiller = null;
-			opponentWizardKillerTimer = null;
+			opponentWizardKillerTimer.reset();
 			
 			playerActors.push(playerShield);
 			opponentActors.push(opponentShield);
@@ -370,11 +396,7 @@ package src
 				actorFactory.destroy(playerWizardKiller);
 				playerWizardKiller = null;
 			}
-			
-			if (playerWizardKillerTimer != null) {
-				playerWizardKillerTimer.stop();
-				playerWizardKillerTimer = null;
-			}
+			playerWizardKillerTimer.stop();
 			
 			if (opponentWizardKiller != null) {
 				if (arena.contains(opponentWizardKiller.sprite))
@@ -382,11 +404,7 @@ package src
 				actorFactory.destroy(opponentWizardKiller);
 				opponentWizardKiller = null;
 			}
-			
-			if (opponentWizardKillerTimer != null) {
-				opponentWizardKillerTimer.stop();
-				opponentWizardKillerTimer = null;
-			}
+			opponentWizardKillerTimer.stop();
 			
 			//Stop scrolling.
 			scrollable.jumpLeft();
@@ -568,26 +586,12 @@ package src
 				wizardKiller.sprite.x = ARENA_WIDTH + 100;
 				
 				playerWizardKiller = wizardKiller;
-				playerWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
-				playerWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-					arena.addChild(wizardKiller.sprite);
-					wizardKiller.go(repeater);
-					
-					playerWizardKillerTimer = null;
-				});
 				playerWizardKillerTimer.start();
 				
 			} else {
 				wizardKiller.sprite.x = -100 - wizardKiller.sprite.width;
 				
 				opponentWizardKiller = wizardKiller;
-				opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
-				opponentWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-					arena.addChild(wizardKiller.sprite);
-					wizardKiller.go(repeater);
-					
-					opponentWizardKillerTimer = null;
-				});
 				opponentWizardKillerTimer.start();
 			}
 			
@@ -636,7 +640,7 @@ package src
 			
 			//Tell the wizard killers to act.
 			var wizardList:Vector.<Actor>;
-			if (playerWizardKiller != null && playerWizardKillerTimer == null && !opponentWizard.isDead) {
+			if (playerWizardKiller != null && !playerWizardKillerTimer.running && !opponentWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = opponentWizard;
 				playerWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);
@@ -651,7 +655,7 @@ package src
 				}
 			}
 			
-			if (opponentWizardKiller != null && opponentWizardKillerTimer == null && !playerWizard.isDead) {
+			if (opponentWizardKiller != null && !opponentWizardKillerTimer.running && !playerWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
 				wizardList[0] = playerWizard;
 				opponentWizardKiller.act(EMPTY_ACTOR_LIST, wizardList, repeater);

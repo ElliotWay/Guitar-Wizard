@@ -23,7 +23,7 @@ package src
 		new AnimationCollection(ASSASSIN_DATA, FRAME_WIDTH, FRAME_HEIGHT,
 		//status, 					yposition, num frames, frames per beat,	loops, (true, different width)
 		Status.MOVING, 						0, 	4, FrameAnimation.FOUR_PER_BEAT, true,
-		Status.SUMMONING, 		 FRAME_HEIGHT, 	5, FrameAnimation.TWO_PER_BEAT, false,
+		Status.SUMMONING, 		 FRAME_HEIGHT, 	10, FrameAnimation.FOUR_PER_BEAT, false,
 		Status.ASSASSINATING,FRAME_HEIGHT * 2, 	11, FrameAnimation.FOUR_PER_BEAT, false,
 		Status.FIGHTING, 	 FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_PER_BEAT, true,
 		Status.DYING, 		 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
@@ -73,10 +73,10 @@ package src
 		}
 		
 		public static function timeToLand(repeater:Repeater):Number {
-			// (time/beat) * (beat/frame) * (7th frame)
-			//		?	   *	(1/3)     *  9
+			// (time/beat) * (beat/frame) * (8th frame)
+			//		?	   *	(1/3)     *  8
 			
-			return repeater.getBeat() * (9.0 / 3.0);
+			return repeater.getBeat() * (8.0 / 3.0);
 		}
 		
 		public static function timeBetweenStabs(repeater:Repeater):Number {

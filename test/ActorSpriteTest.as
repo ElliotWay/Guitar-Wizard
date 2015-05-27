@@ -6,6 +6,7 @@ package test
 	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
+	import mockolate.stub;
 	import org.hamcrest.assertThat;
 	import src.ActorSprite;
 	import src.FrameAnimation;
@@ -75,11 +76,23 @@ package test
 		}
 		
 		[Test]
-		public function doesNotRestartOnSameAnimation():void {
+		public function doesNotRestartOnSameLoopingAnimation():void {
+			stub(fighting).getter("loops").returns(true);
+			
 			actorSprite.animate(Status.FIGHTING, repeater);
 			
 			assertThat(fighting, received().method("go").never());
 			assertThat(fighting, received().setter("visible").never());
+		}
+		
+		[Test]
+		public function restartsOnNonLoopingAnimation():void {
+			stub(fighting).getter("loops").returns(false);
+			
+			actorSprite.animate(Status.FIGHTING, repeater);
+			
+			assertThat(fighting, received().method("stop").once());
+			assertThat(fighting, received().method("go").once());
 		}
 		
 		[Test]

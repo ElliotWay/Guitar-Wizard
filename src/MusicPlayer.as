@@ -89,10 +89,7 @@ package  src
 			
 			baseChannel = baseMusic.play();
 			
-			baseChannel.addEventListener(Event.SOUND_COMPLETE, function():void {
-				gameUI.songFinished();
-				stop();
-			});
+			baseChannel.addEventListener(Event.SOUND_COMPLETE, finishSong);
 			
 			if (startingTrack == Main.HIGH)
 				highChannel = highMusic.play();
@@ -110,6 +107,12 @@ package  src
 				lowChannel = lowMusic.play(0, 0, MUTE);
 				
 			trackStopped = false;
+		}
+		
+		private function finishSong(event:Event):void {
+			(event.target as SoundChannel).removeEventListener(Event.SOUND_COMPLETE, finishSong);
+			gameUI.songFinished();
+			stop();
 		}
 		
 		/**
@@ -147,13 +150,23 @@ package  src
 					newChannel = lowChannel;
 				
 				fadingOut = new TweenLite(currentChannel, TRACK_SWITCH_TIME, { volume:0,
-						onComplete:function():void { fadingOut.kill(); fadingOut = null; } } );
+						onComplete:finishFadingOut } );
 						
 				fadingIn = new TweenLite(newChannel, TRACK_SWITCH_TIME, { volume:1,
-						onComplete:function():void { fadingIn.kill(); fadingIn = null; } } );
+						onComplete:finishFadingIn } );
 			}
 			
 			currentTrack = newTrack;
+		}
+		
+		private function finishFadingOut():void {
+			fadingOut.kill();
+			fadingOut = null;
+		}
+		
+		private function finishFadingIn():void {
+			fadingIn.kill();
+			fadingIn = null;
 		}
 		
 		/**

@@ -292,6 +292,12 @@ package  src
 			}
 		}
 		
+		private function musicSwitch(event:Event):void {
+			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, musicSwitch);
+			switchLater();
+			gameUI.switchMusicNow(_currentTrack);
+		}
+		
 		/**
 		 * Move the advance switch into the current switch.
 		 */
@@ -342,23 +348,27 @@ package  src
 			
 			currentTransition.x = WIDTH;
 			
-			transition = new TweenLite(currentTransition,
-					0.1, { x:WIDTH - 200, onComplete:function():void {
-					
-			transition.kill();
+			transitionDelay = delay;
 			
-			transition = new TweenLite(currentTransition, (delay - 100) / 1000,
-					{x: -GRADIENT_WIDTH, ease:Power2.easeIn,
-						onComplete:function():void {
-							currentTransition = null;
-							if (transition != null) {
-								transition.kill();
-								transition = null;
-							}
-						}
-					} );
-					
-			} });
+			//Move the transition background slightly onto the screen from the right.
+			transition = new TweenLite(currentTransition,
+					0.1, { x:WIDTH - 200, onComplete:nextTransitionStep } );
+		}
+		private var transitionDelay:Number;
+		
+		private function nextTransitionStep():void {
+			transition.kill();
+			//Fill the screen with the transition exactly when the track switches.
+			transition = new TweenLite(currentTransition, (transitionDelay - 100) / 1000,
+					{x: -GRADIENT_WIDTH, ease:Power2.easeIn, onComplete:stopTransition } );
+		}
+		
+		private function stopTransition():void {
+			currentTransition = null;
+			if (transition != null) {
+				transition.kill();
+				transition = null;
+			}
 		}
 		
 		/**
@@ -432,6 +442,10 @@ package  src
 		 */
 		public function go():void {
 			scroll = new TweenLite(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
+			
+			background.addChild(highToMid); //Moves highToMid to front.
+			highToMid.x = -GRADIENT_WIDTH;
+			highToMid.visible = true;
 			
 			_currentTrack = Main.MID;
 			nextTrack = Main.MID;

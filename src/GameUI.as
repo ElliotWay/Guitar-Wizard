@@ -446,11 +446,13 @@ package src {
 				recentQuitAttempt = true;
 				
 				quitTimer = new Timer(InfoArea.CLEAR_TIME, 1);
-				quitTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-					recentQuitAttempt = false;
-				});
+				quitTimer.addEventListener(TimerEvent.TIMER_COMPLETE, resetQuitAttempt);
 				quitTimer.start();
 			}
+		}
+		
+		private function resetQuitAttempt(event:Event):void {
+			recentQuitAttempt = false;
 		}
 		
 		public function keyboardHandler(e:KeyboardEvent):void {

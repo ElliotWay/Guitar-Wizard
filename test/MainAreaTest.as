@@ -167,13 +167,9 @@ package test
 			mainArea.playerSummon(actor);
 			
 			assertThat(actor, received().getter("sprite"));
-			
-			assertThat(sprite, received().method("animate")
-					.args(Status.SUMMONING, repeater, isA(Function)));
-					
-			
 			assertThat(actor, received().getter("miniSprite"));
-			assertThat(actor, received().method("go").arg(repeater));
+			
+			assertThat(actor, received().method("summon").arg(repeater));
 		}
 		
 		[Test]
@@ -181,13 +177,9 @@ package test
 			mainArea.opponentSummon(actor);
 			
 			assertThat(actor, received().getter("sprite"));
-			
-			assertThat(sprite, received().method("animate")
-					.args(Status.SUMMONING, repeater, isA(Function)));
-					
-			
 			assertThat(actor, received().getter("miniSprite"));
-			assertThat(actor, received().method("go").arg(repeater));
+			
+			assertThat(actor, received().method("summon").arg(repeater));
 		}
 		
 		[Test(order = 1)]

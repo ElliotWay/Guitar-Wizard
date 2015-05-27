@@ -152,6 +152,7 @@ package src
 		}
 		
 		private function finishIncreaseQueue(event:Event):void {
+			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, finishIncreaseQueue);
 			changeRate -= BASE_SPEED;
 			proceed();
 			
@@ -183,6 +184,7 @@ package src
 		}
 		
 		private function finishDecreaseQueue(event:Event):void {
+			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, finishDecreaseQueue);
 			changeRate += BASE_SPEED;
 			decreaseQueue.shift();
 		}

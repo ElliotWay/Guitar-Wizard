@@ -27,10 +27,10 @@ package src
 		new AnimationCollection(ARCHER_DATA, FRAME_WIDTH, FRAME_HEIGHT,
 		//status, 				yposition, num frames, frames per beat,	loops, (true, different width)
 		Status.MOVING, 					0, 	8, FrameAnimation.FOUR_PER_BEAT, true,
-		Status.SUMMONING, 	 FRAME_HEIGHT, 	7, FrameAnimation.TWO_PER_BEAT, false,
+		Status.SUMMONING, 	 FRAME_HEIGHT, 	12, FrameAnimation.FOUR_PER_BEAT, false,
 		Status.SHOOTING, FRAME_HEIGHT * 2, 	12, FrameAnimation.THREE_PER_BEAT, true,
 		Status.FIGHTING, FRAME_HEIGHT * 3, 	8, FrameAnimation.FOUR_PER_BEAT, true,
-		Status.DYING, 	 FRAME_HEIGHT * 4, 	9, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
+		Status.DYING, 	 FRAME_HEIGHT * 4, 	18, FrameAnimation.FOUR_PER_BEAT, false, true, DYING_FRAME_WIDTH,
 		Status.STANDING,				0,	1, FrameAnimation.ON_STEP, false);
 		
 		public static const ARROW_TIME:Number = 6000;
@@ -86,9 +86,9 @@ package src
 		
 		public static function timeUntilFired(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (5th frame)
-			//		?	   *	(2/3)     *  5
+			//		?	   *	(1/3)     *  9
 			
-			return repeater.getBeat() * (10.0 / 3.0);
+			return repeater.getBeat() * (8.6 / 3.0);
 		}
 		
 		public static function timeBetweenBlows(repeater:Repeater):Number {

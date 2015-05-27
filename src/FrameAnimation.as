@@ -28,17 +28,18 @@ package src
 		public static const EVERY_FRAME:int = -9;
 		
 		private var _frames:Vector.<Bitmap>;
-		
 		private var frameIndex:int;
+		
+		private var counterMax:int;
+		private var counter:int;
 		
 		private var frequency:int;
 		private var _loops:Boolean;
 		
-		private var frameCount:int;
-		private var runner:Function;
-		
 		private var onComplete:Function;
 		private var onCompleteArgs:Array;
+		
+		private var _isRunning:Boolean;
 		
 		public function get frames():Vector.<Bitmap> 
 		{
@@ -53,14 +54,19 @@ package src
 			return _loops;
 		}
 		
+		public function get isRunning():Boolean 
+		{
+			return _isRunning;
+		}
+		
 		/**
 		 * Create an empty frame animation.
 		 * Don't call this, use FrameAnimation.create or FrameAnimation.copy instead.
 		 */
 		public function FrameAnimation() {
 			onComplete = null;
-			runner = null;
 			frameIndex = 0;
+			_isRunning = false;
 		}
 		
 		/**
@@ -83,7 +89,7 @@ package src
 			if (frequency >= 0)
 				throw new Error("Error: use FrameAnimation constants to define frames per beat");
 			else 
-				output.frequency = frequency;
+				output.setFrequency(frequency);
 				
 			output._loops = loops;
 			
@@ -136,7 +142,6 @@ package src
 				bmpFrame.visible = false;
 			}
 			
-			
 			output._frames[0].visible = true;
 			
 			output.visible = false;
@@ -166,7 +171,8 @@ package src
 				output._frames[index].visible = false;
 			}
 			
-			output.frequency = animation.frequency;
+			output.setFrequency(animation.frequency);
+			
 			output._loops = animation._loops;
 			
 			output._frames[0].visible = true;
@@ -202,7 +208,36 @@ package src
 		 * @param	framesPerBeat how frequently to advance frames, expressed in FrameAnimation constants
 		 */
 		public function setFrequency(freq:int, repeater:Repeater = null):void {
-			if (runner != null) {
+			
+			switch (freq) {
+				case ONE_PER_BEAT:
+					counterMax = 3;
+					break;
+				case TWO_PER_BEAT:
+					counterMax = 2;
+					break;
+				case THREE_PER_BEAT:
+					counterMax = 1;
+					break;
+				case FOUR_PER_BEAT:
+					counterMax = 1;
+					break;
+				case THREE_HALVES_PER_BEAT:
+					counterMax = 2;
+					break;
+				case ONE_HALF_PER_BEAT:
+					counterMax = 6;
+					break;
+				case ONE_THIRD_PER_BEAT:
+					counterMax = 9;
+					break;
+				case EVERY_FRAME:
+					counterMax = 1;
+					break;
+				//If it's ON_STEP, it doesn't matter.
+			}
+			
+			if (_isRunning) {
 				
 				if (repeater == null)
 					throw new GWError("Can't change frequency of ongoing animation without repeater access.");
@@ -229,58 +264,30 @@ package src
 				return;
 			}
 			
-			frameCount = 0;
-			
+			counter = 0;
 			frameIndex = 0;
 			
-			var countMax:int = 1;
-			
-			switch (frequency) {
-				case ONE_PER_BEAT:
-					countMax = 3;
-					break;
-				case TWO_PER_BEAT:
-					countMax = 2;
-					break;
-				case THREE_PER_BEAT:
-					countMax = 1;
-					break;
-				case FOUR_PER_BEAT:
-					countMax = 1;
-					break;
-				case THREE_HALVES_PER_BEAT:
-					countMax = 2;
-					break;
-				case ONE_HALF_PER_BEAT:
-					countMax = 6;
-					break;
-				case ONE_THIRD_PER_BEAT:
-					countMax = 9;
-					break;
-				case EVERY_FRAME:
-					countMax = 1;
-					break;
-			}
-			
-			if (runner != null)
+			if (_isRunning)
 				stop(repeater);
-				
-			runner = function():void {
-				frameCount++;
-				
-				if (frameCount >= countMax) {
-					nextFrame();
-					
-					frameCount = 0;
-				}
-			}
 			
 			if (frequency == EVERY_FRAME) {
-				repeater.runEveryFrame(runner);
+				repeater.runEveryFrame(step);
 			} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT) {
-				repeater.runEveryQuarterBeat(runner);
+				repeater.runEveryQuarterBeat(step);
 			} else {
-				repeater.runEveryThirdBeat(runner);
+				repeater.runEveryThirdBeat(step);
+			}
+			
+			_isRunning = true;
+		}
+		
+		private function step():void {
+			counter++;
+			
+			if (counter >= counterMax) {
+				nextFrame();
+				
+				counter = 0;
 			}
 		}
 		
@@ -311,16 +318,16 @@ package src
 		}
 		
 		public function stop(repeater:Repeater):void {
-			if (runner != null) {
+			if (_isRunning) {
 				if (frequency == EVERY_FRAME) {
-					repeater.stopRunningEveryFrame(runner);
+					repeater.stopRunningEveryFrame(step);
 				} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT)
-					repeater.stopRunningEveryQuarterBeat(runner);
+					repeater.stopRunningEveryQuarterBeat(step);
 				else
-					repeater.stopRunningEveryThirdBeat(runner);
+					repeater.stopRunningEveryThirdBeat(step);
 			}
 			
-			runner = null;
+			_isRunning = false;
 		}
 		
 		public function unload(repeater:Repeater):void {
@@ -333,7 +340,7 @@ package src
 			_frames.splice(0, _frames.length); //Removes internal references.
 			_frames = null;
 			
-			runner = null;
+			_isRunning = false;
 			onComplete = null;
 		}
 	}

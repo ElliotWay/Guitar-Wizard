@@ -142,6 +142,8 @@ package src
 		 * 					Whoosh.						Shing!
 		 */
 		private function whoosh_shing(event:Event):void {
+			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, whoosh_shing);
+			
 			if (withinRange(currentAssassinateTarget, MELEE_RANGE*1.1))//A little extra leeway on assassination.
 				currentAssassinateTarget.hit(2 * BASE_MELEE_DAMAGE * (isPlayerPiece ? player_buff : 1.0)); //Double damage on assassination
 				

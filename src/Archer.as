@@ -1,7 +1,5 @@
 package src {
 	import com.greensock.TweenLite;
-	import com.greensock.plugins.TweenPlugin;
-	import com.greensock.plugins.TintPlugin;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
@@ -16,16 +14,17 @@ package src {
 		public static const MAX_HP:int = 5;
 		
 		public static const MELEE_RANGE:int = 15;
+		public static const ALMOST_MELEE_RANGE:int = Math.max(Cleric.MELEE_RANGE, Assassin.MELEE_RANGE);
 		public static const BASE_MELEE_DAMAGE:int = 1;
 		
 		public static const NO_RETREAT_DISTANCE:Number = 50;
 		
-		public static const BASE_SKIRMISH_DISTANCE:Number = 200;
+		public static const BASE_SKIRMISH_DISTANCE:Number = 500;//200;
 		private static const SKIRMISH_VARIABILITY:Number = 75;
 		
-		private static const ARROW_DAMAGE:int = 3;
+		private static const ARROW_DAMAGE:int = 5;
 		
-		public static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - 50;
+		public static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT + 100;
 		private static const RANGE_VARIABILITY:Number = 50;
 		
 		trace("min range/skirmish diff " + ((BASE_RANGE - RANGE_VARIABILITY) - (BASE_SKIRMISH_DISTANCE + SKIRMISH_VARIABILITY)));
@@ -76,8 +75,13 @@ package src {
 			if (this.isPreoccupied)
 				return;
 			
-			//Find the closest valid target.
-			var closestMelee:Actor = this.getClosest(enemies, range, true);
+			//Find the closest valid target(s).
+			var closestRanged:Actor = this.getClosest(enemies, range, false);
+			var closestMelee:Actor;
+			if (closestRanged != null && closestRanged.isAttackLocked) //We need an unlocked target for melee, but not for ranged.
+				closestMelee = this.getClosest(enemies, range, true);
+			else
+				closestMelee = closestRanged;
 			
 			if (closestMelee == null || (closestMelee is Wizard && !withinRange(closestMelee, WIZARD_RANGE))) {
 				if (_status != Status.MOVING)
@@ -86,7 +90,7 @@ package src {
 			} else if (withinRange(closestMelee, MELEE_RANGE)) {
 				this.meleeAttack(closestMelee, ArcherSprite.timeBetweenBlows(repeater), repeater);
 				
-			} else if (isBehindShield()) {
+			} else if (isBehindShield() || (withinRange(closestMelee, skirmishDistance / 2) && nearEdge())) {
 				if (_status != Status.MOVING)
 					go(repeater);
 				
@@ -95,8 +99,6 @@ package src {
 					this.retreat(repeater);
 				}
 			} else {
-				//Melee locks a target, but ranged does not.
-				var closestRanged:Actor = this.getClosest(enemies, range, false);
 				
 				var expectedDistance:Number = Math.abs(this.getPosition().x - closestRanged.predictPosition(ArcherSprite.ARROW_TIME).x);
 				
@@ -121,7 +123,19 @@ package src {
 		}
 		
 		private function spawnArrow(event:Event):void {
-			var arrow:Projectile = new Projectile(ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0), (isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS), currentShootingTarget.predictPosition(LEAD_TIME));
+			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
+			
+			var targetPosition/*:Point;
+			if (Math.abs(getPosition().x - currentShootingTarget.getPosition().x) < skirmishDistance) {
+				targetPosition = isPlayerPiece ? Projectile.SHOOT_RIGHT : Projectile.SHOOT_LEFT;
+			} else {
+				targetPosition*/ = currentShootingTarget.predictPosition(LEAD_TIME);
+//			}
+			
+			
+			var arrow:Projectile = new Projectile(ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0),
+					(isPlayerPiece ? MainArea.OPPONENT_ACTORS : MainArea.PLAYER_ACTORS),
+					targetPosition);
 			
 			var arrowPosition:Point = (_sprite as ArcherSprite).arrowPosition;
 			
@@ -146,6 +160,22 @@ package src {
 			}
 			
 			return false;
+		}
+		
+		private function nearEdge():Boolean {
+			if (this.isPlayerPiece) {
+				if (MainArea.playerShieldIsUp) {
+					return this.getPosition().x < MainArea.SHIELD_POSITION + 50 + skirmishDistance;
+				} else {
+					return (this.getPosition().x < NO_RETREAT_DISTANCE + skirmishDistance);
+				}
+			} else {
+				if (MainArea.opponentShieldIsUp) {
+					return this.getPosition().x > MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION - 50 - skirmishDistance;
+				} else {
+					return (this.getPosition().x > (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE - skirmishDistance));
+				}
+			}
 		}
 		
 		private function canRetreat():Boolean {
