@@ -63,9 +63,9 @@ package  src
 		private var lowToHigh:Shape;
 		private var lowToMid:Shape;
 		private static const GRADIENT_WIDTH:int = 400;
-		private static const HIGH_COLOR:uint = 0xFF00FF;
-		private static const MID_COLOR:uint = 0x00FF00;
-		private static const LOW_COLOR:uint = 0xFF8000;
+		public static const HIGH_COLOR:uint = 0xFF00FF;
+		public static const MID_COLOR:uint = 0x00FF00;
+		public static const LOW_COLOR:uint = 0xFF8000;
 		private var currentTransition:Shape;
 		private var transition:TweenLite;
 		
@@ -73,10 +73,12 @@ package  src
 		private var scroll:TweenLite;
 		
 		private var gameUI:GameUI;
+		private var summoningMeterFill:SummoningMeterFill;
 		
-		public function MusicArea(gameUI:GameUI) 
+		public function MusicArea(gameUI:GameUI, summoningMeterFill:SummoningMeterFill) 
 		{
 			this.gameUI = gameUI;
+			this.summoningMeterFill = summoningMeterFill;
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -326,21 +328,28 @@ package  src
 			if (_currentTrack == targetTrack)
 				return;
 			
-			if (_currentTrack == Main.HIGH) {
-				if (targetTrack == Main.MID)
-					currentTransition = highToMid;
-				else // (targetTrack == Main.LOW)
-					currentTransition = highToLow;
-			} else if (_currentTrack == Main.MID) {
-				if (targetTrack == Main.HIGH)
+			if (targetTrack == Main.HIGH) {
+				if (_currentTrack == Main.MID)
 					currentTransition = midToHigh;
-				else // (targetTrack == Main.LOW)
-					currentTransition = midToLow;
-			} else if (_currentTrack == Main.LOW) {
-				if (targetTrack == Main.HIGH)
+				else
 					currentTransition = lowToHigh;
-				else // (targetTrack == Main.MID)
+				
+				summoningMeterFill.changeColor(HIGH_COLOR, delay);
+				
+			} else if (targetTrack == Main.MID) {
+				if (_currentTrack == Main.HIGH)
+					currentTransition = highToMid;
+				else
 					currentTransition = lowToMid;
+					
+				summoningMeterFill.changeColor(MID_COLOR, delay);
+			} else {
+				if (_currentTrack == Main.HIGH)
+					currentTransition = highToLow;
+				else
+					currentTransition = midToLow;
+					
+				summoningMeterFill.changeColor(LOW_COLOR, delay);
 			}
 			
 			currentTransition.visible = true;

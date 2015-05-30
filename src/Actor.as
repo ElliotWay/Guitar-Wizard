@@ -36,7 +36,7 @@ package src {
 		
 		public static const Y_POSITION:int = 357;
 		
-		public static const MINI_Y_POSITION:int = 35;
+		public static const MINI_Y_POSITION:int = 14;
 		
 		public static const BLESS_FRAMES:int = 300;
 		public static const BLESS_FACTOR:Number = .30;

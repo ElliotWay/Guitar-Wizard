@@ -42,7 +42,7 @@ package src
 		//TODO replace this; am I even still using this? Yes, in Archer's request to addProjectile.
 		public static var mainArea:MainArea;
 		
-		public static const WIDTH:int = 600;
+		public static const WIDTH:int = 673;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
 		
 		public static const ARENA_WIDTH:int = 2000;
@@ -57,7 +57,7 @@ package src
 		public static const END_POINT:int = 30;
 		
 		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
-		public static const MINIMAP_HEIGHT:int = 50;
+		public static const MINIMAP_HEIGHT:int = 20;
 		
 		
 		public static const PLAYER_ACTORS:int = 1;

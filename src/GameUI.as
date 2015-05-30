@@ -14,6 +14,11 @@ package src {
 	 */
 	public class GameUI extends Sprite
 	{	
+		[Embed(source="../assets/guitar_summoning_bar.png")]
+		private static const SummoningBarImage:Class;
+		private static const SUMMONING_BAR_MIN:int = 321;
+		private static const SUMMONING_BAR_MAX:int = 9;
+		
 		/**
 		 * In milliseconds, how far from an actual note a hit can be.
 		 */
@@ -82,7 +87,12 @@ package src {
 		private function init(e:Event):void {
 			_actorFactory = new ActorFactory();
 			
-			musicArea = new MusicArea(this);
+			//The fill of the summoning meter changes color whenever the music area changes color,
+			//so it's useful to give the music area access to it.
+			var summoningMeterFill:SummoningMeterFill =
+				new SummoningMeterFill(Main.WIDTH - MainArea.WIDTH, SUMMONING_BAR_MIN - SUMMONING_BAR_MAX);
+			
+			musicArea = new MusicArea(this, summoningMeterFill);
 			this.addChild(musicArea);
 			musicArea.x = 0; musicArea.y = 0;
 			
@@ -95,16 +105,19 @@ package src {
 			this.addChild(mainArea);
 			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
 			
-			summoningMeter = new SummoningMeter(this);
+			summoningMeter = new SummoningMeter(this, new SummoningBarImage(), summoningMeterFill,
+				SUMMONING_BAR_MIN, SUMMONING_BAR_MAX);
 			this.addChild(summoningMeter);
 			summoningMeter.x = MainArea.WIDTH;
 			summoningMeter.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT;
 			
 			infoArea = new InfoArea();
 			this.addChild(infoArea);
+			infoArea.visible = false;
+			/*
 			infoArea.x = MainArea.WIDTH;
 			infoArea.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT + SummoningMeter.HEIGHT;
-			
+			*/
 			victoryScreen = new Sprite();
 			this.addChild(victoryScreen);
 			victoryScreen.graphics.beginFill(0x0);

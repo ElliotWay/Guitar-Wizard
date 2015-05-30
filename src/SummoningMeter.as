@@ -3,6 +3,7 @@ package src
 	import com.greensock.easing.ElasticOut;
 	import com.greensock.easing.Linear;
 	import com.greensock.TweenLite;
+	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
@@ -15,15 +16,12 @@ package src
 	public class SummoningMeter extends Sprite 
 	{
 		
-		public static const WIDTH:int = MainArea.MINIMAP_WIDTH;
-		public static const HEIGHT:int = 50;
-		
 		private static const BACKGROUND_COLOR:int = 0xFFFF00; //Yellow.
 		private static const METER_COLOR:int = 0xB000B0; //Purple.
 		
-		private static const MIN_METER:int = 2;
-		private static const MAX_METER:int = WIDTH - 4;
-		private static const METER_LENGTH:int = MAX_METER - MIN_METER;
+		private var minMeter:int;
+		private var maxMeter:int;
+		private var meterLength:int;
 		
 		/**
 		 * Or "Number" tolerance really. Used for equal comparisons between doubles.
@@ -37,19 +35,35 @@ package src
 		public static const BASE_SPEED:Number = 75; //100
 		
 		private var ui:GameUI;
+		private var overlay:DisplayObject;
+		private var fill:DisplayObject;
 		
 		private var increaseQueue:Vector.<Timer>;
 		private var decreaseQueue:Vector.<Timer>;
-		
-		private var uncover:Sprite;
 		
 		private var changer:TweenLite;
 		
 		private var changeRate:Number;
 		
-		public function SummoningMeter(ui:GameUI) 
+		/**
+		 * Create the summoning meter. This controls the rate at which the fill object is revealed,
+		 * underneath the overlay object.
+		 * @param	ui the gameUI
+		 * @param	overlay the overlay object appears on top of the rest of the meter
+		 * @param	fill the fill object is revealed when the meter fills up
+		 * @param	minMeter the y pixel position of the lowest part of the meter
+		 * @param	maxMeter the y pixel position of the highest part of the meter
+		 */
+		public function SummoningMeter(ui:GameUI, overlay:DisplayObject, fill:DisplayObject, minMeter:int, maxMeter:int) 
 		{
 			this.ui = ui;
+			this.overlay = overlay;
+			this.fill = fill;
+			
+			this.minMeter = minMeter;
+			this.maxMeter = maxMeter;
+			this.meterLength = minMeter - maxMeter; //minMeter is actually a higher y value.
+			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
@@ -58,20 +72,16 @@ package src
 			
 			//Background.
 			graphics.beginFill(BACKGROUND_COLOR);
-			graphics.drawRect(0, 0, WIDTH, HEIGHT);
+			graphics.drawRect(0, 0, overlay.width, overlay.height);
 			graphics.endFill();
 			
-			graphics.beginFill(METER_COLOR);
-			graphics.drawRect(2, 2, WIDTH - 4, HEIGHT - 4);
+			//This part moves up, filling the meter.
+			this.addChild(fill);
 			
-			//This part moves right, uncovering the meter.
-			uncover = new Sprite();
-			this.addChild(uncover);
-			uncover.graphics.beginFill(BACKGROUND_COLOR);
-			uncover.graphics.drawRect(0, 0, WIDTH, HEIGHT);
-			uncover.graphics.endFill();
+			fill.y = minMeter;
 			
-			uncover.x = MIN_METER;
+			//And the overlay is on top.
+			this.addChild(overlay);
 			
 			increaseQueue = new Vector.<Timer>();
 			decreaseQueue = new Vector.<Timer>();
@@ -94,12 +104,12 @@ package src
 			
 			changeRate = 0;
 			
-			uncover.x = MIN_METER;
+			fill.y = minMeter;
 		}
 		
 		public function increase(amount:Number):void {
 			
-			var time:Number = 1000 * ((amount / 100) * METER_LENGTH) / BASE_SPEED;
+			var time:Number = 1000 * ((amount / 100) * meterLength) / BASE_SPEED;
 			
 			appendToIncreaseQueue(time);
 			
@@ -108,7 +118,7 @@ package src
 		
 		public function decrease(amount:Number):void {
 			
-			var time:Number = 1000 * ((amount / 100) * METER_LENGTH) / BASE_SPEED;
+			var time:Number = 1000 * ((amount / 100) * meterLength) / BASE_SPEED;
 			
 			appendToDecreaseQueue(time);
 			
@@ -190,8 +200,8 @@ package src
 		}
 		
 		private function proceed():void {
-			if (uncover.x == MAX_METER) {
-				uncover.x = MIN_METER;
+			if (fill.y == maxMeter) {
+				fill.y = minMeter;
 			}
 			
 			var distance:Number;
@@ -206,22 +216,22 @@ package src
 					changer.kill();
 				
 			} else if (changeRate > 0) {
-				distance = MAX_METER - uncover.x;
+				distance = fill.y - maxMeter;
 				
 				if (changer != null)
 					changer.kill();
 				
-				changer = new TweenLite(uncover, distance / changeRate,
-						{x:MAX_METER, ease:Linear.easeInOut, onComplete:function():void {
+				changer = new TweenLite(fill, distance / changeRate,
+						{y:maxMeter, ease:Linear.easeInOut, onComplete:function():void {
 							ui.preparePlayerSummon();
 							
 							proceed();
 						} } );
-			} else if (changeRate < 0 && uncover.x > MIN_METER) {
-				distance = MIN_METER - uncover.x; //This value will be negative, but so is changeRate.
+			} else if (changeRate < 0 && fill.x > minMeter) {
+				distance = minMeter - fill.x; //This value will be negative, but so is changeRate.
 				
-				changer = new TweenLite(uncover, distance / changeRate,
-						{x:MIN_METER, ease:Linear.easeInOut} );
+				changer = new TweenLite(fill, distance / changeRate,
+						{y:minMeter, ease:Linear.easeInOut} );
 			}
 		}
 	}
