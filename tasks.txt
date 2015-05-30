@@ -1,6 +1,4 @@
 ---Might do soon.----------
-- create more frames, they just look better that way - IP
-
 - fix Archer dithering - can't reproduce?
 
 - Archers are still overpowered. Not sure how I'll fix this.
@@ -159,4 +157,5 @@
 - mid-summon actors aren't removed on quit
 - cut down on the number of anonymous functions; I don't like it, but the fact that they create
 	a new object with every new function AND add every single available object to it is such an
-	inefficient way of handling it, means that I really need to do it differently - IP
+	inefficient way of handling it, means that I really need to do it differently	
+- create more frames, they just look better that way - some tweaking still needed

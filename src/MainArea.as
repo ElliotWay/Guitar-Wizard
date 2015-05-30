@@ -238,7 +238,7 @@ package src
 			var index:int;
 			var actor:Actor;
 			
-			for (index = 0; index < 10; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING);
 				opponentSummon(actor);
 			}
@@ -255,7 +255,7 @@ package src
 				actor = actorFactory.create(ActorFactory.ARCHER, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor);
 			}
-			for (index = 0; index < 3; index++) {
+			for (index = 0; index < 0; index++) {
 				actor = actorFactory.create(ActorFactory.ASSASSIN, Actor.PLAYER, Actor.RIGHT_FACING);
 				playerSummon(actor)
 			}

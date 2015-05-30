@@ -26,7 +26,7 @@ package src
 			var out:Vector.<Actor> = new Vector.<Actor>();
 			//return out;
 			
-			var type:Number = 0;// Math.random() * 3;
+			var type:Number = Math.random() * 3;
 			
 			if (type < 1)
 				out.push(actorFactory.create(ActorFactory.ARCHER, Actor.OPPONENT, Actor.LEFT_FACING));

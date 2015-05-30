@@ -19,8 +19,8 @@ package src {
 		
 		public static const NO_RETREAT_DISTANCE:Number = 50;
 		
-		public static const BASE_SKIRMISH_DISTANCE:Number = 500;//200;
-		private static const SKIRMISH_VARIABILITY:Number = 75;
+		public static const BASE_SKIRMISH_DISTANCE:Number = 300;//200;
+		private static const SKIRMISH_VARIABILITY:Number = 50;
 		
 		private static const ARROW_DAMAGE:int = 5;
 		
@@ -82,7 +82,7 @@ package src {
 				closestMelee = this.getClosest(enemies, range, true);
 			else
 				closestMelee = closestRanged;
-			
+				
 			if (closestMelee == null || (closestMelee is Wizard && !withinRange(closestMelee, WIZARD_RANGE))) {
 				if (_status != Status.MOVING)
 					go(repeater);
@@ -90,7 +90,7 @@ package src {
 			} else if (withinRange(closestMelee, MELEE_RANGE)) {
 				this.meleeAttack(closestMelee, ArcherSprite.timeBetweenBlows(repeater), repeater);
 				
-			} else if (isBehindShield() || (withinRange(closestMelee, skirmishDistance / 2) && nearEdge())) {
+			} else if (isBehindShield() || (nearEdge(this) && nearEdge(closestMelee))) {
 				if (_status != Status.MOVING)
 					go(repeater);
 				
@@ -162,18 +162,18 @@ package src {
 			return false;
 		}
 		
-		private function nearEdge():Boolean {
+		private function nearEdge(actor:Actor):Boolean {
 			if (this.isPlayerPiece) {
 				if (MainArea.playerShieldIsUp) {
-					return this.getPosition().x < MainArea.SHIELD_POSITION + 50 + skirmishDistance;
+					return actor.getPosition().x < MainArea.SHIELD_POSITION + 25 + skirmishDistance;
 				} else {
-					return (this.getPosition().x < NO_RETREAT_DISTANCE + skirmishDistance);
+					return (actor.getPosition().x < NO_RETREAT_DISTANCE + skirmishDistance);
 				}
 			} else {
 				if (MainArea.opponentShieldIsUp) {
-					return this.getPosition().x > MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION - 50 - skirmishDistance;
+					return actor.getPosition().x > MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION - 25 - skirmishDistance;
 				} else {
-					return (this.getPosition().x > (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE - skirmishDistance));
+					return (actor.getPosition().x > (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE - skirmishDistance));
 				}
 			}
 		}
@@ -181,13 +181,13 @@ package src {
 		private function canRetreat():Boolean {
 			if (this.isPlayerPiece) {
 				if (MainArea.playerShieldIsUp) {
-					return this.getPosition().x > MainArea.SHIELD_POSITION + 50;
+					return this.getPosition().x > MainArea.SHIELD_POSITION + 25;
 				} else {
 					return (this.getPosition().x > NO_RETREAT_DISTANCE);
 				}
 			} else {
 				if (MainArea.opponentShieldIsUp) {
-					return this.getPosition().x < MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION - 50;
+					return this.getPosition().x < MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION - 25;
 				} else {
 					return (this.getPosition().x < (MainArea.ARENA_WIDTH - NO_RETREAT_DISTANCE));
 				}

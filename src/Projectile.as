@@ -16,7 +16,7 @@ package src {
 		[Embed(source="../assets/arrow.png")]
 		private static const ArrowImage:Class;
 		
-		public static const VELOCITY:Number = 400//400;// pxl/s
+		public static const VELOCITY:Number = 300//400;// pxl/s
 		
 		public static const GRAVITY:Number = 300; // pxl/s^2
 		

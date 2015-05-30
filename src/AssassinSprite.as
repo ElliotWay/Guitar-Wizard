@@ -26,7 +26,7 @@ package src
 		Status.SUMMONING, 		 FRAME_HEIGHT, 	10, FrameAnimation.FOUR_PER_BEAT, false,
 		Status.ASSASSINATING,FRAME_HEIGHT * 2, 	11, FrameAnimation.FOUR_PER_BEAT, false,
 		Status.FIGHTING, 	 FRAME_HEIGHT * 3, 	9, FrameAnimation.THREE_PER_BEAT, true,
-		Status.DYING, 		 FRAME_HEIGHT * 4, 	8, FrameAnimation.TWO_PER_BEAT, false, true, DYING_FRAME_WIDTH,
+		Status.DYING, 		 FRAME_HEIGHT * 4, 	14, FrameAnimation.FOUR_PER_BEAT, false, true, DYING_FRAME_WIDTH,
 		Status.STANDING,					0,	1, FrameAnimation.ON_STEP, false);
 		
 		public static const CENTER:Point = new Point(30, 22);
