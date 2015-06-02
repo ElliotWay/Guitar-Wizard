@@ -76,13 +76,13 @@ package src
 		 * @param	frameWidth  width of each frame
 		 * @param	frameHeight  height of each frame
 		 * @param	numFrames  number of frames in this animation
-		 * @param	framesPerBeat  using <b>FrameAnimation CONSTANTS</b> how many frames per beat
+		 * @param	frequency  using <b>FrameAnimation CONSTANTS</b> how many frames per beat
 		 * @param	color  color to set pixels of the flag color to. Ignores the alpha channel.
 		 * @param	flipped whether to flip the animation horizontally
 		 * @param   loops whether the animation restarts when it ends
 		 * @return  the constructed FrameAnimation
 		 */
-		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = FLAG_COLOR, flipped:Boolean = false, loops:Boolean = true):FrameAnimation
+		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = FLAG_COLOR, flipped:Boolean = false, loops:Boolean = true, scaleUp:Boolean = true):FrameAnimation
 		{
 			var output:FrameAnimation = new FrameAnimation();
 			
@@ -124,12 +124,17 @@ package src
 					}
 				}
 				
+				var scale:int = SCALE;
+				if (!scaleUp) {
+					scale = 1;
+				}
+				
 				//Matrix transformations: scaling and horizontal flip, if requested
-				var finalData:BitmapData = new BitmapData(frameWidth * SCALE, frameHeight * SCALE, true, 0x0);
+				var finalData:BitmapData = new BitmapData(frameWidth * scale, frameHeight * scale, true, 0x0);
 				if (flipped) {
-					finalData.draw(innerBitmapData, new Matrix( -SCALE, 0, 0, SCALE, frameWidth * SCALE, 0));
+					finalData.draw(innerBitmapData, new Matrix( -scale, 0, 0, scale, frameWidth * scale, 0));
 				} else {
-					finalData.draw(innerBitmapData, new Matrix( SCALE, 0, 0, SCALE, 0, 0));
+					finalData.draw(innerBitmapData, new Matrix( scale, 0, 0, scale, 0, 0));
 				}
 				
 				

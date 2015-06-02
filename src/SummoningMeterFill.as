@@ -1,9 +1,14 @@
 package src 
 {
+	import com.greensock.easing.Quad;
 	import com.greensock.TweenLite;
+	import com.greensock.plugins.TweenPlugin;
+	import com.greensock.plugins.ColorTransformPlugin;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	
+	TweenPlugin.activate([ColorTransformPlugin]);
 	
 	/**
 	 * ...
@@ -15,7 +20,7 @@ package src
 		
 		private var colorTransition:TweenLite;
 		
-		public function SummoningMeterFill(width:int, height:int) 
+		public function SummoningMeterFill(width:int, height:int, repeater:Repeater)
 		{
 			background = new Shape();
 			background.graphics.beginFill(MusicArea.MID_COLOR);
@@ -38,7 +43,7 @@ package src
 			/*colorTransition = new TweenLite(background, delay / 2000, 
 					{delay:delay / 2000, tint:newColor } );*/
 			colorTransition = new TweenLite(background, delay / 1000, 
-					{tint:newColor } );
+					{ease:Quad.easeIn, tint:newColor } );
 
 		}
 		

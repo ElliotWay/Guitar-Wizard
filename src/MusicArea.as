@@ -36,7 +36,7 @@ package  src
 		/**
 		 * Ratio between space on the screen and time, in pixels per millisecond.
 		 */
-		public static const POSITION_SCALE:Number = 0.6; //0.3
+		public static const POSITION_SCALE:Number = 0.6; //0.6
 		public static var position_offset:Number = 40;
 		
 		private var highNotes:Vector.<NoteBlock>;

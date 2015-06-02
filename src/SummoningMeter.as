@@ -16,8 +16,7 @@ package src
 	public class SummoningMeter extends Sprite 
 	{
 		
-		private static const BACKGROUND_COLOR:int = 0xFFFF00; //Yellow.
-		private static const METER_COLOR:int = 0xB000B0; //Purple.
+		private static const BACKGROUND_COLOR:int = 0xFFFFB0; //Faded Yellow.
 		
 		private var minMeter:int;
 		private var maxMeter:int;

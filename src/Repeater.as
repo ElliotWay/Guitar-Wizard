@@ -4,6 +4,7 @@ package src
 	import flash.events.EventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.utils.Dictionary;
+	import flash.utils.getTimer;
 	import flash.utils.Timer;
 	
 	/**
@@ -16,11 +17,15 @@ package src
 		private var everyFrameRun:Dictionary;
 		
 		private var millisecondsPerBeat:int = 500;
+		private var timePerQuarter:int;
+		private var timePerThird:int;
 		
 		private var quarterBeatRun:Dictionary;
-		private var quarterBeatTimer:Timer;
 		private var thirdBeatRun:Dictionary;
-		private var thirdBeatTimer:Timer;
+		
+		private var beatTime:uint;
+		private var quarterCount:int;
+		private var thirdCount:int;
 		
 		private var running:Boolean = false;
 		
@@ -48,9 +53,7 @@ package src
 			everyFrameRun = new Dictionary(true);
 			
 			quarterBeatRun = new Dictionary(true);
-			quarterBeatTimer = null;
 			thirdBeatRun = new Dictionary(true);
-			thirdBeatTimer = null;
 			
 			everyFrameDispatcher.addEventListener(Event.ENTER_FRAME, frameRunner);
 			
@@ -66,24 +69,16 @@ package src
 		public function setBeat(millisPerBeat:int):void {
 			if (!running)
 				return;
+				
+			//Catch up to the beat immediately, as we're about to change it.
+			//This shouldn't do anything, but if there was lag we don't want to skip frames.
+			checkBeat();
+				
+			beatTime = getTimer();
 			
 			millisecondsPerBeat = millisPerBeat;
-			
-			if (quarterBeatTimer != null) {
-				quarterBeatTimer.stop();
-			}
-			//Remember that repeating 0 times means repeat indefinitely.
-			quarterBeatTimer = new Timer(millisPerBeat / 4, 0);
-			quarterBeatTimer.addEventListener(TimerEvent.TIMER, quarterBeatRunner);
-			
-			if (thirdBeatTimer != null) {
-				thirdBeatTimer.stop();
-			}
-			thirdBeatTimer = new Timer(millisPerBeat / 3, 0);
-			thirdBeatTimer.addEventListener(TimerEvent.TIMER, thirdBeatRunner);
-			
-			quarterBeatTimer.start();
-			thirdBeatTimer.start();
+			timePerQuarter = millisecondsPerBeat / 4;
+			timePerThird = millisecondsPerBeat / 3;
 		}
 		
 		/**
@@ -101,17 +96,11 @@ package src
 		public function killRuns():void {
 			if (!running)
 				return;
-			
-			if (quarterBeatTimer != null)
-				quarterBeatTimer.stop();
-			if (thirdBeatTimer != null)
-				thirdBeatTimer.stop();
+				
 			everyFrameDispatcher.removeEventListener(Event.ENTER_FRAME, frameRunner);
 			
 			quarterBeatRun = null;
-			quarterBeatTimer = null;
 			thirdBeatRun = null;
-			thirdBeatTimer = null;
 			everyFrameRun = null;
 			
 			running = false;
@@ -178,22 +167,47 @@ package src
 		}
 		
 		private function frameRunner(e:Event):void {
-			for (var func:Object in everyFrameRun) {
+			var func:Object;
+			for (func in everyFrameRun) {
 				
 				(func as Function).call();
 			}
+			checkBeat();
 		}
 		
-		private function quarterBeatRunner(e:Event):void {
-			for (var func:Object in quarterBeatRun) {
-				(func as Function).call();
+		/**
+		 * Check if enough time has passed to run the quarter beat or third beat functions.
+		 */
+		private function checkBeat():void {
+			var rightNow:uint = getTimer();
+			
+			//Resync beat time.
+			while (rightNow - beatTime > millisecondsPerBeat) {
+				beatTime += millisecondsPerBeat;
+				quarterCount -= 4;
+				thirdCount -= 3;
 			}
-		}
-		
-		private function thirdBeatRunner(e:Event):void {
-			for (var func:Object in thirdBeatRun) {
-				
-				(func as Function).call();
+			
+			//Determine the number of ticks we need to do to catch up.
+			//Ideally this is always either 0 or 1.
+			//Check the difference with beat time as that is guaranteed to not
+			//be off due to rounding.
+			var quarterCountLag:int = ((rightNow - beatTime) / timePerQuarter) - quarterCount;
+			var thirdCountLag:int = ((rightNow - beatTime) / timePerThird) - thirdCount;
+			
+			var n:int;
+			var func:Object;
+			for (n = 0; n < quarterCountLag; n++) {
+				for (func in quarterBeatRun) {
+					(func as Function).call();
+				}
+				quarterCount++;
+			}
+			for (n = 0; n < thirdCountLag; n++) {
+				for (func in thirdBeatRun) {
+					(func as Function).call();
+				}
+				thirdCount++;
 			}
 		}
 	}

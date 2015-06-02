@@ -64,7 +64,7 @@ package src
 		public static const OPPONENT_ACTORS:int = 2;
 		
 		// (1 / BPM) * 60 * 1000, 500 is 120BPM
-		public static const MILLISECONDS_PER_BEAT:int = 450; //500
+		public static const MILLISECONDS_PER_BEAT:int = 500; //500
 		
 		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
 		
@@ -195,6 +195,15 @@ package src
 			opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
 			opponentWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, startOpponentWizardKiller);
 			
+			var note:Note = new Note();
+			note.letter = Note.NOTE_F;
+			note.time = 0;
+			note.endtime = -1;
+			note.isHold = false;
+			var noteSprite:NoteSprite = new NoteSprite(note);
+			this.addChild(noteSprite);
+			noteSprite.x = 40;
+			noteSprite.y = 40;
 		}
 		
 		private function prepMinimap(minimap:Sprite):void {

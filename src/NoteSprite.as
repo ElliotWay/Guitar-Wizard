@@ -1,7 +1,9 @@
 package  src
 {
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Shape;
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
@@ -12,8 +14,13 @@ package  src
 	 * ...
 	 * @author Elliot Way
 	 */
-	public class NoteSprite extends Shape
+	public class NoteSprite extends Sprite
 	{
+		[Embed(source = "../assets/notes.png")]
+		private static const NoteImage:Class;
+		private static const NOTE_DATA:BitmapData = (new NoteImage() as Bitmap).bitmapData;
+		
+		
 		public static const NOTE_SIZE:int = 20; //radius of the note circle. scales the size of the letter and the hold rectangle
 		
 		public static const F_COLOR:uint = 0xC00000;
@@ -92,6 +99,19 @@ package  src
 		}
 		
 		private function createImage():void {
+			if (associatedNote.letter == Note.NOTE_F) {
+				var animation:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 0),
+					50, 50, 4, FrameAnimation.FOUR_PER_BEAT, FrameAnimation.FLAG_COLOR,
+					false, true, false);
+					
+				this.addChild(animation);
+				animation.visible = true;
+				animation.x = -(animation.width / 2);
+				animation.y = -(animation.height / 2);
+				animation.go(GameUI.REPEATER);
+				return;
+			}
+			
 			//Determine which letter this is.
 			var noteColor:uint = 0x0;
 			var letterData:BitmapData = null;

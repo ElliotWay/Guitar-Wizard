@@ -3,6 +3,12 @@
 
 - Archers are still overpowered. Not sure how I'll fix this.
 
+- responsiveness - visual reaction to every hit & miss?
+
+- make Archers lock onto shield
+
+- fix summoning meter not going down
+
 
 ---Should do at some point.----------------
 - GameUITest - I missed this somehow. It's kind of still in development?
@@ -15,8 +21,6 @@
 
 - create better shield sprite
 
-- responsiveness - visual reaction to every hit & miss?
-
 - object reuse: Projectiles?
 - object reuse: NoteSprites? they're easy to redraw, after all
 - object reuse: other? that's most of them really, maybe cut down on the number of vectors or something
@@ -27,6 +31,8 @@
 
 - find a _better_ way of syncing animations to beat
 
+- sync Repeater to Music Player instead
+
 
 ---Bugs.-------------------	
 - fix bug where timing is off for both position of notes and hitting them after quitting and starting again
@@ -34,8 +40,6 @@
 - fix bug where late switches sometimes switch the music, but not the notes
 
 - fix bug where player archers shoot too high?
-
-- tempo is off?
 
 - archers sometimes ignore assassins
 
@@ -159,3 +163,4 @@
 	a new object with every new function AND add every single available object to it is such an
 	inefficient way of handling it, means that I really need to do it differently	
 - create more frames, they just look better that way - some tweaking still needed
+- tempo is off? Timers are unreliable

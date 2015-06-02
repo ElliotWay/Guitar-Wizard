@@ -20,6 +20,11 @@ package src {
 		private static const SUMMONING_BAR_MAX:int = 9;
 		
 		/**
+		 * The Repeater. DON'T USE THIS except in experimental code.
+		 */
+		public static var REPEATER:Repeater;
+		
+		/**
 		 * In milliseconds, how far from an actual note a hit can be.
 		 */
 		public static const HIT_TOLERANCE:Number = 150; // 150
@@ -80,6 +85,7 @@ package src {
 		public function GameUI(repeater:Repeater) 
 		{
 			this._repeater = repeater;
+			REPEATER = repeater;
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -90,7 +96,7 @@ package src {
 			//The fill of the summoning meter changes color whenever the music area changes color,
 			//so it's useful to give the music area access to it.
 			var summoningMeterFill:SummoningMeterFill =
-				new SummoningMeterFill(Main.WIDTH - MainArea.WIDTH, SUMMONING_BAR_MIN - SUMMONING_BAR_MAX);
+				new SummoningMeterFill(Main.WIDTH - MainArea.WIDTH, SUMMONING_BAR_MIN - SUMMONING_BAR_MAX, repeater);
 			
 			musicArea = new MusicArea(this, summoningMeterFill);
 			this.addChild(musicArea);
