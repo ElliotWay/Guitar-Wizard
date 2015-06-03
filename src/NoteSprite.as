@@ -20,8 +20,18 @@ package  src
 		private static const NoteImage:Class;
 		private static const NOTE_DATA:BitmapData = (new NoteImage() as Bitmap).bitmapData;
 		
+		private static const F_GO:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 0),
+					50, 50, 4, FrameAnimation.FOUR_PER_BEAT, FrameAnimation.FLAG_COLOR,
+					false, true, false);
+		private static const F_HIT:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 50),
+					50, 50, 12, FrameAnimation.EVERY_FRAME, FrameAnimation.FLAG_COLOR,
+					false, false, false);
+		private static const F_MISS:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 100),
+					50, 50, 12, FrameAnimation.EVERY_FRAME, FrameAnimation.FLAG_COLOR,
+					false, false, false);
 		
-		public static const NOTE_SIZE:int = 20; //radius of the note circle. scales the size of the letter and the hold rectangle
+		
+		public static const NOTE_RADIUS:int = 20;
 		
 		public static const F_COLOR:uint = 0xC00000;
 		public static const D_COLOR:uint = 0x0000FF;
@@ -32,29 +42,29 @@ package  src
 		public static const MISS_COLOR:uint = 0xFF0000;
 		
 		private static const LETTER_POSITION:Matrix = new Matrix();
-		LETTER_POSITION.translate( -NOTE_SIZE * .35, -NOTE_SIZE * .6);
+		LETTER_POSITION.translate( -NOTE_RADIUS * .35, -NOTE_RADIUS * .6);
 		
 		private static const F_TEXT_FIELD:TextField = new TextField();
 		F_TEXT_FIELD.text = "F";
-		F_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - F_COLOR, true));
+		F_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_RADIUS * .9, 0xFFFFFF - F_COLOR, true));
 		private static const F_TEXT:BitmapData = new BitmapData(F_TEXT_FIELD.width, F_TEXT_FIELD.height, true, 0x0);
 		F_TEXT.draw(F_TEXT_FIELD);
 
 		private static const D_TEXT_FIELD:TextField = new TextField();
 		D_TEXT_FIELD.text = "D";
-		D_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - D_COLOR, true));
+		D_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_RADIUS * .9, 0xFFFFFF - D_COLOR, true));
 		private static const D_TEXT:BitmapData = new BitmapData(D_TEXT_FIELD.width, D_TEXT_FIELD.height, true, 0x0);
 		D_TEXT.draw(D_TEXT_FIELD);
 		
 		private static const S_TEXT_FIELD:TextField = new TextField();
 		S_TEXT_FIELD.text = "S";
-		S_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - S_COLOR, true));
+		S_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_RADIUS * .9, 0xFFFFFF - S_COLOR, true));
 		private static const S_TEXT:BitmapData = new BitmapData(S_TEXT_FIELD.width, S_TEXT_FIELD.height, true, 0x0);
 		S_TEXT.draw(S_TEXT_FIELD);
 		
 		private static const A_TEXT_FIELD:TextField = new TextField();
 		A_TEXT_FIELD.text = "A";
-		A_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_SIZE * .9, 0xFFFFFF - A_COLOR, true));
+		A_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_RADIUS * .9, 0xFFFFFF - A_COLOR, true));
 		private static const A_TEXT:BitmapData = new BitmapData(A_TEXT_FIELD.width, A_TEXT_FIELD.height, true, 0x0);
 		A_TEXT.draw(A_TEXT_FIELD);
 		
@@ -69,6 +79,10 @@ package  src
 		private var associatedNote:Note;
 		
 		private var holdEndPoint:Number;
+		
+		private var animation:FrameAnimation;
+		private var hitAnimation:FrameAnimation;
+		private var missAnimation:FrameAnimation;
 		
 		/**
 		 * 0 represents neither hit nor miss, 1 represents hit, -1 represents miss.
@@ -100,18 +114,25 @@ package  src
 		
 		private function createImage():void {
 			if (associatedNote.letter == Note.NOTE_F) {
-				var animation:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 0),
-					50, 50, 4, FrameAnimation.FOUR_PER_BEAT, FrameAnimation.FLAG_COLOR,
-					false, true, false);
+				animation = F_GO.copy();
+					
+				hitAnimation = F_HIT.copy();
+					
+				missAnimation = F_MISS.copy();
 					
 				this.addChild(animation);
+				this.addChild(hitAnimation);
+				this.addChild(missAnimation);
 				animation.visible = true;
 				animation.x = -(animation.width / 2);
 				animation.y = -(animation.height / 2);
+				hitAnimation.x = -(hitAnimation.width / 2);
+				hitAnimation.y = -(hitAnimation.height / 2);
+				missAnimation.x = -(missAnimation.width / 2);
+				missAnimation.y = -(missAnimation.height / 2);
 				animation.go(GameUI.REPEATER);
-				return;
+				
 			}
-			
 			//Determine which letter this is.
 			var noteColor:uint = 0x0;
 			var letterData:BitmapData = null;
@@ -128,24 +149,26 @@ package  src
 				noteColor = A_COLOR;
 				letterData = A_TEXT;
 			}
-			
-			//Create the circle for this note.
-			this.graphics.beginFill(noteColor);
-			this.graphics.drawCircle(0, 0, NOTE_SIZE);
-			this.graphics.endFill();
+			if (associatedNote.letter != Note.NOTE_F) {
+				//Create the circle for this note.
+				this.graphics.beginFill(noteColor);
+				this.graphics.drawCircle(0, 0, NOTE_RADIUS);
+				this.graphics.endFill();
+			}
 			
 			//And the hold rectangle, if applicable.
 			if (associatedNote.isHold) {
 				this.graphics.beginFill(noteColor);
 				holdEndPoint = (associatedNote.endtime - associatedNote.time) * MusicArea.POSITION_SCALE;
-				this.graphics.drawRect(0, -NOTE_SIZE * .25, holdEndPoint, NOTE_SIZE * .5);
+				this.graphics.drawRect(0, -NOTE_RADIUS * .25, holdEndPoint, NOTE_RADIUS * .5);
 				this.graphics.endFill();
 			}
-			
-			//The letter is drawn on top.
-			graphics.beginBitmapFill(letterData, LETTER_POSITION, false);
-			graphics.drawRect(-50, -50, letterData.width, letterData.height);
-			graphics.endFill();
+			if (associatedNote.letter != Note.NOTE_F) {
+				//The letter is drawn on top.
+				graphics.beginBitmapFill(letterData, LETTER_POSITION, false);
+				graphics.drawRect(-50, -50, letterData.width, letterData.height);
+				graphics.endFill();
+			}
 		}
 		
 		public function refresh():void {
@@ -171,9 +194,16 @@ package  src
 		 */
 		public function hit():void {
 			if (_isHit == 0) {
-				this.graphics.lineStyle(4, HIT_COLOR);
-				this.graphics.drawCircle(0, 0, NOTE_SIZE + 2);//3
+				if (associatedNote.letter == Note.NOTE_F) {
+					animation.visible = false;
+					hitAnimation.visible = true;
+					hitAnimation.go(GameUI.REPEATER);
+				} else {
 				
+					this.graphics.lineStyle(4, HIT_COLOR);
+					this.graphics.drawCircle(0, 0, NOTE_RADIUS + 1);//3
+				
+				}
 				if (associatedNote.isHold) {
 					this.addEventListener(Event.ENTER_FRAME, continueHold);
 				}
@@ -188,26 +218,29 @@ package  src
 		 * @param	e enter frame event
 		 */
 		private function continueHold(e:Event):void {
-			this.graphics.lineStyle(4, HIT_COLOR);
+			if (associatedNote.letter == Note.NOTE_F)
+				this.graphics.lineStyle(4, 0xFFFFFF);
+			else
+				this.graphics.lineStyle(4, HIT_COLOR);
 						
 			var targetX:Number = this.globalToLocal(global_hit_line_position).x;
 			
 			//make sure we're passed the hit line
-			if (NOTE_SIZE < targetX) {
+			if (NOTE_RADIUS < targetX) {
 				
 				//Check if we're at the end of the hold
 				if (targetX < holdEndPoint) {
-					this.graphics.moveTo(NOTE_SIZE, NOTE_SIZE * .25 + 1);
-					this.graphics.lineTo(targetX, NOTE_SIZE * .25 + 1);
+					this.graphics.moveTo(NOTE_RADIUS, NOTE_RADIUS * .25 + 1);
+					this.graphics.lineTo(targetX, NOTE_RADIUS * .25 + 1);
 					
-					this.graphics.moveTo(NOTE_SIZE, -(NOTE_SIZE * .25 + 1));
-					this.graphics.lineTo(targetX, -(NOTE_SIZE * .25 + 1));
+					this.graphics.moveTo(NOTE_RADIUS, -(NOTE_RADIUS * .25 + 1));
+					this.graphics.lineTo(targetX, -(NOTE_RADIUS * .25 + 1));
 				} else {
 					//close off the hold
-					this.graphics.moveTo(NOTE_SIZE, NOTE_SIZE * .25 + 1);
-					this.graphics.lineTo(holdEndPoint, NOTE_SIZE * .25 + 1);
-					this.graphics.lineTo(holdEndPoint, -(NOTE_SIZE * .25 + 1));
-					this.graphics.lineTo(NOTE_SIZE, -(NOTE_SIZE * .25 + 1));
+					this.graphics.moveTo(NOTE_RADIUS, NOTE_RADIUS * .25 + 1);
+					this.graphics.lineTo(holdEndPoint, NOTE_RADIUS * .25 + 1);
+					this.graphics.lineTo(holdEndPoint, -(NOTE_RADIUS * .25 + 1));
+					this.graphics.lineTo(NOTE_RADIUS, -(NOTE_RADIUS * .25 + 1));
 					stopHolding();
 				}
 			} else if (targetX > holdEndPoint) {
@@ -232,8 +265,16 @@ package  src
 		 */
 		public function miss():void {
 			if (_isHit == 0) {
+				if (associatedNote.letter == Note.NOTE_F) {
+					animation.visible = false;
+					missAnimation.visible = true;
+					missAnimation.go(GameUI.REPEATER);
+					
+					_isHit = -1;
+					return;
+				}
 				this.graphics.lineStyle(4, MISS_COLOR);
-				this.graphics.drawCircle(0, 0, NOTE_SIZE + 3);
+				this.graphics.drawCircle(0, 0, NOTE_RADIUS + 3);
 				
 				_isHit = -1;
 			}

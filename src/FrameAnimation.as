@@ -26,6 +26,7 @@ package src
 		public static const ONE_THIRD_PER_BEAT:int = -7;
 		public static const ON_STEP:int = -8;
 		public static const EVERY_FRAME:int = -9;
+		public static const EVERY_OTHER_FRAME:int = -10;
 		
 		private var _frames:Vector.<Bitmap>;
 		private var frameIndex:int;
@@ -239,6 +240,8 @@ package src
 				case EVERY_FRAME:
 					counterMax = 1;
 					break;
+				case EVERY_OTHER_FRAME:
+					counterMax = 2;
 				//If it's ON_STEP, it doesn't matter.
 			}
 			
@@ -275,7 +278,7 @@ package src
 			if (_isRunning)
 				stop(repeater);
 			
-			if (frequency == EVERY_FRAME) {
+			if (frequency == EVERY_FRAME || frequency == EVERY_OTHER_FRAME) {
 				repeater.runEveryFrame(step);
 			} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT) {
 				repeater.runEveryQuarterBeat(step);
@@ -324,7 +327,7 @@ package src
 		
 		public function stop(repeater:Repeater):void {
 			if (_isRunning) {
-				if (frequency == EVERY_FRAME) {
+				if (frequency == EVERY_FRAME || frequency == EVERY_OTHER_FRAME) {
 					repeater.stopRunningEveryFrame(step);
 				} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT)
 					repeater.stopRunningEveryQuarterBeat(step);

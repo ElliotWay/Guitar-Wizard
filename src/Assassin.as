@@ -1,5 +1,4 @@
-package src 
-{
+package src {
 	import com.greensock.easing.Linear;
 	import com.greensock.plugins.TintPlugin;
 	import com.greensock.plugins.TweenPlugin;
@@ -16,22 +15,18 @@ package src
 	 * ...
 	 * @author ...
 	 */
-	public class Assassin extends Actor
-	{
+	public class Assassin extends Actor {
 		public static const SPEED:int = 150;
 		public static const MAX_HP:int = 10;
 		
 		public static const MELEE_RANGE:int = 30;
 		public static const BASE_MELEE_DAMAGE:int = 3;
 		
-		public static const MAX_JUMP_DISTANCE:int = 200;//pixels
+		public static const MAX_JUMP_DISTANCE:int = 200; //pixels
 		
 		public static const MIN_JUMP_DISTANCE:int = 150;
 		
-		public static const APPROX_JUMPING_SPEED:int =
-				((MAX_JUMP_DISTANCE + MIN_JUMP_DISTANCE) / 2) /
-				1200; //Approx time to land
-		
+		public static const APPROX_JUMPING_SPEED:int = ((MAX_JUMP_DISTANCE + MIN_JUMP_DISTANCE) / 2) / 1200; //Approx time to land
 		
 		private var jumping:TweenLite;
 		
@@ -40,14 +35,13 @@ package src
 		
 		private var currentAssassinateTarget:Actor;
 		
-		public function Assassin() 
-		{
+		public function Assassin() {
 			;
 		}
 		
 		/*override src.factory function restore():void {
-			super.restore();
-		}*/
+		   super.restore();
+		 }*/
 		
 		override protected function get speed():int {
 			return SPEED;
@@ -68,51 +62,44 @@ package src
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			if (this.isPreoccupied)
 				return;
-				
+			if (landedTimer != null) {
+				trace("ZOMG!!!!");
+			}
 			
 			//Find the closest valid target.
 			var closest:Actor = this.getClosest(enemies, MAX_JUMP_DISTANCE * 2);
 			
-			if (closest != null && (_status == Status.MOVING || _status == Status.STANDING)) {
-			
-				var targetPositionAfterJump:Number =
-						closest.predictPosition(AssassinSprite.timeToLand(repeater)).x;
+			if (closest != null) {
+				
+				var targetPositionAfterJump:Number = closest.predictPosition(AssassinSprite.timeToLand(repeater)).x;
 				
 				//TODO find a better way or writing this or just remove it altogether
 				/*if (isPlayerPiece) {
-					if (MainArea.opponentShieldIsUp) {
-						targetPositionAfterJump = Math.min(
-								targetPositionAfterJump,
-								MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION);
-					}
-				} else {
-					if (MainArea.playerShieldIsUp) {
-						targetPositionAfterJump = Math.max(
-								targetPositionAfterJump,
-								MainArea.SHIELD_POSITION);
-					}
-				}*/
-						
-				var targetAfterJumpDistance:Number =
-						Math.abs(targetPositionAfterJump - this.getPosition().x);
-						
-			if (closest != null)
-				//Jump towards the target if they will be in range.
-				if (MIN_JUMP_DISTANCE < targetAfterJumpDistance &&
-						targetAfterJumpDistance < MAX_JUMP_DISTANCE &&
-						!(closest is Assassin)) {
+				   if (MainArea.opponentShieldIsUp) {
+				   targetPositionAfterJump = Math.min(
+				   targetPositionAfterJump,
+				   MainArea.ARENA_WIDTH - MainArea.SHIELD_POSITION);
+				   }
+				   } else {
+				   if (MainArea.playerShieldIsUp) {
+				   targetPositionAfterJump = Math.max(
+				   targetPositionAfterJump,
+				   MainArea.SHIELD_POSITION);
+				   }
+				 }*/
 				
+				var targetAfterJumpDistance:Number = Math.abs(targetPositionAfterJump - this.getPosition().x);
+				
+				//Jump towards the target if they will be in range.
+				if (MIN_JUMP_DISTANCE < targetAfterJumpDistance && targetAfterJumpDistance < MAX_JUMP_DISTANCE && !(closest is Assassin)) {
+					
 					this.halt();
 					
-					var landedX:Number = _sprite.x +
-							(_facesRight ?
-									targetAfterJumpDistance - MELEE_RANGE :
-									-targetAfterJumpDistance + MELEE_RANGE);
-						
-					_status = Status.ASSASSINATING;
-						
-					_sprite.animate(Status.ASSASSINATING, repeater, resetToStanding);
+					var landedX:Number = _sprite.x + (_facesRight ? targetAfterJumpDistance - MELEE_RANGE : -targetAfterJumpDistance + MELEE_RANGE);
 					
+					_status = Status.ASSASSINATING;
+					
+					_sprite.animate(Status.ASSASSINATING, repeater, resetToStanding);
 					
 					currentAssassinateTarget = closest;
 					
@@ -120,8 +107,7 @@ package src
 					landedTimer.addEventListener(TimerEvent.TIMER_COMPLETE, whoosh_shing);
 					landedTimer.start();
 					
-					jumping = new TweenLite(_sprite, AssassinSprite.timeToLand(repeater) / 1000,
-							{ x:landedX, ease:Linear.easeInOut } );
+					jumping = new TweenLite(_sprite, AssassinSprite.timeToLand(repeater) / 1000, {x: landedX, ease: Linear.easeInOut});
 				} else if (this.withinRange(closest, MELEE_RANGE)) {
 					this.meleeAttack(closest, AssassinSprite.timeBetweenStabs(repeater), repeater);
 					
@@ -130,11 +116,11 @@ package src
 						this.go(repeater);
 					}
 				}
-			}  else {
+			} else {
 				if (_status != Status.MOVING)
 					this.go(repeater);
 			}
-			
+		
 		}
 		
 		/**
@@ -144,9 +130,9 @@ package src
 		private function whoosh_shing(event:Event):void {
 			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, whoosh_shing);
 			
-			if (withinRange(currentAssassinateTarget, MELEE_RANGE*1.1))//A little extra leeway on assassination.
+			if (!this.isDead && withinRange(currentAssassinateTarget, MELEE_RANGE * 1.1)) //A little extra leeway on assassination.
 				currentAssassinateTarget.hit(2 * BASE_MELEE_DAMAGE * (isPlayerPiece ? player_buff : 1.0)); //Double damage on assassination
-				
+			
 			landedTimer = null;
 			currentAssassinateTarget = null;
 		}
@@ -168,7 +154,6 @@ package src
 				return super.predictPosition(time);
 			}
 		}
-		
 		
 		override public function clean():void {
 			super.clean();

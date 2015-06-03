@@ -74,9 +74,9 @@ package src
 		
 		public static function timeToLand(repeater:Repeater):Number {
 			// (time/beat) * (beat/frame) * (8th frame)
-			//		?	   *	(1/3)     *  8
+			//		?	   *	(1/4)     *  8
 			
-			return repeater.getBeat() * (8.0 / 3.0);
+			return repeater.getBeat() * (2.0);
 		}
 		
 		public static function timeBetweenStabs(repeater:Repeater):Number {

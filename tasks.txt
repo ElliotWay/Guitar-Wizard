@@ -9,6 +9,10 @@
 
 - fix summoning meter not going down
 
+- animate note sprites
+
+- assassins repeatedly assassinating
+
 
 ---Should do at some point.----------------
 - GameUITest - I missed this somehow. It's kind of still in development?
