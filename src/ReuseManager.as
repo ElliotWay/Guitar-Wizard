@@ -39,6 +39,17 @@ package src
 		}
 		
 		/**
+		 * Create several objects in advance to save time on construction later.
+		 * If any objects were already removed, this will add objects on top of them.
+		 * @param	amount the number of objects to create
+		 */
+		public function prepopulate(amount:int):void {
+			for (var i:int = 0; i < amount; i++) {
+				things.push(callConstructor());
+			}
+		}
+		
+		/**
 		 * Ask the ReuseManager for another object. If an old one is available, the most recently
 		 * removed object is returned, otherwise a new one is created.
 		 * @return the "new" object
