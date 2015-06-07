@@ -74,6 +74,8 @@ package src {
 		
 		private var _actorFactory:ActorFactory;
 		
+		public static var fps_counter:TextField;
+		
 		public function get repeater():Repeater {
 			return _repeater;
 		}
@@ -147,6 +149,12 @@ package src {
 			losingScreen.visible = false;
 			
 			opponent = new DefaultOpponent();
+			
+			fps_counter = new TextField();
+			this.addChild(fps_counter);
+			fps_counter.x = 4;
+			fps_counter.y = 4;
+			fps_counter.visible = false;
 		}
 		
 		/**
@@ -213,7 +221,7 @@ package src {
 			musicArea.stop();
 			musicPlayer.stop();
 			
-			song.dissociate();
+			//TODO derender all noteblocks
 			
 			if (quitTimer != null)
 				quitTimer.stop();
@@ -297,9 +305,10 @@ package src {
 		 * @param	e enter frame event
 		 */
 		public function missChecker():void {
-			
 			var rightNow:Number = musicPlayer.getTime();
 						
+			musicArea.checkRendering(rightNow);
+			
 			var noteMissed:Boolean = musicArea.missNotes(rightNow);
 			
 			if (noteMissed) {
@@ -511,8 +520,12 @@ package src {
 					switchTrack(Main.LOW);
 					break;
 					
+				//Debugging keys. Remove these eventually.
 				case Keyboard.X:
 					mainArea.doLightning(true, true);
+					break;
+				case Keyboard.BACKQUOTE:
+					fps_counter.visible = !fps_counter.visible;
 					break;
 			}
 		}

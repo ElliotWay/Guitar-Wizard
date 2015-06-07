@@ -16,32 +16,47 @@ package  src
 	 */
 	public class NoteSprite extends Sprite
 	{
-		[Embed(source = "../assets/notes.png")]
-		private static const NoteImage:Class;
-		private static const NOTE_DATA:BitmapData = (new NoteImage() as Bitmap).bitmapData;
-		
-		private static const F_GO:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 0),
-					50, 50, 4, FrameAnimation.FOUR_PER_BEAT, FrameAnimation.FLAG_COLOR,
-					false, true, false);
-		private static const F_HIT:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 50),
-					50, 50, 12, FrameAnimation.EVERY_FRAME, FrameAnimation.FLAG_COLOR,
-					false, false, false);
-		private static const F_MISS:FrameAnimation = FrameAnimation.create(NOTE_DATA, new Point(0, 100),
-					50, 50, 12, FrameAnimation.EVERY_FRAME, FrameAnimation.FLAG_COLOR,
-					false, false, false);
-		
-		
-		public static const NOTE_RADIUS:int = 20;
-		
 		public static const F_COLOR:uint = 0xC00000;
 		public static const D_COLOR:uint = 0x0000FF;
 		public static const S_COLOR:uint = 0xFFFF00;
 		public static const A_COLOR:uint = 0x009000;
 		
-		public static const HIT_COLOR:uint = 0x30FF30;
-		public static const MISS_COLOR:uint = 0xFF0000;
+		private static const F_PULSE:FrameAnimation = 
+				NoteSpriteAnimationCreator.pulseAnimation(F_COLOR, "F");
+		private static const F_HIT:FrameAnimation = 
+				NoteSpriteAnimationCreator.hitAnimation(F_COLOR, "F");
+		private static const F_MISS:FrameAnimation =
+				NoteSpriteAnimationCreator.missAnimation(F_COLOR, "F");
+					
+		private static const D_PULSE:FrameAnimation =
+				NoteSpriteAnimationCreator.pulseAnimation(D_COLOR, "D");
+		private static const D_HIT:FrameAnimation = 
+				NoteSpriteAnimationCreator.hitAnimation(D_COLOR, "D");
+		private static const D_MISS:FrameAnimation =
+				NoteSpriteAnimationCreator.missAnimation(D_COLOR, "D");
 		
-		private static const LETTER_POSITION:Matrix = new Matrix();
+		private static const S_PULSE:FrameAnimation =
+				NoteSpriteAnimationCreator.pulseAnimation(S_COLOR, "S");
+		private static const S_HIT:FrameAnimation = 
+				NoteSpriteAnimationCreator.hitAnimation(S_COLOR, "S");
+		private static const S_MISS:FrameAnimation =
+				NoteSpriteAnimationCreator.missAnimation(S_COLOR, "S");
+		
+		private static const A_PULSE:FrameAnimation =
+				NoteSpriteAnimationCreator.pulseAnimation(A_COLOR, "A");
+		private static const A_HIT:FrameAnimation = 
+				NoteSpriteAnimationCreator.hitAnimation(A_COLOR, "A");
+		private static const A_MISS:FrameAnimation =
+				NoteSpriteAnimationCreator.missAnimation(A_COLOR, "A");
+				
+		public static const NOTE_RADIUS:int = 20;
+		
+		
+		
+		public static const HIT_COLOR:uint = 0xFFFFFF;
+		public static const MISS_COLOR:uint = 0x0;
+		
+		/*private static const LETTER_POSITION:Matrix = new Matrix();
 		LETTER_POSITION.translate( -NOTE_RADIUS * .35, -NOTE_RADIUS * .6);
 		
 		private static const F_TEXT_FIELD:TextField = new TextField();
@@ -66,7 +81,7 @@ package  src
 		A_TEXT_FIELD.text = "A";
 		A_TEXT_FIELD.setTextFormat(new TextFormat("Arial", NOTE_RADIUS * .9, 0xFFFFFF - A_COLOR, true));
 		private static const A_TEXT:BitmapData = new BitmapData(A_TEXT_FIELD.width, A_TEXT_FIELD.height, true, 0x0);
-		A_TEXT.draw(A_TEXT_FIELD);
+		A_TEXT.draw(A_TEXT_FIELD);*/
 		
 		
 		/**
@@ -77,6 +92,7 @@ package  src
 		public static var global_hit_line_position:Point = null;
 		
 		private var associatedNote:Note;
+		private var _letter:int;
 		
 		private var holdEndPoint:Number;
 		
@@ -89,6 +105,11 @@ package  src
 		 */
 		private var _isHit:int;
 		
+		public function get letter():int 
+		{
+			return _letter;
+		}
+		
 		/**
 		 * Construct the sprite for this note. Creates an image for this
 		 * note with the associated letter and a bar extending to the right
@@ -97,63 +118,95 @@ package  src
 		 * Remember to set global_hit_line_position at some point.
 		 * @param	note the associated note object
 		 */
-		public function NoteSprite(note:Note) 
+		public function NoteSprite(letter:int) 
 		{
-			associatedNote = note;
+			_letter = letter;
+			
+			switch (_letter) {
+				case Note.NOTE_F:
+					animation = F_PULSE.copy();
+					hitAnimation = F_HIT.copy();
+					missAnimation = F_MISS.copy();
+					break;
+				case Note.NOTE_D:
+					animation = D_PULSE.copy();
+					hitAnimation = D_HIT.copy();
+					missAnimation = D_MISS.copy();
+					break;
+				case Note.NOTE_S:
+					animation = S_PULSE.copy();
+					hitAnimation = S_HIT.copy();
+					missAnimation = S_MISS.copy();
+					break;
+				case Note.NOTE_A:
+					animation = A_PULSE.copy();
+					hitAnimation = A_HIT.copy();
+					missAnimation = A_MISS.copy();
+					break;
+			}
+			
+			this.addChild(animation);
+			animation.x = -(animation.width) / 2;
+			animation.y = -(animation.height) / 2;
+			
+			this.addChild(hitAnimation);
+			hitAnimation.x = -(hitAnimation.width) / 2;
+			hitAnimation.y = -(hitAnimation.height) / 2;
+			
+			this.addChild(missAnimation);
+			missAnimation.x = -(missAnimation.width) / 2;
+			missAnimation.y = -(missAnimation.height) / 2;
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
-		public function init(e:Event):void {
-			associatedNote.setSprite(this);
+		/**
+		 * Reset the note sprite its starting state.
+		 */
+		factory function restore():void {
+			missAnimation.visible = false;
+			hitAnimation.visible = false;
 			
-			createImage();
-			
-			_isHit = 0;
+			animation.visible = true;
+			createHoldRectangle();
 		}
 		
-		private function createImage():void {
-			if (associatedNote.letter == Note.NOTE_F) {
-				animation = F_GO.copy();
-					
-				hitAnimation = F_HIT.copy();
-					
-				missAnimation = F_MISS.copy();
-					
-				this.addChild(animation);
-				this.addChild(hitAnimation);
-				this.addChild(missAnimation);
-				animation.visible = true;
-				animation.x = -(animation.width / 2);
-				animation.y = -(animation.height / 2);
-				hitAnimation.x = -(hitAnimation.width / 2);
-				hitAnimation.y = -(hitAnimation.height / 2);
-				missAnimation.x = -(missAnimation.width / 2);
-				missAnimation.y = -(missAnimation.height / 2);
-				animation.go(GameUI.REPEATER);
-				
+		factory function setAssociatedNote(note:Note):void {
+			if (note.letter != _letter) {
+				throw new GWError("Can't associate note with sprite of different letter.");
 			}
+			associatedNote = note;
+			note.setSprite(this);
+		}
+		
+		public function init(e:Event):void {
+			createHoldRectangle();
+			
+			_isHit = 0;
+			
+			animation.go(GameUI.REPEATER);
+		}
+		
+		/**
+		 * Currently only creates the hold rectangle,
+		 * as the rest of the note sprites have become animated sprites.
+		 */
+		private function createHoldRectangle():void {
+			if (associatedNote == null)
+				return;
+				
+			this.graphics.clear();
+			
 			//Determine which letter this is.
 			var noteColor:uint = 0x0;
-			var letterData:BitmapData = null;
 			if (associatedNote.letter == Note.NOTE_F) {
 				noteColor = F_COLOR;
-				letterData = F_TEXT;
 			} else if (associatedNote.letter == Note.NOTE_D) {
 				noteColor = D_COLOR;
-				letterData = D_TEXT;
 			} else if (associatedNote.letter == Note.NOTE_S) {
 				noteColor = S_COLOR;
-				letterData = S_TEXT;
 			} else {// (associatedNote.letter == Note.NOTE_A)
 				noteColor = A_COLOR;
-				letterData = A_TEXT;
-			}
-			if (associatedNote.letter != Note.NOTE_F) {
-				//Create the circle for this note.
-				this.graphics.beginFill(noteColor);
-				this.graphics.drawCircle(0, 0, NOTE_RADIUS);
-				this.graphics.endFill();
 			}
 			
 			//And the hold rectangle, if applicable.
@@ -163,18 +216,10 @@ package  src
 				this.graphics.drawRect(0, -NOTE_RADIUS * .25, holdEndPoint, NOTE_RADIUS * .5);
 				this.graphics.endFill();
 			}
-			if (associatedNote.letter != Note.NOTE_F) {
-				//The letter is drawn on top.
-				graphics.beginBitmapFill(letterData, LETTER_POSITION, false);
-				graphics.drawRect(-50, -50, letterData.width, letterData.height);
-				graphics.endFill();
-			}
 		}
 		
 		public function refresh():void {
-			this.graphics.clear();
-			
-			createImage();
+			createHoldRectangle();
 		}
 		
 		/**
@@ -194,16 +239,10 @@ package  src
 		 */
 		public function hit():void {
 			if (_isHit == 0) {
-				if (associatedNote.letter == Note.NOTE_F) {
-					animation.visible = false;
-					hitAnimation.visible = true;
-					hitAnimation.go(GameUI.REPEATER);
-				} else {
-				
-					this.graphics.lineStyle(4, HIT_COLOR);
-					this.graphics.drawCircle(0, 0, NOTE_RADIUS + 1);//3
-				
-				}
+				animation.visible = false;
+				hitAnimation.visible = true;
+				hitAnimation.go(GameUI.REPEATER);
+					
 				if (associatedNote.isHold) {
 					this.addEventListener(Event.ENTER_FRAME, continueHold);
 				}
@@ -218,10 +257,7 @@ package  src
 		 * @param	e enter frame event
 		 */
 		private function continueHold(e:Event):void {
-			if (associatedNote.letter == Note.NOTE_F)
-				this.graphics.lineStyle(4, 0xFFFFFF);
-			else
-				this.graphics.lineStyle(4, HIT_COLOR);
+			this.graphics.lineStyle(4, HIT_COLOR);
 						
 			var targetX:Number = this.globalToLocal(global_hit_line_position).x;
 			
@@ -265,26 +301,22 @@ package  src
 		 */
 		public function miss():void {
 			if (_isHit == 0) {
-				if (associatedNote.letter == Note.NOTE_F) {
-					animation.visible = false;
-					missAnimation.visible = true;
-					missAnimation.go(GameUI.REPEATER);
-					
-					_isHit = -1;
-					return;
-				}
-				this.graphics.lineStyle(4, MISS_COLOR);
-				this.graphics.drawCircle(0, 0, NOTE_RADIUS + 3);
+				animation.visible = false;
+				missAnimation.visible = true;
+				missAnimation.go(GameUI.REPEATER);
 				
 				_isHit = -1;
 			}
 		}
 		
 		/**
-		 * Removes the association with a note for easier garbage collecting.
+		 * Removes the association with a note, and its association with this sprite.
 		 */
 		public function dissociate():void {
+			associatedNote.dissociate();
 			associatedNote = null;
+			
+			stopHolding();
 		}
 		
 	}

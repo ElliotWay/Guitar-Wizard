@@ -85,20 +85,11 @@ package src
 		 */
 		public static function create(image:BitmapData, position:Point, frameWidth:uint, frameHeight:uint, numFrames:uint, frequency:int,  color:uint = FLAG_COLOR, flipped:Boolean = false, loops:Boolean = true, scaleUp:Boolean = true):FrameAnimation
 		{
-			var output:FrameAnimation = new FrameAnimation();
-			
-			if (frequency >= 0)
-				throw new Error("Error: use FrameAnimation constants to define frames per beat");
-			else 
-				output.setFrequency(frequency);
-				
-			output._loops = loops;
-			
 			if (position.x + numFrames * frameWidth > image.width ||
 					position.y + frameHeight > image.height)
 				throw new Error("Bad bounds on image for frame animation.");
 			
-			output._frames = new Vector.<Bitmap>(numFrames, true);
+			var frameData:Vector.<BitmapData> = new Vector.<BitmapData>(numFrames, true);
 			
 			for (var frameNumber:int = 0; frameNumber < numFrames; frameNumber++) {
 				//Initialize a bitmap to transparent black.
@@ -115,12 +106,43 @@ package src
 				
 				innerBitmapData.setPixels(selfRectangle, bytes);
 				
+				frameData[frameNumber] = innerBitmapData;
+			}
+			
+			return createFromFrames(frameData, frequency, color, flipped, loops, scaleUp);
+		}
+		
+		/**
+		 * Create a new frame animation from an existing vector of frames.
+		 * WARNING: Uses the same vector, changing the vector after passing it here
+		 * may have unexpected results.
+		 * @param	frameData  vector with bitmap data
+		 * @param	frequency  using <b>FrameAnimation CONSTANTS</b> how many frames per beat
+		 * @param	color  color to set pixels of the flag color to. Ignores the alpha channel.
+		 * @param	flipped whether to flip the animation horizontally
+		 * @param   loops whether the animation restarts when it ends
+		 * @return  the constructed FrameAnimation
+		 */
+		public static function createFromFrames(frameData:Vector.<BitmapData>, frequency:int,  color:uint = FLAG_COLOR, flipped:Boolean = false, loops:Boolean = true, scaleUp:Boolean = true):FrameAnimation {
+			var output:FrameAnimation = new FrameAnimation();
+			
+			output._loops = loops;
+			output._frames = new Vector.<Bitmap>(frameData.length, true);
+			
+			if (frequency >= 0)
+				throw new Error("Error: use FrameAnimation constants to define frames per beat");
+			else 
+				output.setFrequency(frequency);
+				
+			for (var frameNumber:int = 0; frameNumber < frameData.length; frameNumber++) {
+				var bitmapData:BitmapData = frameData[frameNumber];
+				
 				//Change pixels of the flag color to the requested color.
-				for (var x:int = 0; x < innerBitmapData.width; x++) {
-					for (var y:int = 0; y < innerBitmapData.height; y++) {
-						var pixel:int = innerBitmapData.getPixel(x, y);
+				for (var x:int = 0; x < bitmapData.width; x++) {
+					for (var y:int = 0; y < bitmapData.height; y++) {
+						var pixel:int = bitmapData.getPixel(x, y);
 						if (pixel == FLAG_COLOR) {
-							innerBitmapData.setPixel(x, y, color);
+							bitmapData.setPixel(x, y, color);
 						}
 					}
 				}
@@ -131,11 +153,14 @@ package src
 				}
 				
 				//Matrix transformations: scaling and horizontal flip, if requested
-				var finalData:BitmapData = new BitmapData(frameWidth * scale, frameHeight * scale, true, 0x0);
+				var finalData:BitmapData = new BitmapData(bitmapData.width * scale,
+						bitmapData.height * scale, true, 0x0);
 				if (flipped) {
-					finalData.draw(innerBitmapData, new Matrix( -scale, 0, 0, scale, frameWidth * scale, 0));
+					finalData.draw(bitmapData, new Matrix( -scale, 0,						 0,
+															scale, bitmapData.width * scale, 0));
 				} else {
-					finalData.draw(innerBitmapData, new Matrix( scale, 0, 0, scale, 0, 0));
+					finalData.draw(bitmapData, new Matrix( 	scale, 0, 0,
+															scale, 0, 0));
 				}
 				
 				
@@ -279,7 +304,7 @@ package src
 				stop(repeater);
 			
 			if (frequency == EVERY_FRAME || frequency == EVERY_OTHER_FRAME) {
-				repeater.runEveryFrame(step);
+				repeater.runConsistentlyEveryFrame(step);
 			} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT) {
 				repeater.runEveryQuarterBeat(step);
 			} else {
@@ -328,7 +353,7 @@ package src
 		public function stop(repeater:Repeater):void {
 			if (_isRunning) {
 				if (frequency == EVERY_FRAME || frequency == EVERY_OTHER_FRAME) {
-					repeater.stopRunningEveryFrame(step);
+					repeater.stopRunningConsistentlyEveryFrame(step);
 				} else if (frequency == TWO_PER_BEAT || frequency == FOUR_PER_BEAT)
 					repeater.stopRunningEveryQuarterBeat(step);
 				else

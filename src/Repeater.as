@@ -16,6 +16,11 @@ package src
 		private var everyFrameDispatcher:EventDispatcher;
 		private var everyFrameRun:Dictionary;
 		
+		private static const MILLIS_PER_FRAME:int = 17;
+		private var consistentEveryFrameRun:Dictionary;
+		
+		private var frameTime:uint;
+		
 		private var millisecondsPerBeat:int = 500;
 		private var timePerQuarter:int;
 		private var timePerThird:int;
@@ -51,6 +56,7 @@ package src
 				return;
 				
 			everyFrameRun = new Dictionary(true);
+			consistentEveryFrameRun = new Dictionary(true);
 			
 			quarterBeatRun = new Dictionary(true);
 			thirdBeatRun = new Dictionary(true);
@@ -75,6 +81,7 @@ package src
 			checkBeat();
 				
 			beatTime = getTimer();
+			frameTime = beatTime;
 			
 			millisecondsPerBeat = millisPerBeat;
 			timePerQuarter = millisecondsPerBeat / 4;
@@ -127,6 +134,27 @@ package src
 		}
 		
 		/**
+		 * Runs based on time elapsed instead of when frames actually occur.
+		 * As a result, this may move through 2 or more frames to catch up if there is lag.
+		 * @param	func the function to run every frame
+		 */
+		public function runConsistentlyEveryFrame(func:Function):void {
+			consistentEveryFrameRun[func] = func;
+		}
+		
+		/**
+		 * Stop running the function every frame.
+		 * @param   func the function to stop running
+		 */
+		public function stopRunningConsistentlyEveryFrame(func:Function):void {
+			delete consistentEveryFrameRun[func];
+		}
+		
+		public function isRunningConsistentlyEveryFrame(func:Function):Boolean {
+			return (consistentEveryFrameRun[func] != undefined);
+		}
+		
+		/**
 		 * Run a given function every quarter beat. The function should take no arguments.
 		 * @param	func the function to run every quarter beat
 		 */
@@ -167,6 +195,7 @@ package src
 		}
 		
 		private function frameRunner(e:Event):void {
+			
 			var func:Object;
 			for (func in everyFrameRun) {
 				
@@ -175,11 +204,26 @@ package src
 			checkBeat();
 		}
 		
+		private var fpsLastTime:uint = 0;
+		private var fpsFrameCounter:int = 0;
+		
 		/**
-		 * Check if enough time has passed to run the quarter beat or third beat functions.
+		 * Check if enough time has passed to run the quarter beat or third beat functions,
+		 * or the consistent frame functions.
 		 */
 		private function checkBeat():void {
 			var rightNow:uint = getTimer();
+			
+			fpsFrameCounter++;
+			if (fpsFrameCounter >= 10) {
+				fpsFrameCounter = 0;
+				if (GameUI.fps_counter.visible) {
+					var currentFPS:Number = (1 / ((rightNow - fpsLastTime) / 10 ) * 1000);
+					GameUI.fps_counter.text = "FPS: " + currentFPS.toPrecision(4);
+					trace("FPS: " + currentFPS.toPrecision(4));
+				}
+				fpsLastTime = rightNow;
+			}
 			
 			//Resync beat time.
 			while (rightNow - beatTime > millisecondsPerBeat) {
@@ -208,6 +252,14 @@ package src
 					(func as Function).call();
 				}
 				thirdCount++;
+			}
+			
+			//And the consistent frame functions.
+			while (rightNow - frameTime > MILLIS_PER_FRAME) {
+				for (func in consistentEveryFrameRun) {
+					(func as Function).call();
+				}
+				frameTime += MILLIS_PER_FRAME;
 			}
 		}
 	}

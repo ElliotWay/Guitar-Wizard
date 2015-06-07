@@ -1,5 +1,6 @@
 package src 
 {
+	import flash.concurrent.Mutex;
 	import flash.display.Sprite;
 	
 	/**
@@ -14,6 +15,8 @@ package src
 
 		private var trimmable:Vector.<TrimmedNote>;
 		
+		private var rendered:Boolean;
+		
 		/**
 		 * Create a block of notes from a vector of notes.
 		 * @param	notes  the notes to use to create this block
@@ -26,6 +29,11 @@ package src
 			_notes = notes.concat();
 			index = 0;
 			
+			rendered = false;
+			
+			
+			//The notes at the very end may be candidates for trimming.
+			
 			var lastF:Note = null;
 			var lastD:Note = null;
 			var lastS:Note = null;
@@ -33,35 +41,22 @@ package src
 			
 			for each(var note:Note in notes) {
 					
-				//Create note image
-				var noteSprite:NoteSprite = new NoteSprite(note);
-				
 				//Choose which line
 				var yPosition:int = 0;
 				if (note.letter == Note.NOTE_F) {
-					yPosition = (1 / 5) * MusicArea.HEIGHT;
 					lastF = note;
 				}
 				if (note.letter == Note.NOTE_D) {
-					yPosition = (2 / 5) * MusicArea.HEIGHT;
 					lastD = note;
 				}
 				if (note.letter == Note.NOTE_S) {
-					yPosition = (3 / 5) * MusicArea.HEIGHT;
 					lastS = note;
 				}
 				if (note.letter == Note.NOTE_A) {
-					yPosition = (4 / 5) * MusicArea.HEIGHT;
 					lastA = note;
 				}
-				
-				//Place the note
-				this.addChild(noteSprite);
-				noteSprite.x = note.time * MusicArea.POSITION_SCALE;
-				noteSprite.y = yPosition;
 			}
 			
-			//The notes at the very end may be candidates for trimming.
 			trimmable = new Vector.<TrimmedNote>();
 			
 			checkIfTrimmable(lastF, blockEnd);
@@ -87,12 +82,68 @@ package src
 		}
 		
 		/**
+		 * Add the note sprites to this block.
+		 * @param	noteSpriteFactory
+		 */
+		public function render(noteSpriteFactory:NoteSpriteFactory):void {
+			if (rendered)
+				return;
+				
+			for each(var note:Note in _notes) {
+					
+				//Create note image
+				var noteSprite:NoteSprite = noteSpriteFactory.create(note);
+				
+				//Choose which line
+				var yPosition:int = 0;
+				if (note.letter == Note.NOTE_F) {
+					yPosition = (1 / 5) * MusicArea.HEIGHT;
+				}
+				if (note.letter == Note.NOTE_D) {
+					yPosition = (2 / 5) * MusicArea.HEIGHT;
+				}
+				if (note.letter == Note.NOTE_S) {
+					yPosition = (3 / 5) * MusicArea.HEIGHT;
+				}
+				if (note.letter == Note.NOTE_A) {
+					yPosition = (4 / 5) * MusicArea.HEIGHT;
+				}
+				
+				//Place the note
+				this.addChild(noteSprite);
+				noteSprite.x = note.time * MusicArea.POSITION_SCALE;
+				noteSprite.y = yPosition;
+			}
+			
+			rendered = true;
+		}
+		
+		/**
+		 * Remove the note sprites from this block.
+		 * @param	noteSpriteFactory
+		 */
+		public function derender(noteSpriteFactory:NoteSpriteFactory):void {
+			if (!rendered)
+				return;
+				
+			for each (var note:Note in _notes) {
+				var sprite:NoteSprite = note.sprite;
+				this.removeChild(sprite);
+				noteSpriteFactory.destroy(sprite);
+			}
+			
+			rendered = false;
+		}
+		
+		/**
 		 * Searches for a matching note, and hits it if one is found.
 		 * @param	letter the letter to search for
 		 * @param	time the approximate time to search for
 		 * @return  the hit note, or null if none was found
 		 */
 		public function findHit(letter:int, time:Number):Note {
+			var out:Note = null;
+			
 			for (var i:int = index; i < _notes.length; i++) {
 				var note:Note = _notes[i];
 				
@@ -101,16 +152,17 @@ package src
 							
 					note.hit();
 					
-					return note;
+					out = note;
+					
+					break;
 					
 					//Skip the rest once we're clearly past where a hit might be.
 				} else if (note.time - time > GameUI.HIT_TOLERANCE) {
-					return null;
+					break;
 				}
 			}
 			
-			//There were no matches, so return null.
-			return null;
+			return out;
 		}
 		
 		/**

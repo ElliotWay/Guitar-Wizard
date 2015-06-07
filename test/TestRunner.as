@@ -1,5 +1,6 @@
 package test
 {
+import flash.display.DisplayObject;
 import flash.display.Sprite;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
@@ -16,6 +17,7 @@ import org.flexunit.runner.FlexUnitCore;
 import org.fluint.uiImpersonation.VisualTestEnvironmentBuilder;
 import src.Actor;
 import src.ActorSprite;
+import src.GameUI;
 import src.MiniSprite;
 import src.Note;
 import src.NoteSprite;
@@ -51,7 +53,7 @@ public class TestRunner extends Sprite
 		classNames.push(ActorFactoryTest);
 		classNames.push(ActorSpriteTest);
 		classNames.push(ActorTest);
-		classNames.push(ArcherTest);
+		//classNames.push(ArcherTest);
 		classNames.push(AssassinTest);
 		classNames.push(ClericTest);
 		classNames.push(FrameAnimationTest);
@@ -61,11 +63,12 @@ public class TestRunner extends Sprite
 		classNames.push(NoteSpriteTest);
 		classNames.push(NoteTest);
 		classNames.push(ProjectileTest);
-		classNames.push(RepeaterTest);
+		//classNames.push(RepeaterTest);
 		classNames.push(ReuseManagerTest);
 		classNames.push(ScrollAreaTest);
 		classNames.push(SongLoaderTest);
 		classNames.push(SongTest);
+		classNames.push(SummoningMeterTest);
 		classNames.push(TestTest);
 		classNames.push(TrimmedNoteTest);
 //%%%%
@@ -73,6 +76,7 @@ public class TestRunner extends Sprite
 		var dispatcher:IEventDispatcher = prepare(
 			ActorSprite,
 			Actor,
+			GameUI,
 			MiniSprite,
 			Note,
 			NoteSprite,

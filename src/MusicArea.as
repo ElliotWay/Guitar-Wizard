@@ -72,13 +72,22 @@ package  src
 		private var notesLayer:Sprite;
 		private var scroll:TweenLite;
 		
+		private var noteSpriteFactory:NoteSpriteFactory;
+		
 		private var gameUI:GameUI;
 		private var summoningMeterFill:SummoningMeterFill;
+		
+		public function get currentTrack():int 
+		{
+			return _currentTrack;
+		}
 		
 		public function MusicArea(gameUI:GameUI, summoningMeterFill:SummoningMeterFill) 
 		{
 			this.gameUI = gameUI;
 			this.summoningMeterFill = summoningMeterFill;
+			
+			noteSpriteFactory = new NoteSpriteFactory();
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -132,6 +141,33 @@ package  src
 			gradient.graphics.drawRect(0, 0, WIDTH + GRADIENT_WIDTH, HEIGHT);
 			
 			return gradient;
+		}
+		
+		/**
+		 * Make sure the upcoming notes are rendered, and notes already past are not.
+		 * @param	currentTime notes close to this time will be rendered.
+		 */
+		public function checkRendering(currentTime:Number):void {
+			
+			var previousBlock:int = currentBlock;
+			updateCurrentBlock(currentTime);
+			
+			if (previousBlock < currentBlock) {
+				if (previousBlock != 0) {
+					var blockIndex:int;
+					
+					//Leave the block before the current block there in case any notes
+					//from it are still visible.
+					for (blockIndex = previousBlock - 1; blockIndex < currentBlock - 1; blockIndex++) {
+						blockQueue[blockIndex].derender(noteSpriteFactory);
+					}	
+				}
+				
+				blockQueue[currentBlock].render(noteSpriteFactory);
+				if (currentBlock + 1 < blockQueue.length) {
+					blockQueue[currentBlock + 1].render(noteSpriteFactory);
+				}
+			}
 		}
 		
 		/**
@@ -229,7 +265,9 @@ package  src
 			}
 			for (var index:int = switchIndex; index < blockQueue.length; index++) {
 				blockQueue[index].visible = false;
+				blockQueue[index].derender(noteSpriteFactory);
 				trackList[index].visible = true;
+				trackList[index].render(noteSpriteFactory);
 				blockQueue[index] = trackList[index];
 			}
 			
@@ -394,7 +432,7 @@ package  src
 			
 			blocks = song.blocks;
 			
-			var noteBlock:Sprite;
+			var noteBlock:NoteBlock;
 			
 			for each (noteBlock in lowNotes) {
 				notesLayer.addChild(noteBlock);
@@ -413,6 +451,9 @@ package  src
 			
 			blockQueue = midNotes.concat(); //Concat without args creates a shallow copy.
 			currentBlock = 0;
+			midNotes[0].render(noteSpriteFactory);
+			if (midNotes.length > 1)
+				midNotes[1].render(noteSpriteFactory);
 			
 			notesLayer.x = HIT_LINE + Main.VIDEO_LAG * POSITION_SCALE + position_offset;
 			this.addChild(notesLayer);
@@ -450,7 +491,13 @@ package  src
 		 * Starts scrolling the notes leftwards.
 		 */
 		public function go():void {
+			//Hack to make notesLayer have the correct width.
+			var lastBlock:NoteBlock = midNotes[midNotes.length - 1];
+			lastBlock.render(noteSpriteFactory);
+			
 			scroll = new TweenLite(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
+			
+			lastBlock.derender(noteSpriteFactory);
 			
 			background.addChild(highToMid); //Moves highToMid to front.
 			highToMid.x = -GRADIENT_WIDTH;
@@ -470,13 +517,22 @@ package  src
 		public function stop():void {
 			scroll.kill();
 			
-			var block:Sprite;
-			var thing:DisplayObject;
-			
 			this.removeChild(notesLayer);
 			
+			//Make sure all the notes are derendered.
+			var noteBlock:NoteBlock;
+			for each (noteBlock in lowNotes)
+				noteBlock.derender(noteSpriteFactory);
+			for each (noteBlock in midNotes)
+				noteBlock.derender(noteSpriteFactory);
+			for each (noteBlock in highNotes)
+				noteBlock.derender(noteSpriteFactory);
+				
+			lowNotes.splice(0, lowNotes.length);
 			lowNotes = null;
+			midNotes.splice(0, midNotes.length);
 			midNotes = null;
+			highNotes.splice(0, highNotes.length);
 			highNotes = null;
 			
 			notesLayer = null;
@@ -488,11 +544,6 @@ package  src
 		 */
 		public function getPosition():Number {
 			return notesLayer.x;
-		}
-		
-		public function get currentTrack():int 
-		{
-			return _currentTrack;
 		}
 	}
 

@@ -107,7 +107,6 @@ package src
 		}
 		
 		public function increase(amount:Number):void {
-			
 			var time:Number = 1000 * ((amount / 100) * meterLength) / BASE_SPEED;
 			
 			appendToIncreaseQueue(time);
@@ -116,7 +115,6 @@ package src
 		}
 		
 		public function decrease(amount:Number):void {
-			
 			var time:Number = 1000 * ((amount / 100) * meterLength) / BASE_SPEED;
 			
 			appendToDecreaseQueue(time);
@@ -195,6 +193,8 @@ package src
 		private function finishDecreaseQueue(event:Event):void {
 			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, finishDecreaseQueue);
 			changeRate += BASE_SPEED;
+			proceed();
+			
 			decreaseQueue.shift();
 		}
 		
@@ -226,8 +226,11 @@ package src
 							
 							proceed();
 						} } );
-			} else if (changeRate < 0 && fill.x > minMeter) {
-				distance = minMeter - fill.x; //This value will be negative, but so is changeRate.
+			} else if (changeRate < 0 && fill.y < minMeter) {
+				distance = fill.y - minMeter; //This value will be negative, but so is changeRate.
+				
+				if (changer != null)
+					changer.kill();
 				
 				changer = new TweenLite(fill, distance / changeRate,
 						{y:minMeter, ease:Linear.easeInOut} );

@@ -125,7 +125,7 @@ package src {
 		private function spawnArrow(event:Event):void {
 			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
 			
-			var targetPosition/*:Point;
+			var targetPosition:Point/*
 			if (Math.abs(getPosition().x - currentShootingTarget.getPosition().x) < skirmishDistance) {
 				targetPosition = isPlayerPiece ? Projectile.SHOOT_RIGHT : Projectile.SHOOT_LEFT;
 			} else {

@@ -32,10 +32,9 @@ package src
 		}
 		
 		/**
-		 * Remove this note's association with a sprite, and its association with this note.
+		 * Remove this note's association with a sprite (the sprite may still have a refence).
 		 */
 		public function dissociate():void {
-			associatedSprite.dissociate();
 			associatedSprite = null;
 		}
 		

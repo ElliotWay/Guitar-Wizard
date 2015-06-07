@@ -195,15 +195,10 @@ package src
 			opponentWizardKillerTimer = new Timer(WIZARD_KILL_DELAY, 1);
 			opponentWizardKillerTimer.addEventListener(TimerEvent.TIMER_COMPLETE, startOpponentWizardKiller);
 			
-			var note:Note = new Note();
-			note.letter = Note.NOTE_F;
-			note.time = 0;
-			note.endtime = -1;
-			note.isHold = false;
-			var noteSprite:NoteSprite = new NoteSprite(note);
-			this.addChild(noteSprite);
-			noteSprite.x = 40;
-			noteSprite.y = 40;
+			var noteFSprite:NoteSprite = new NoteSprite(Note.NOTE_F);
+			this.addChild(noteFSprite);
+			noteFSprite.x = 40;
+			noteFSprite.y = 40;
 		}
 		
 		private function prepMinimap(minimap:Sprite):void {

@@ -58,30 +58,6 @@ package  src
 			}
 		}
 		
-		/**
-		 * Disconnect this song from any note sprites.
-		 */
-		public function dissociate():void {
-			var note:Note;
-			var block:Vector.<Note>;
-			
-			for each (block in _lowPart) {
-				for each (note in block) {
-					note.dissociate();
-				}
-			}
-			for each (block in _midPart) {
-				for each (note in block) {
-					note.dissociate();
-				}
-			}
-			for each (block in _highPart) {
-				for each (note in block) {
-					note.dissociate();
-				}
-			}
-		}
-		
 		private function fileError(e:Event):void {
 			Main.showError("Error loading file");
 		}
