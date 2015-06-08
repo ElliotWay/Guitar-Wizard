@@ -42,7 +42,8 @@ package src
 			
 			note.endtime = newEndTime;
 			
-			note.sprite.refresh();
+			if (note.sprite != null)
+				note.sprite.refresh();
 		}
 		
 		/**
@@ -53,7 +54,8 @@ package src
 			
 			note.endtime = oldEndTime;
 			
-			note.sprite.refresh();
+			if (note.sprite != null)
+				note.sprite.refresh();
 		}
 		
 	}

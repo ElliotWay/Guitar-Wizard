@@ -155,6 +155,8 @@ package src {
 			fps_counter.x = 4;
 			fps_counter.y = 4;
 			fps_counter.visible = false;
+			
+			_repeater.runEveryFrame(continueSplitActions);
 		}
 		
 		/**
@@ -296,6 +298,10 @@ package src {
 				
 				comboCounter = 0;
 			}
+		}
+		
+		private function continueSplitActions():void {
+			musicArea.continueSplitActions();
 		}
 		
 		/**

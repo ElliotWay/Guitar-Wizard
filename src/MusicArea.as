@@ -43,10 +43,15 @@ package  src
 		private var midNotes:Vector.<NoteBlock>;
 		private var lowNotes:Vector.<NoteBlock>;
 		
+		private var lateMostTime:int;
+		
 		private var blockQueue:Vector.<NoteBlock>;
 		
 		private var currentBlock:int;
 		private var blocks:Vector.<Number>;
+		
+		private var lastRenderingBlock:int;
+		private var currentlyRenderingBlocks:Vector.<NoteBlock>;
 		
 		private var _currentTrack:int;
 		private var nextTrack:int;
@@ -88,6 +93,8 @@ package  src
 			this.summoningMeterFill = summoningMeterFill;
 			
 			noteSpriteFactory = new NoteSpriteFactory();
+			
+			currentlyRenderingBlocks = new Vector.<NoteBlock>();
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -143,31 +150,106 @@ package  src
 			return gradient;
 		}
 		
+		public function continueSplitActions():void {
+			var index:int = currentlyRenderingBlocks.length - 1;
+			while (index >= 0) {
+				currentlyRenderingBlocks[index].continueSplitActions();
+				
+				if (!currentlyRenderingBlocks[index].isMidRender) {
+					currentlyRenderingBlocks.splice(index, 1);
+				}
+				
+				index--;
+			}
+		}
+		
 		/**
 		 * Make sure the upcoming notes are rendered, and notes already past are not.
 		 * @param	currentTime notes close to this time will be rendered.
 		 */
 		public function checkRendering(currentTime:Number):void {
+			//We need to do 3 things: derender blocks that are 2 blocks before,
+			//render all blocks coming up, and derender current blocks of other tracks.
+			//The blocks look like this:
+			//        0 0 0 D R 0        (high)
+			//    ... 0 D 1 1 R 0 ...    (mid)
+			//        0 0 0 D R 0        (low)
+			//            | |
+			//            | - currentBlock
+			//            - lastRenderingBlock (hopefully)
+			// Where 1 means currently rendered, 0 means currently not rendered, R means
+			// render now, and D means derender now.
+			// If lag has occured, we may need to derender more blocks.
 			
-			var previousBlock:int = currentBlock;
 			updateCurrentBlock(currentTime);
 			
-			if (previousBlock < currentBlock) {
-				if (previousBlock != 0) {
-					var blockIndex:int;
-					
-					//Leave the block before the current block there in case any notes
-					//from it are still visible.
-					for (blockIndex = previousBlock - 1; blockIndex < currentBlock - 1; blockIndex++) {
-						blockQueue[blockIndex].derender(noteSpriteFactory);
-					}	
+			if (lastRenderingBlock < currentBlock) {
+				
+				var blockIndex:int, block:NoteBlock;
+				var alreadyRendering:Boolean;
+				
+				//Derender old blocks.
+				for (blockIndex = Math.max(0, lastRenderingBlock - 1);
+											blockIndex < currentBlock - 1; blockIndex++) {
+					derenderBlock(blockQueue[blockIndex]);
 				}
 				
-				blockQueue[currentBlock].render(noteSpriteFactory);
-				if (currentBlock + 1 < blockQueue.length) {
-					blockQueue[currentBlock + 1].render(noteSpriteFactory);
+				//Derender blocks of different tracks that aren't needed.
+				for (blockIndex = lastRenderingBlock + 1; blockIndex < currentBlock + 1; blockIndex++ ) {
+					
+					//We don't want to derender blocks that are still in the queue,
+					//they will be / are already being derendered in the step above.
+					var queueBlock:NoteBlock = blockQueue[blockIndex];
+					
+					if (highNotes[blockIndex] != queueBlock) {
+						derenderBlock(highNotes[blockIndex]);
+					}
+					
+					if (midNotes[blockIndex] != queueBlock) {
+						derenderBlock(midNotes[blockIndex]);
+					}
+					
+					if (lowNotes[blockIndex] != queueBlock) {
+						derenderBlock(lowNotes[blockIndex]);
+					}
+					
 				}
+				
+				//Render the upcoming blocks.
+				//(If the current one isn't rendered, it's too late; oh, well.)
+				if (currentBlock + 1 < blockQueue.length) {
+					renderBlock(highNotes[currentBlock + 1]);
+					renderBlock(midNotes[currentBlock + 1]);
+					renderBlock(lowNotes[currentBlock + 1]);
+				}
+				
+				lastRenderingBlock = currentBlock;
 			}
+		}
+		
+		//TODO Inline these later.
+		/**
+		 * Call derender on the block, and add it to the currentlyRenderingBlocks list
+		 * if it wasn't already rendering.
+		 * @param	block
+		 */
+		private final function derenderBlock(block:NoteBlock):void {
+			var alreadyRendering:Boolean = block.isMidRender;
+			block.derender(noteSpriteFactory);
+			if (!alreadyRendering)
+				currentlyRenderingBlocks.push(block);
+		}
+		
+		/**
+		 * Call render on the block, and add it to the currentlyRenderingBlocks list
+		 * if it wasn't already rendering.
+		 * @param	block
+		 */
+		private final function renderBlock(block:NoteBlock):void {
+			var alreadyRendering:Boolean = block.isMidRender;
+			block.render(noteSpriteFactory);
+			if (!alreadyRendering)
+				currentlyRenderingBlocks.push(block);
 		}
 		
 		/**
@@ -265,9 +347,7 @@ package  src
 			}
 			for (var index:int = switchIndex; index < blockQueue.length; index++) {
 				blockQueue[index].visible = false;
-				blockQueue[index].derender(noteSpriteFactory);
 				trackList[index].visible = true;
-				trackList[index].render(noteSpriteFactory);
 				blockQueue[index] = trackList[index];
 			}
 			
@@ -426,6 +506,21 @@ package  src
 		public function loadNotes(song:Song):void {
 			notesLayer = new Sprite();
 			
+			//Determine which note is the latest, so we know where to move the notesLayer later.
+			lateMostTime = 0;
+			var note:Note;
+			var lastIndex:int = song.lowPart.length - 1;
+			for each (note in song.lowPart[lastIndex]) {
+				if (note.isHold) {
+					if (note.endtime > lateMostTime)
+						lateMostTime = note.endtime;
+				} else {
+					if (note.time > lateMostTime)
+						lateMostTime = note.time;
+				}
+			}
+			
+			//Create the groups of note blocks.
 			lowNotes = createNotesImage(song.lowPart, song.blocks);
 			midNotes = createNotesImage(song.midPart, song.blocks);
 			highNotes = createNotesImage(song.highPart, song.blocks);
@@ -451,9 +546,14 @@ package  src
 			
 			blockQueue = midNotes.concat(); //Concat without args creates a shallow copy.
 			currentBlock = 0;
-			midNotes[0].render(noteSpriteFactory);
-			if (midNotes.length > 1)
-				midNotes[1].render(noteSpriteFactory);
+			
+			//Render intial blocks.
+			renderBlock(midNotes[0]);
+			if (blocks.length >= 1) {
+				renderBlock(lowNotes[1]);
+				renderBlock(midNotes[1]);
+				renderBlock(highNotes[1]);
+			}
 			
 			notesLayer.x = HIT_LINE + Main.VIDEO_LAG * POSITION_SCALE + position_offset;
 			this.addChild(notesLayer);
@@ -470,16 +570,16 @@ package  src
 		 * @param   blocks a vector of times about which to separate the notes into blocks
 		 * @return the image of notes
 		 */
-		public static function createNotesImage(notes:Vector.<Vector.<Note>>, blocks:Vector.<Number>):Vector.<NoteBlock> {
+		private function createNotesImage(notes:Vector.<Vector.<Note>>, blocks:Vector.<Number>):Vector.<NoteBlock> {
 			var noteBlocks:Vector.<NoteBlock> = new Vector.<NoteBlock>();
 
 			var notesImage:NoteBlock;
 			for (var index:int = 0; index < notes.length; index++)
 			{
 				if (index == blocks.length)
-					notesImage = new NoteBlock(notes[index], Number.MAX_VALUE);
+					notesImage = new NoteBlock(notes[index], Number.MAX_VALUE, noteSpriteFactory);
 				else
-					notesImage = new NoteBlock(notes[index], blocks[index]);
+					notesImage = new NoteBlock(notes[index], blocks[index], noteSpriteFactory);
 				
 				noteBlocks.push(notesImage);
 			}
@@ -491,13 +591,9 @@ package  src
 		 * Starts scrolling the notes leftwards.
 		 */
 		public function go():void {
-			//Hack to make notesLayer have the correct width.
-			var lastBlock:NoteBlock = midNotes[midNotes.length - 1];
-			lastBlock.render(noteSpriteFactory);
+			var maxTime:Number = lateMostTime + 1000; //Add an extra second to be sure we're past it.
 			
-			scroll = new TweenLite(notesLayer, ((notesLayer.width * 2) / POSITION_SCALE) / 1000, { x: -notesLayer.width * 2 + notesLayer.x, ease: Linear.easeOut } );
-			
-			lastBlock.derender(noteSpriteFactory);
+			scroll = new TweenLite(notesLayer, maxTime / 1000, { x: -(maxTime * POSITION_SCALE) + notesLayer.x, ease: Linear.easeOut } );
 			
 			background.addChild(highToMid); //Moves highToMid to front.
 			highToMid.x = -GRADIENT_WIDTH;
@@ -506,6 +602,7 @@ package  src
 			_currentTrack = Main.MID;
 			nextTrack = Main.MID;
 			nextNextTrack = Main.MID;
+			lastRenderingBlock = 0;
 			
 			switchTimer = null;
 			advanceTimer = null;
@@ -518,15 +615,14 @@ package  src
 			scroll.kill();
 			
 			this.removeChild(notesLayer);
-			
 			//Make sure all the notes are derendered.
 			var noteBlock:NoteBlock;
 			for each (noteBlock in lowNotes)
-				noteBlock.derender(noteSpriteFactory);
+				derenderBlock(noteBlock);
 			for each (noteBlock in midNotes)
-				noteBlock.derender(noteSpriteFactory);
+				derenderBlock(noteBlock);
 			for each (noteBlock in highNotes)
-				noteBlock.derender(noteSpriteFactory);
+				derenderBlock(noteBlock);
 				
 			lowNotes.splice(0, lowNotes.length);
 			lowNotes = null;

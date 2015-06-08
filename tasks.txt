@@ -9,6 +9,8 @@
 
 - fix summoning meter not going down
 
+- splitting render
+ - inline function, stopping with proper list usage
 
 
 ---Should do at some point.----------------
@@ -35,6 +37,8 @@
 - sync Repeater to Music Player instead
 
 - possible to cheat by holding down holds infinitely?
+
+- make Wizard strum on chords instead of notes
 
 
 ---Bugs.-------------------	

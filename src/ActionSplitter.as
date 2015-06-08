@@ -34,18 +34,18 @@ package src
 		}
 		
 		/**
-		 * Start the split action.
+		 * Start the split action. Doing this while processing is ongoing will start
+		 * the processing over.
 		 * @param	numIndices the number of indices to process at once.
 		 * @param   startIteration whether to do an iteration right away
 		 * @return 	whether the split action is <em>already</em> done, if startIteration was true
 		 */
 		public function start(numIndices:int, startIteration:Boolean = true):Boolean {
-			if (_processing)
-				throw new GWError("Can't start a split action that is already ongoing.");
-			
-			this.numIndices = numIndices;
+			this.numIndices = Math.max(1, numIndices);
 			startIndex = 0;
 			endIndex = numIndices;
+			
+			_processing = true;
 				
 			if (startIteration)
 				return doAction();
@@ -59,7 +59,7 @@ package src
 		 */
 		public function doAction():Boolean {
 			if (!_processing)
-				return;
+				return true; //The action was already finished.
 			
 			var stillProcessing:Boolean = func.call(null, startIndex, endIndex);
 			
@@ -70,7 +70,15 @@ package src
 				_processing = false;
 			}
 			
-			return retVal;
+			return _processing;
+		}
+		
+		/**
+		 * Calls to doAction after this will return true and do nothing,
+		 * and calls to processing will return false.
+		 */
+		public function stop():void {
+			_processing = false;
 		}
 	}
 
