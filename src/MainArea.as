@@ -197,6 +197,8 @@ package src
 			
 			var noteFSprite:NoteSprite = new NoteSprite(Note.NOTE_F);
 			this.addChild(noteFSprite);
+			use namespace factory;
+			noteFSprite.restore(repeater);
 			noteFSprite.x = 40;
 			noteFSprite.y = 40;
 		}

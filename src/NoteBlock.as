@@ -106,7 +106,7 @@ package src
 		 * Add the note sprites to this block.
 		 * @param	noteSpriteFactory
 		 */
-		public function render(noteSpriteFactory:NoteSpriteFactory):void {
+		public function render():void {
 			if (rendered)
 				return;
 			rendered = true;
@@ -158,7 +158,7 @@ package src
 		 * Remove the note sprites from this block.
 		 * @param	noteSpriteFactory
 		 */
-		public function derender(noteSpriteFactory:NoteSpriteFactory):void {
+		public function derender():void {
 			if (!rendered)
 				return;
 			rendered = false;
@@ -191,7 +191,7 @@ package src
 		 * @param	time the approximate time to search for
 		 * @return  the hit note, or null if none was found
 		 */
-		public function findHit(letter:int, time:Number):Note {
+		public function findHit(letter:int, time:Number, repeater:Repeater):Note {
 			var out:Note = null;
 			
 			for (var i:int = index; i < _notes.length; i++) {
@@ -200,7 +200,7 @@ package src
 				if (note.letter == letter && !note.isHit()
 						&& Math.abs(note.time - time) < GameUI.HIT_TOLERANCE) {
 							
-					note.hit();
+					note.hit(repeater);
 					
 					out = note;
 					
@@ -220,7 +220,7 @@ package src
 		 * @param	time the current time, the actual cutoff time is slightly less
 		 * @return  whether a note was missed
 		 */
-		public function missUntil(time:Number):Boolean {
+		public function missUntil(time:Number, repeater:Repeater):Boolean {
 			var noteMissed:Boolean = false;
 			
 			var cutOffTime:Number = time - GameUI.HIT_TOLERANCE - 50; //Extra, just to be sure.
@@ -229,7 +229,7 @@ package src
 				var note:Note = _notes[index];
 				
 				if (!note.isHit()) {
-					note.miss();
+					note.miss(repeater);
 					noteMissed = true;
 				}
 				

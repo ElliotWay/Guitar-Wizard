@@ -284,7 +284,7 @@ package src
 		}
 		
 		/**
-		 * Play animation.
+		 * Play animation. Restarts if already playing.
 		 * @param	repeater repeater to control frame stepping (this can be null if the animation is on_step)
 		 */
 		public function go(repeater:Repeater):void {
@@ -350,6 +350,10 @@ package src
 			frames[frameIndex].visible = true;
 		}
 		
+		/**
+		 * Stop the animation. Does nothing if not playing.
+		 * @param	repeater
+		 */
 		public function stop(repeater:Repeater):void {
 			if (_isRunning) {
 				if (frequency == EVERY_FRAME || frequency == EVERY_OTHER_FRAME) {

@@ -2,6 +2,8 @@ package src
 {
 	import com.greensock.easing.ElasticOut;
 	import com.greensock.easing.Linear;
+	import com.greensock.easing.Power1;
+	import com.greensock.easing.Power3;
 	import com.greensock.TweenLite;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
@@ -31,7 +33,7 @@ package src
 		 * Starting speed at which the meter advances.
 		 * pxl/s
 		 */
-		public static const BASE_SPEED:Number = 75; //100
+		public static const BASE_SPEED:Number = 75; //75
 		
 		private var ui:GameUI;
 		private var overlay:DisplayObject;
@@ -221,7 +223,7 @@ package src
 					changer.kill();
 				
 				changer = new TweenLite(fill, distance / changeRate,
-						{y:maxMeter, ease:Linear.easeInOut, onComplete:function():void {
+						{y:maxMeter, ease:Power3.easeOut, onComplete:function():void {
 							ui.preparePlayerSummon();
 							
 							proceed();
@@ -233,7 +235,7 @@ package src
 					changer.kill();
 				
 				changer = new TweenLite(fill, distance / changeRate,
-						{y:minMeter, ease:Linear.easeInOut} );
+						{y:minMeter, ease:Power3.easeOut} );
 			}
 		}
 	}

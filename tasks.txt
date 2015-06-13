@@ -7,10 +7,9 @@
 
 - make Archers lock onto shield
 
-- fix summoning meter not going down
+- fix summoning meter bugs
 
-- splitting render
- - inline function, stopping with proper list usage
+- hold animation looks weird?
 
 
 ---Should do at some point.----------------
@@ -25,7 +24,6 @@
 - create better shield sprite
 
 - object reuse: Projectiles?
-- object reuse: NoteSprites? they're easy to redraw, after all
 - object reuse: other? that's most of them really, maybe cut down on the number of vectors or something
 
 - get rid of MainArea.mainArea
@@ -39,6 +37,8 @@
 - possible to cheat by holding down holds infinitely?
 
 - make Wizard strum on chords instead of notes
+
+- split miss checking and actor processing
 
 
 ---Bugs.-------------------	
@@ -58,7 +58,7 @@
 	
 - sometimes multiple tracks play at once after reswitching
 
-- timing on restart was slightly off? possibly due to memory leaks?
+- timing on restart was slightly off? possibly due to memory leaks? no, I don't think so
 
 - background transitions still have some bugs
 
@@ -81,7 +81,8 @@
 - test-unbacked classes: **GameUI**
 	*AnimationCollection*, ArcherSprite, AssassinSprite, ClericSprite, DefaultOpponent,
 	DefaultSprite, InfoArea, Lightning, Main, Menu, MenuTextButton, OpponentStrategy,
-	Shield, ShieldSprite, SoundPlayer, Status, *SummoningMeter*, Wizard, WizardSprite
+	Shield,  SoundPlayer, *SummoningMeter*, Wizard, WizardSprite
+	ActorFactory, NoteSpriteFactory, TimeCounter
 
 - untested stuff:
 	arrows created by shooting<Archer>
@@ -96,8 +97,8 @@
 	*projectile will finish if too low*<Projectile>
 	
 - classes that definitely don't need tests, because they are just data
-	EmptyAnimation, GWError, MiniSprite, SmallCircleSprite, SmallSquareSprite,
-	SmallTriangleSprite, ThinLineSprite, WizardMiniSprite
+	EmptyAnimation, GWError, MiniSprite, NoteSpriteAnimationCreator, ShieldSprite, SmallCircleSprite,
+	SmallSquareSprite, SmallTriangleSprite, Status, ThinLineSprite, WizardMiniSprite
 	
 
 ---Completed.---------------
@@ -173,5 +174,7 @@
 	inefficient way of handling it, means that I really need to do it differently	
 - create more frames, they just look better that way - some tweaking still needed
 - tempo is off? Timers are unreliable
+- object reuse: NoteSprites
 - animate note sprites
 - make new notes as they get closer so you don't need to step through frames on so many
+- splitting render

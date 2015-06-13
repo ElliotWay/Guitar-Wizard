@@ -43,7 +43,7 @@ package src
 		public function start(numIndices:int, startIteration:Boolean = true):Boolean {
 			this.numIndices = Math.max(1, numIndices);
 			startIndex = 0;
-			endIndex = numIndices;
+			endIndex = this.numIndices;
 			
 			_processing = true;
 				
@@ -55,11 +55,11 @@ package src
 		
 		/**
 		 * Continue the split action. Does nothing if the action has not been started.
-		 * @return whether the split action is finished.
+		 * @return whether the split action is still ongoing
 		 */
 		public function doAction():Boolean {
 			if (!_processing)
-				return true; //The action was already finished.
+				return false; //The action was already finished.
 			
 			var stillProcessing:Boolean = func.call(null, startIndex, endIndex);
 			

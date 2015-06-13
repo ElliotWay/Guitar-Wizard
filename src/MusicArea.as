@@ -80,6 +80,7 @@ package  src
 		private var noteSpriteFactory:NoteSpriteFactory;
 		
 		private var gameUI:GameUI;
+		private var repeater:Repeater;
 		private var summoningMeterFill:SummoningMeterFill;
 		
 		public function get currentTrack():int 
@@ -90,9 +91,9 @@ package  src
 		public function MusicArea(gameUI:GameUI, summoningMeterFill:SummoningMeterFill) 
 		{
 			this.gameUI = gameUI;
+			this.repeater = gameUI.repeater;
 			this.summoningMeterFill = summoningMeterFill;
-			
-			noteSpriteFactory = new NoteSpriteFactory();
+			noteSpriteFactory = new NoteSpriteFactory(repeater);
 			
 			currentlyRenderingBlocks = new Vector.<NoteBlock>();
 			
@@ -233,21 +234,22 @@ package  src
 		 * if it wasn't already rendering.
 		 * @param	block
 		 */
+		[Inline]
 		private final function derenderBlock(block:NoteBlock):void {
 			var alreadyRendering:Boolean = block.isMidRender;
-			block.derender(noteSpriteFactory);
+			block.derender();
 			if (!alreadyRendering)
 				currentlyRenderingBlocks.push(block);
 		}
-		
 		/**
 		 * Call render on the block, and add it to the currentlyRenderingBlocks list
 		 * if it wasn't already rendering.
 		 * @param	block
 		 */
+		[Inline]
 		private final function renderBlock(block:NoteBlock):void {
 			var alreadyRendering:Boolean = block.isMidRender;
-			block.render(noteSpriteFactory);
+			block.render();
 			if (!alreadyRendering)
 				currentlyRenderingBlocks.push(block);
 		}
@@ -262,9 +264,9 @@ package  src
 		public function hitNote(noteLetter:int, currentTime:Number):Note {
 			updateCurrentBlock(currentTime);
 			
-			var note:Note = blockQueue[currentBlock].findHit(noteLetter, currentTime);
+			var note:Note = blockQueue[currentBlock].findHit(noteLetter, currentTime, repeater);
 			if (note == null && currentBlock + 1 < blockQueue.length)
-				note = blockQueue[currentBlock + 1].findHit(noteLetter, currentTime);
+				note = blockQueue[currentBlock + 1].findHit(noteLetter, currentTime, repeater);
 				
 			return note;
 		}
@@ -277,9 +279,9 @@ package  src
 		public function missNotes(currentTime:Number):Boolean {
 			updateCurrentBlock(currentTime);
 			
-			var noteMissed:Boolean = blockQueue[currentBlock].missUntil(currentTime);
+			var noteMissed:Boolean = blockQueue[currentBlock].missUntil(currentTime, repeater);
 			if (currentBlock + 1 < blockQueue.length)
-				noteMissed ||= blockQueue[currentBlock + 1].missUntil(currentTime);
+				noteMissed ||= blockQueue[currentBlock + 1].missUntil(currentTime, repeater);
 				
 			return noteMissed;
 		}

@@ -43,7 +43,7 @@ package src {
 		//protected var controlArea:ControlArea;
 		
 		//Other output parts
-		protected var musicPlayer:MusicPlayer;
+		protected var _musicPlayer:MusicPlayer;
 		
 		protected var victoryScreen:Sprite;
 		protected var losingScreen:Sprite;
@@ -104,7 +104,7 @@ package src {
 			this.addChild(musicArea);
 			musicArea.x = 0; musicArea.y = 0;
 			
-			musicPlayer = new MusicPlayer(Main.MID, this);
+			_musicPlayer = new MusicPlayer(Main.MID, this);
 			
 			expectingHold = new <Boolean>[false, false, false, false];
 			currentHolds = new <Note>[null, null, null, null];
@@ -168,7 +168,7 @@ package src {
 		public function loadSong(song:Song):void {
 			this.song = song;
 			musicArea.loadNotes(song);
-			musicPlayer.loadMusic(song);
+			_musicPlayer.loadMusic(song);
 		}
 		
 		public function go():void {
@@ -204,7 +204,7 @@ package src {
 			opponentTimer.start();
 			
 			musicArea.go();
-			musicPlayer.go();
+			_musicPlayer.go();
 			
 			_repeater.runEveryFrame(missChecker);
 			
@@ -221,7 +221,7 @@ package src {
 			opponentTimer.stop();
 			
 			musicArea.stop();
-			musicPlayer.stop();
+			_musicPlayer.stop();
 			
 			//TODO derender all noteblocks
 			
@@ -237,7 +237,7 @@ package src {
 			if (opponentIsDefeated) {
 				victoryScreen.visible = true;
 			
-				musicPlayer.stop();
+				_musicPlayer.stop();
 			
 				recentQuitAttempt = true;
 			} else {
@@ -262,7 +262,7 @@ package src {
 			infoArea.displayText("You died.");
 			losingScreen.visible = true;
 			
-			musicPlayer.stop();
+			_musicPlayer.stop();
 			
 			recentQuitAttempt = true;
 		}
@@ -272,7 +272,7 @@ package src {
 			if (songIsFinished) {
 				victoryScreen.visible = true;
 			
-				musicPlayer.stop();
+				_musicPlayer.stop();
 			
 				recentQuitAttempt = true;
 			} else {
@@ -311,7 +311,7 @@ package src {
 		 * @param	e enter frame event
 		 */
 		public function missChecker():void {
-			var rightNow:Number = musicPlayer.getTime();
+			var rightNow:Number = _musicPlayer.getTime();
 						
 			musicArea.checkRendering(rightNow);
 			
@@ -319,7 +319,7 @@ package src {
 			
 			if (noteMissed) {
 				combo = 0;
-				musicPlayer.stopTrack();
+				_musicPlayer.stopTrack();
 			}
 		}
 		
@@ -344,14 +344,14 @@ package src {
 				return;
 			}
 				
-			var rightNow:Number = musicPlayer.getTime();
+			var rightNow:Number = _musicPlayer.getTime();
 			
 			var note:Note = musicArea.hitNote(noteLetter, rightNow);
 			
 			if (note != null) {
 				combo++;
 				
-				musicPlayer.resumeTrack();
+				_musicPlayer.resumeTrack();
 				
 				//If the note was a hold, we need to start hitting the hold.
 				if (note.isHold) {
@@ -373,8 +373,8 @@ package src {
 			} else {
 				summoningMeter.decrease(3);
 				
-				musicPlayer.stopTrack();
-				musicPlayer.playMissSound();
+				_musicPlayer.stopTrack();
+				_musicPlayer.playMissSound();
 			}
 		}
 		
@@ -407,14 +407,15 @@ package src {
 				
 				var currentHold:Note = currentHolds[noteLetter];
 				
-				var time:Number = musicPlayer.getTime();
+				var time:Number = _musicPlayer.getTime();
 				
 				//Check if we've missed the end of the hold.
 				if (Math.abs(currentHold.endtime - time) > HIT_TOLERANCE) {
-					currentHold.sprite.stopHolding();
 					goodEnd = false;
 				}
-				//If it ended well, the sprite will stop holding on its own.
+				//Stop the hold animation. If the hold animation has already stopped,
+				//it's just wasting cycles.
+				currentHold.sprite.stopHolding(repeater);
 				
 				var summonBaseAmount:Number;
 				if (musicArea.currentTrack == Main.HIGH)
@@ -457,7 +458,7 @@ package src {
 		 * @param	track the track to prepare to switch to, in Main constants
 		 */
 		public function switchTrack(track:int):void {
-			musicArea.switchNotes(track, musicPlayer.getTime());
+			musicArea.switchNotes(track, _musicPlayer.getTime());
 		}
 		
 		/**
@@ -466,7 +467,7 @@ package src {
 		 * @param	track the track to switch to
 		 */
 		public function switchMusicNow(track:int):void {
-			musicPlayer.switchTrack(track);
+			_musicPlayer.switchTrack(track);
 		}
 		
 		public function quitHandler():void {
@@ -532,6 +533,18 @@ package src {
 					break;
 				case Keyboard.BACKQUOTE:
 					fps_counter.visible = !fps_counter.visible;
+					break;
+				case Keyboard.V:
+					summoningMeter.increase(10);
+					break;
+				case Keyboard.B:
+					summoningMeter.decrease(10);
+					break;
+				case Keyboard.N:
+					summoningMeter.increaseRate(20);
+					break;
+				case Keyboard.M:
+					summoningMeter.decreaseRate(20);
 					break;
 			}
 		}

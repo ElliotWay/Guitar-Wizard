@@ -115,9 +115,9 @@ package src
 		 * This forwards the method to the associated sprite,
 		 * or does nothing if this note has none.
 		 */
-		public function hit():void {
+		public function hit(repeater:Repeater):void {
 			if (associatedSprite != null)
-				associatedSprite.hit();
+				associatedSprite.hit(repeater);
 		}
 		
 		/**
@@ -125,9 +125,9 @@ package src
 		 * This forwards the method to the associated sprite,
 		 * or does nothing if this note has none.
 		 */
-		public function miss():void {
+		public function miss(repeater:Repeater):void {
 			if (associatedSprite != null)
-				associatedSprite.miss();
+				associatedSprite.miss(repeater);
 		}
 		
 		/**

@@ -10,8 +10,12 @@ package src
 		
 		private var availableNoteSprites:Vector.<ReuseManager>;
 		
-		public function NoteSpriteFactory() 
+		private var repeater:Repeater;
+		
+		public function NoteSpriteFactory(repeater:Repeater) 
 		{
+			this.repeater = repeater;
+			
 			availableNoteSprites = new Vector.<ReuseManager>(4, true);
 			
 			//	A	0
@@ -36,7 +40,7 @@ package src
 			
 			use namespace factory;
 			sprite.setAssociatedNote(note);
-			sprite.restore();
+			sprite.restore(repeater);
 			
 			return sprite;
 		}
@@ -48,7 +52,7 @@ package src
 		 */
 		public function destroy(sprite:NoteSprite):void {
 			availableNoteSprites[sprite.letter].remove(sprite);
-			sprite.dissociate();
+			sprite.stop(repeater);
 		}
 		
 	}

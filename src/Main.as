@@ -48,7 +48,7 @@ package src
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
-			var repeater:Repeater = new Repeater(this);
+			var repeater:Repeater = new Repeater(this, new TimeCounter());
 			repeater.prepareRegularRuns();
 			
 			songLoader = new SongLoader();

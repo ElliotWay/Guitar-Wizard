@@ -7,6 +7,7 @@ package test
 	import org.hamcrest.assertThat;
 	import src.Note;
 	import src.NoteSprite;
+	import src.Repeater;
 	
 	MockolateRunner;
 	/**
@@ -19,6 +20,9 @@ package test
 		[Mock]
 		public var sprite:NoteSprite;
 		
+		[Mock]
+		public var repeater:Repeater;
+		
 		private var note:Note;
 		
 		[Before]
@@ -30,16 +34,16 @@ package test
 		
 		[Test]
 		public function forwardsHit():void {
-			note.hit();
+			note.hit(repeater);
 			
-			assertThat(sprite, received().method("hit"));
+			assertThat(sprite, received().method("hit").arg(repeater));
 		}
 		
 		[Test]
 		public function forwardsMiss():void {
-			note.miss();
+			note.miss(repeater);
 			
-			assertThat(sprite, received().method("miss"));
+			assertThat(sprite, received().method("miss").arg(repeater));
 		}
 		
 		[Test]

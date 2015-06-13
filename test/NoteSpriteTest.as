@@ -5,11 +5,16 @@ package test
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import flash.geom.Point;
+	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
 	import mockolate.stub;
 	import org.hamcrest.assertThat;
+	import org.hamcrest.core.isA;
+	import org.hamcrest.core.not;
 	import src.Note;
 	import src.NoteSprite;
+	import src.factory;
+	import src.Repeater;
 	
 	MockolateRunner;
 	
@@ -25,6 +30,9 @@ package test
 		
 		private var holdSprite:NoteSprite;
 		
+		[Mock]
+		public var repeater:Repeater;
+		
 		[Before]
 		public function setUp():void {
 			
@@ -35,7 +43,12 @@ package test
 			hold.isHold = true;
 			hold.endtime == 100;
 			
-			holdSprite = new NoteSprite(hold);
+			holdSprite = new NoteSprite(Note.NOTE_A);
+			use namespace factory;
+			
+			holdSprite.setAssociatedNote(hold);
+			holdSprite.restore(repeater);
+			
 			NoteSprite.global_hit_line_position = new Point(50, 0);
 		}
 		
@@ -45,67 +58,98 @@ package test
 			note.letter = Note.NOTE_A;
 			note.time = 0;
 			
-			var noteSprite:NoteSprite = new NoteSprite(note);
+			var noteSprite:NoteSprite = new NoteSprite(Note.NOTE_A);
+			
+			use namespace factory;
+			noteSprite.setAssociatedNote(note);
 		}
 		
 		[Test]
 		public function getsIsHit():void {
 			assertThat(holdSprite.isHit(), false);
-			holdSprite.hit();
+			holdSprite.hit(repeater);
 			assertThat(holdSprite.isHit(), true);
 		}
 		
 		[Test]
 		public function isNotHitByMiss():void {
-			holdSprite.miss();
+			holdSprite.miss(repeater);
 			assertThat(holdSprite.isHit(), false);
 		}
 		
 		[Test]
 		public function willStartHold():void {
-			holdSprite.hit();
+			holdSprite.hit(repeater);
 			//It needs to do _something_ regularly when a hold is hit.
-			assertThat(holdSprite.hasEventListener(Event.ENTER_FRAME));			
+			assertThat(repeater, received().method("runConsistentlyEveryFrame")
+					.arg(isA(Function)).twice());
+			//One call is from the animation.
 		}
 		
 		[Test]
 		public function continueHoldCausesNoErrors():void {
-			//Hard to test it's functionality, but we can check that it causes no errors.
-			holdSprite.hit();
+			var holdFunction:Function;
+			stub(repeater).method("runConsistentlyEveryFrame").callsWithArguments(function(func:Function):void {
+				holdFunction = func;
+			});
 			
-			holdSprite.dispatchEvent(new Event(Event.ENTER_FRAME));
+			//Hard to test it's functionality, but we can check that it causes no errors.
+			holdSprite.hit(repeater);
+			
+			assertThat(holdFunction, not(null));
+			
+			holdFunction.call();
 		}
 		
 		[Test]
-		public function willStopHold():void {
-			holdSprite.hit();
+		public function goingOverTheEndCausesNoErrors():void {
+			var holdFunction:Function;
+			stub(repeater).method("runConsistentlyEveryFrame").callsWithArguments(function(func:Function):void {
+				holdFunction = func;
+			});
+			
+			holdSprite.hit(repeater);
 			
 			holdSprite.x -= 200;
 			
-			holdSprite.dispatchEvent(new Event(Event.ENTER_FRAME));
+			holdFunction.call();
+		}
+		
+		[Test]
+		public function stopsHold():void {
+			var holdFunction:Function;
+			stub(repeater).method("runConsistentlyEveryFrame").callsWithArguments(function(func:Function):void {
+				holdFunction = func;
+			});
 			
-			//The enter frame handler should now be gone.
-			assertThat(!holdSprite.hasEventListener(Event.ENTER_FRAME));
+			holdSprite.hit(repeater);
+			
+			holdSprite.stopHolding(repeater);
+			
+			assertThat(repeater, received().method("stopRunningConsistentlyEveryFrame").arg(holdFunction));
 		}
 		
 		[Test]
 		public function cannotRestartHold():void {
-			holdSprite.hit();
+			var holdFunction:Function;
+			stub(repeater).method("runConsistentlyEveryFrame").callsWithArguments(function(func:Function):void {
+				holdFunction = func;
+			});
+			
+			holdSprite.hit(repeater);
 			
 			holdSprite.x -= 200;
 			
-			holdSprite.dispatchEvent(new Event(Event.ENTER_FRAME));
+			holdFunction.call();
+			holdSprite.stopHolding(repeater);
 			
 			holdSprite.x = 0;
 			
-			holdSprite.hit(); //Attempt to hit a second time.
+			holdSprite.hit(repeater); //Attempt to hit a second time.
 			
-			
-			//The enter frame handler should still be gone.
-			assertThat(!holdSprite.hasEventListener(Event.ENTER_FRAME));
+			assertThat(repeater, received().method("runConsistentlyEveryFrame").twice());
+			//Remember that the first call is from the animation.
 		}
-	
-		//Nothing to do After.
 	}
 
 }

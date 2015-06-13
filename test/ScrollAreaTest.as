@@ -6,6 +6,7 @@ package test
 	import mockolate.runner.MockolateRunner;
 	import org.flexunit.async.Async;
 	import org.hamcrest.assertThat;
+	import org.hamcrest.number.closeTo;
 	import org.hamcrest.number.greaterThan;
 	import org.hamcrest.number.lessThan;
 	import src.ScrollArea;
@@ -24,6 +25,7 @@ package test
 		private const INITIAL_POSITION:Number = 200;
 		private const TARGET_POSITION:Number = 300;
 		
+		private const TOLERANCE:Number = 1.0; //Sometimes tweens aren't 100% accurate.
 		
 		private const MOMENT:Number = 75;//100
 		private const JUMP_TIME:Number = ScrollArea.JUMP_DURATION * 1000 + MOMENT;
@@ -152,7 +154,7 @@ package test
 			}, MOMENT + MOMENT);
 			
 			var scrollHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(scrollArea.x, -TARGET_POSITION);
+				assertThat(scrollArea.x, closeTo(-TARGET_POSITION, TOLERANCE));
 			}, SCROLL_TIME + MOMENT);
 			
 			afterMoment.addEventListener(TimerEvent.TIMER_COMPLETE, momentHandler, false, 0, true);

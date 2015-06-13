@@ -4,12 +4,12 @@ package test
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;
 	import mockolate.received;
 	import mockolate.runner.MockolateRunner;
-	import org.flexunit.async.Async;
+	import mockolate.stub;
 	import org.hamcrest.assertThat;
 	import src.Repeater;
+	import src.TimeCounter;
 	
 	
 	MockolateRunner;
@@ -22,37 +22,40 @@ package test
 	{
 		private var repeater:Repeater;
 		
+		[Mock]
+		public var timeCounter:TimeCounter;
+		
 		private var dispatcher:EventDispatcher;
 		
-		private var later:Timer;
+		public static const BEAT:int = 500;
+		public static const QUARTER_BEAT:int = BEAT / 4;
+		public static const THIRD_BEAT:int = BEAT / 3;
 		
-		public static const TIME:int = 500;
+		public static const CONSISTENT_FRAME:int = Repeater.MILLIS_PER_FRAME;
 		
 		//Dammit, can't mock final class function.
 		private var func1:Function, func2:Function, func3:Function;
 		
-		private var func1Called:Boolean, func2Called:Boolean, func3Called:Boolean;
+		private var timesFunc1Called:int, timesFunc2Called:int, timesFunc3Called:int;
 		
 		[Before]
 		public function setup():void {
+			timesFunc1Called = 0;
+			timesFunc2Called = 0;
+			timesFunc3Called = 0;
+			
 			func1 = function():void {
-				func1Called = true;
+				timesFunc1Called++;
 			}
 			func2 = function():void {
-				func2Called = true;
+				timesFunc2Called++;
 			}
 			func3 = function():void {
-				func3Called = true;
+				timesFunc3Called++;
 			}
 			
-			func1Called = false;
-			func2Called = false;
-			func3Called = false;
-			
-			later = new Timer(TIME * 4, 1);
-			
 			dispatcher = new EventDispatcher();
-			repeater = new Repeater(dispatcher);
+			repeater = new Repeater(dispatcher, timeCounter);
 			repeater.prepareRegularRuns();
 		}
 		
@@ -69,190 +72,575 @@ package test
 			assertThat(repeater.isRunning, false);
 		}
 		
-		[Test]
-		public function runsOnFrame():void {
+		
+		
+		
+		//------------ On Frame ---------------------
+		
+		
+		private function advanceFrame():void {
+			dispatcher.dispatchEvent(new Event(Event.ENTER_FRAME));
+		}
+		
+		private function prepFrameRuns():void {
 			repeater.runEveryFrame(func1);
 			repeater.runEveryFrame(func2);
 			repeater.runEveryFrame(func3);
+		}
+		
+		[Test]
+		public function doesNotRunOnFramePrematurely():void {
+			prepFrameRuns();
 			
-			dispatcher.dispatchEvent(new Event(Event.ENTER_FRAME));
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 0);
+		}
+		
+		[Test]
+		public function runsOnFrame():void {
+			prepFrameRuns();
 			
-			assertThat(func1Called, true);
-			assertThat(func2Called, true);
-			assertThat(func3Called, true);
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 1);
+			assertThat(timesFunc3Called, 1);
 		}
 		
 		[Test(order = 1)]
 		public function stopsOnFrame():void {
-			repeater.runEveryFrame(func1);
-			repeater.runEveryFrame(func2);
-			repeater.runEveryFrame(func3);
+			prepFrameRuns();
 			
 			repeater.stopRunningEveryFrame(func1);
 			repeater.stopRunningEveryFrame(func3);
 			
-			dispatcher.dispatchEvent(new Event(Event.ENTER_FRAME));
+			advanceFrame();
 			
-			assertThat(func1Called, false);
-			assertThat(func2Called, true);
-			assertThat(func3Called, false);
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 1);
+			assertThat(timesFunc3Called, 0);
+		}
+		
+		[Test(order = 1)]
+		public function runsTwiceOnFrame():void {
+			prepFrameRuns();
+			
+			advanceFrame();
+			
+			repeater.stopRunningEveryFrame(func1);
+			repeater.stopRunningEveryFrame(func3);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 2);
+			assertThat(timesFunc3Called, 1);
 		}
 		
 		[Test]
 		public function reportsRunsOnFrame():void {
-			repeater.runEveryFrame(func1);
-			repeater.runEveryFrame(func2);
-			repeater.runEveryFrame(func3);
+			prepFrameRuns();
 			
 			repeater.stopRunningEveryFrame(func1);
 			repeater.stopRunningEveryFrame(func3);
 			
-			dispatcher.dispatchEvent(new Event(Event.ENTER_FRAME));
+			advanceFrame();
 			
 			assertThat(repeater.isRunningEveryFrame(func1), false);
 			assertThat(repeater.isRunningEveryFrame(func2), true);
 			assertThat(repeater.isRunningEveryFrame(func3), false);
 		}
 		
-		[Test(async)]
+		
+		[Test]
 		public function doesNotRunWithoutSetBeat():void {
 			repeater.runEveryQuarterBeat(func1);
 			repeater.runEveryThirdBeat(func2);
+			repeater.runConsistentlyEveryFrame(func3);
 			
-			var laterHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(func1Called, false);
-				assertThat(func2Called, false);
-			}, TIME * 5);
+			stub(timeCounter).method("getTime").returns(BEAT * 10);
 			
-			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
+			advanceFrame();
 			
-			later.start();
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 0);
 		}
 		
-		[Test(async)]
+		
+		
+		//----------- Quarter Beat ----------------
+		
+		
+		private function prepQuarterRuns():void {
+			repeater.setBeat(BEAT);
+			repeater.runEveryQuarterBeat(func1);
+			repeater.runEveryQuarterBeat(func2);
+			repeater.runEveryQuarterBeat(func3);
+		}
+		
+		[Test]
+		public function doesNotRunOnQuarterBeatPrematurely():void {
+			prepQuarterRuns();
+			
+			stub(timeCounter).method("getTime").returns(QUARTER_BEAT * .8);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 0);
+		}
+		
+		[Test]
 		public function runsOnQuarterBeat():void {
-			repeater.setBeat(TIME);
+			prepQuarterRuns();
 			
-			repeater.runEveryQuarterBeat(func1);
-			repeater.runEveryQuarterBeat(func2);
-			repeater.runEveryQuarterBeat(func3);
+			stub(timeCounter).method("getTime").returns(QUARTER_BEAT * 1.2);
 			
-			var laterHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(func1Called, true);
-				assertThat(func2Called, true);
-				assertThat(func3Called, true);
-			}, TIME * 5);
+			advanceFrame();
 			
-			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
-			
-			later.start();
+			assertThat(timesFunc1Called, true);
+			assertThat(timesFunc2Called, true);
+			assertThat(timesFunc3Called, true);
 		}
 		
-		[Test(async, order = 1)]
+		[Test(order = 1)]
 		public function stopsOnQuarterBeat():void {
-			repeater.setBeat(TIME);
-			
-			repeater.runEveryQuarterBeat(func1);
-			repeater.runEveryQuarterBeat(func2);
-			repeater.runEveryQuarterBeat(func3);
+			prepQuarterRuns();
 			
 			repeater.stopRunningEveryQuarterBeat(func1);
 			repeater.stopRunningEveryQuarterBeat(func2);
 			
-			var laterHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(func1Called, false);
-				assertThat(func2Called, false);
-				assertThat(func3Called, true);
-			}, TIME * 5);
+			stub(timeCounter).method("getTime").returns(QUARTER_BEAT * 1.2);
 			
-			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
+			advanceFrame();
 			
-			later.start();
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 1);
 		}
 		
-		[Test(async, order = 1)]
+		[Test(order = 2)]
+		public function runsThriceOnQuarterBeatImmediately():void {
+			prepQuarterRuns();
+			
+			stub(timeCounter).method("getTime").returns(QUARTER_BEAT * 3.2);
+			
+			repeater.stopRunningEveryQuarterBeat(func1);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 3);
+			assertThat(timesFunc3Called, 3);
+		}
+		
+		[Test(order = 2)]
+		public function runsThriceOnQuarterBeatOverTime():void {
+			prepQuarterRuns();
+			
+			stub(timeCounter).method("getTime").returns(QUARTER_BEAT * 1.2,
+					QUARTER_BEAT * 2.2, QUARTER_BEAT * 3.2);
+					
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 1);
+			assertThat(timesFunc3Called, 1);
+			
+			repeater.stopRunningEveryQuarterBeat(func1);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 2);
+			assertThat(timesFunc3Called, 2);
+			
+			repeater.stopRunningEveryQuarterBeat(func2);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 2);
+			assertThat(timesFunc3Called, 3);
+		}
+		
+		[Test(order = 2)]
+		public function runsManyTimesOnQuarterBeat():void {
+			prepQuarterRuns();
+			
+			stub(timeCounter).method("getTime").returns(QUARTER_BEAT * 1.2,
+					QUARTER_BEAT * 3.2, QUARTER_BEAT * 4.2, QUARTER_BEAT * 5.2,
+					QUARTER_BEAT * 8.2, QUARTER_BEAT * 8.8, QUARTER_BEAT * 12.2);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 1);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 3);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 4);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 5);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 8);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 8);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 12);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 12);
+		}
+		
+		[Test(order = 1)]
 		public function reportsRunsOnQuarterBeat():void {
-			repeater.setBeat(TIME);
+			prepQuarterRuns();
 			
-			repeater.runEveryQuarterBeat(func1);
-			repeater.runEveryQuarterBeat(func2);
-			repeater.runEveryQuarterBeat(func3);
+			stub(timeCounter).method("getTime").returns(QUARTER_BEAT * 1.2);
+			
+			assertThat(repeater.isRunningEveryQuarterBeat(func1), true);
+			assertThat(repeater.isRunningEveryQuarterBeat(func2), true);
+			assertThat(repeater.isRunningEveryQuarterBeat(func3), true);
 			
 			repeater.stopRunningEveryQuarterBeat(func1);
 			repeater.stopRunningEveryQuarterBeat(func2);
 			
-			var laterHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(repeater.isRunningEveryQuarterBeat(func1), false);
-				assertThat(repeater.isRunningEveryQuarterBeat(func2), false);
-				assertThat(repeater.isRunningEveryQuarterBeat(func3), true);
-			}, TIME * 5);
+			assertThat(repeater.isRunningEveryQuarterBeat(func1), false);
+			assertThat(repeater.isRunningEveryQuarterBeat(func2), false);
+			assertThat(repeater.isRunningEveryQuarterBeat(func3), true);
 			
-			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
+			advanceFrame();
 			
-			later.start();
+			assertThat(repeater.isRunningEveryQuarterBeat(func1), false);
+			assertThat(repeater.isRunningEveryQuarterBeat(func2), false);
+			assertThat(repeater.isRunningEveryQuarterBeat(func3), true);
 		}
 		
+		
+		
+		
+		//------------ Third Beat --------------
+		
+		
+		private function prepThirdRuns():void {
+			repeater.setBeat(BEAT);
+			repeater.runEveryThirdBeat(func1);
+			repeater.runEveryThirdBeat(func2);
+			repeater.runEveryThirdBeat(func3);
+		}
+		
+		[Test]
+		public function doesNotRunOnThirdBeatPrematurely():void {
+			prepThirdRuns();
+			
+			stub(timeCounter).method("getTime").returns(THIRD_BEAT * .8);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 0);
+		}
+		
+		[Test]
 		public function runsOnThirdBeat():void {
-			repeater.setBeat(TIME);
+			prepThirdRuns();
 			
-			repeater.runEveryThirdBeat(func1);
-			repeater.runEveryThirdBeat(func2);
-			repeater.runEveryThirdBeat(func3);
+			stub(timeCounter).method("getTime").returns(THIRD_BEAT * 1.2);
 			
-			var laterHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(func1Called, true);
-				assertThat(func2Called, true);
-				assertThat(func3Called, true);
-			}, TIME * 5);
+			advanceFrame();
 			
-			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
-			
-			later.start();
+			assertThat(timesFunc1Called, true);
+			assertThat(timesFunc2Called, true);
+			assertThat(timesFunc3Called, true);
 		}
 		
-		[Test(async, order = 1)]
+		[Test(order = 1)]
 		public function stopsOnThirdBeat():void {
-			repeater.setBeat(TIME);
-			
-			repeater.runEveryThirdBeat(func1);
-			repeater.runEveryThirdBeat(func2);
-			repeater.runEveryThirdBeat(func3);
+			prepThirdRuns();
 			
 			repeater.stopRunningEveryThirdBeat(func1);
 			repeater.stopRunningEveryThirdBeat(func2);
 			
-			var laterHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(func1Called, false);
-				assertThat(func2Called, false);
-				assertThat(func3Called, true);
-			}, TIME * 5);
+			stub(timeCounter).method("getTime").returns(THIRD_BEAT * 1.2);
 			
-			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
+			advanceFrame();
 			
-			later.start();
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 1);
 		}
 		
-		[Test(async, order = 1)]
-		public function reportsRunsOnThirdBeat():void {
-			repeater.setBeat(TIME);
+		[Test(order = 2)]
+		public function runsThriceOnThirdBeatImmediately():void {
+			prepThirdRuns();
 			
-			repeater.runEveryThirdBeat(func1);
-			repeater.runEveryThirdBeat(func2);
-			repeater.runEveryThirdBeat(func3);
+			stub(timeCounter).method("getTime").returns(THIRD_BEAT * 3.2);
+			
+			repeater.stopRunningEveryThirdBeat(func1);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 3);
+			assertThat(timesFunc3Called, 3);
+		}
+		
+		[Test(order = 2)]
+		public function runsThriceOnThirdBeatOverTime():void {
+			prepThirdRuns();
+			
+			stub(timeCounter).method("getTime").returns(THIRD_BEAT * 1.2,
+					THIRD_BEAT * 2.2, THIRD_BEAT * 3.2);
+					
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 1);
+			assertThat(timesFunc3Called, 1);
+			
+			repeater.stopRunningEveryThirdBeat(func1);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 2);
+			assertThat(timesFunc3Called, 2);
 			
 			repeater.stopRunningEveryThirdBeat(func2);
-			repeater.stopRunningEveryThirdBeat(func3);
 			
-			var laterHandler:Function = Async.asyncHandler(this, function():void {
-				assertThat(repeater.isRunningEveryThirdBeat(func1), true);
-				assertThat(repeater.isRunningEveryThirdBeat(func2), false);
-				assertThat(repeater.isRunningEveryThirdBeat(func3), false);
-			}, TIME * 5);
+			advanceFrame();
 			
-			later.addEventListener(TimerEvent.TIMER_COMPLETE, laterHandler, false, 0, true);
-			
-			later.start();
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 2);
+			assertThat(timesFunc3Called, 3);
 		}
+		
+		[Test(order = 2)]
+		public function runsManyTimesOnThirdBeat():void {
+			prepThirdRuns();
+			
+			stub(timeCounter).method("getTime").returns(THIRD_BEAT * 1.2,
+					THIRD_BEAT * 3.2, THIRD_BEAT * 4.2, THIRD_BEAT * 5.2,
+					THIRD_BEAT * 8.2, THIRD_BEAT * 8.8, THIRD_BEAT * 12.2);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 1);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 3);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 4);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 5);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 8);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 8);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 12);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 12);
+		}
+		
+		[Test(order = 1)]
+		public function reportsRunsOnThirdBeat():void {
+			prepThirdRuns();
+			
+			stub(timeCounter).method("getTime").returns(THIRD_BEAT * 1.2);
+			
+			assertThat(repeater.isRunningEveryThirdBeat(func1), true);
+			assertThat(repeater.isRunningEveryThirdBeat(func2), true);
+			assertThat(repeater.isRunningEveryThirdBeat(func3), true);
+			
+			repeater.stopRunningEveryThirdBeat(func1);
+			repeater.stopRunningEveryThirdBeat(func2);
+			
+			assertThat(repeater.isRunningEveryThirdBeat(func1), false);
+			assertThat(repeater.isRunningEveryThirdBeat(func2), false);
+			assertThat(repeater.isRunningEveryThirdBeat(func3), true);
+			
+			advanceFrame();
+			
+			assertThat(repeater.isRunningEveryThirdBeat(func1), false);
+			assertThat(repeater.isRunningEveryThirdBeat(func2), false);
+			assertThat(repeater.isRunningEveryThirdBeat(func3), true);
+		}
+		
+		
+		
+		
+		//-------- Consistent Frame Length ---------------------
+		
+		
+		private function prepConsistentRuns():void {
+			repeater.setBeat(BEAT);
+			repeater.runConsistentlyEveryFrame(func1);
+			repeater.runConsistentlyEveryFrame(func2);
+			repeater.runConsistentlyEveryFrame(func3);
+		}
+		
+		[Test]
+		public function doesNotRunOnConsistentFramePrematurely():void {
+			prepConsistentRuns();
+			
+			stub(timeCounter).method("getTime").returns(CONSISTENT_FRAME * .8);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 0);
+		}
+		
+		[Test]
+		public function runsOnConsistentFrame():void {
+			prepConsistentRuns();
+			
+			stub(timeCounter).method("getTime").returns(CONSISTENT_FRAME * 1.2);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, true);
+			assertThat(timesFunc2Called, true);
+			assertThat(timesFunc3Called, true);
+		}
+		
+		[Test(order = 1)]
+		public function stopsOnConsistentFrame():void {
+			prepConsistentRuns();
+			
+			repeater.stopRunningConsistentlyEveryFrame(func1);
+			repeater.stopRunningConsistentlyEveryFrame(func2);
+			
+			stub(timeCounter).method("getTime").returns(CONSISTENT_FRAME * 1.2);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 0);
+			assertThat(timesFunc3Called, 1);
+		}
+		
+		[Test(order = 2)]
+		public function runsThriceOnConsistentFrameImmediately():void {
+			prepConsistentRuns();
+			
+			stub(timeCounter).method("getTime").returns(CONSISTENT_FRAME * 3.2);
+			
+			repeater.stopRunningConsistentlyEveryFrame(func1);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 0);
+			assertThat(timesFunc2Called, 3);
+			assertThat(timesFunc3Called, 3);
+		}
+		
+		[Test(order = 2)]
+		public function runsThriceOnConsistentFrameOverTime():void {
+			prepConsistentRuns();
+			
+			stub(timeCounter).method("getTime").returns(CONSISTENT_FRAME * 1.2,
+					CONSISTENT_FRAME * 2.2, CONSISTENT_FRAME * 3.2);
+					
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 1);
+			assertThat(timesFunc3Called, 1);
+			
+			repeater.stopRunningConsistentlyEveryFrame(func1);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 2);
+			assertThat(timesFunc3Called, 2);
+			
+			repeater.stopRunningConsistentlyEveryFrame(func2);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 2);
+			assertThat(timesFunc3Called, 3);
+		}
+		
+		[Test(order = 2)]
+		public function runsManyTimesOnConsistentFrame():void {
+			prepConsistentRuns();
+			
+			stub(timeCounter).method("getTime").returns(CONSISTENT_FRAME * 1.2,
+					CONSISTENT_FRAME * 3.2, CONSISTENT_FRAME * 4.2, CONSISTENT_FRAME * 5.2,
+					CONSISTENT_FRAME * 8.2, CONSISTENT_FRAME * 8.8, CONSISTENT_FRAME * 12.2);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 1);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 3);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 4);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 5);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 8);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 8);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 12);
+			
+			advanceFrame();
+			assertThat(timesFunc1Called, 12);
+		}
+		
+		[Test(order = 1)]
+		public function reportsRunsOnConsistentFrame():void {
+			prepConsistentRuns();
+			
+			stub(timeCounter).method("getTime").returns(CONSISTENT_FRAME * 1.2);
+			
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func1), true);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func2), true);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func3), true);
+			
+			repeater.stopRunningConsistentlyEveryFrame(func1);
+			repeater.stopRunningConsistentlyEveryFrame(func2);
+			
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func1), false);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func2), false);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func3), true);
+			
+			advanceFrame();
+			
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func1), false);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func2), false);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func3), true);
+		}
+		
+		
+		
+		
 		
 		[Test]
 		public function usesSeparateLists():void {
@@ -271,16 +659,15 @@ package test
 			assertThat(repeater.isRunningEveryFrame(func3), false);
 			assertThat(repeater.isRunningEveryQuarterBeat(func3), false);
 			assertThat(repeater.isRunningEveryThirdBeat(func3), true);
+			
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func1), false);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func2), false);
+			assertThat(repeater.isRunningConsistentlyEveryFrame(func3), false);
 		}
 		
 		[After]
 		public function tearDown():void {
 			repeater.killRuns();
-			
-			if (later != null) {
-				later.stop();
-				later = null;
-			}
 		}
 		
 	}

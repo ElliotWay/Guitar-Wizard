@@ -95,6 +95,7 @@ package  src
 		private var _letter:int;
 		
 		private var holdEndPoint:Number;
+		private var holdFinished:Boolean;
 		
 		private var animation:FrameAnimation;
 		private var hitAnimation:FrameAnimation;
@@ -156,19 +157,21 @@ package  src
 			this.addChild(missAnimation);
 			missAnimation.x = -(missAnimation.width) / 2;
 			missAnimation.y = -(missAnimation.height) / 2;
-			
-			this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
 		/**
 		 * Reset the note sprite its starting state.
 		 */
-		factory function restore():void {
+		factory function restore(repeater:Repeater):void {
 			missAnimation.visible = false;
 			hitAnimation.visible = false;
 			
 			animation.visible = true;
 			createHoldRectangle();
+			
+			_isHit = 0;
+			
+			animation.go(repeater);
 		}
 		
 		factory function setAssociatedNote(note:Note):void {
@@ -177,14 +180,6 @@ package  src
 			}
 			associatedNote = note;
 			note.setSprite(this);
-		}
-		
-		public function init(e:Event):void {
-			createHoldRectangle();
-			
-			_isHit = 0;
-			
-			animation.go(GameUI.REPEATER);
 		}
 		
 		/**
@@ -215,6 +210,8 @@ package  src
 				holdEndPoint = (associatedNote.endtime - associatedNote.time) * MusicArea.POSITION_SCALE;
 				this.graphics.drawRect(0, -NOTE_RADIUS * .25, holdEndPoint, NOTE_RADIUS * .5);
 				this.graphics.endFill();
+				
+				holdFinished = false;
 			}
 		}
 		
@@ -237,14 +234,14 @@ package  src
 		 * before calling this method.
 		 * Does nothing if this note has already been hit or missed.
 		 */
-		public function hit():void {
+		public function hit(repeater:Repeater):void {
 			if (_isHit == 0) {
 				animation.visible = false;
 				hitAnimation.visible = true;
-				hitAnimation.go(GameUI.REPEATER);
+				hitAnimation.go(repeater);
 					
 				if (associatedNote.isHold) {
-					this.addEventListener(Event.ENTER_FRAME, continueHold);
+					repeater.runConsistentlyEveryFrame(continueHold);
 				}
 				
 				_isHit = 1;
@@ -256,42 +253,46 @@ package  src
 		 * Finishes the hold if we're the hold is entirely through the hit line.
 		 * @param	e enter frame event
 		 */
-		private function continueHold(e:Event):void {
-			this.graphics.lineStyle(4, HIT_COLOR);
-						
-			var targetX:Number = this.globalToLocal(global_hit_line_position).x;
-			
-			//make sure we're passed the hit line
-			if (NOTE_RADIUS < targetX) {
+		private function continueHold():void {
+			if (!holdFinished) {
+				this.graphics.lineStyle(4, HIT_COLOR);
 				
-				//Check if we're at the end of the hold
-				if (targetX < holdEndPoint) {
-					this.graphics.moveTo(NOTE_RADIUS, NOTE_RADIUS * .25 + 1);
-					this.graphics.lineTo(targetX, NOTE_RADIUS * .25 + 1);
+				var targetX:Number = this.globalToLocal(global_hit_line_position).x;
+				
+				//make sure we're passed the hit line
+				if (NOTE_RADIUS < targetX) {
 					
-					this.graphics.moveTo(NOTE_RADIUS, -(NOTE_RADIUS * .25 + 1));
-					this.graphics.lineTo(targetX, -(NOTE_RADIUS * .25 + 1));
-				} else {
-					//close off the hold
-					this.graphics.moveTo(NOTE_RADIUS, NOTE_RADIUS * .25 + 1);
-					this.graphics.lineTo(holdEndPoint, NOTE_RADIUS * .25 + 1);
-					this.graphics.lineTo(holdEndPoint, -(NOTE_RADIUS * .25 + 1));
-					this.graphics.lineTo(NOTE_RADIUS, -(NOTE_RADIUS * .25 + 1));
-					stopHolding();
+					//Check if we're at the end of the hold
+					if (targetX < holdEndPoint) {
+						this.graphics.moveTo(NOTE_RADIUS, NOTE_RADIUS * .25 + 1);
+						this.graphics.lineTo(targetX, NOTE_RADIUS * .25 + 1);
+						
+						this.graphics.moveTo(NOTE_RADIUS, -(NOTE_RADIUS * .25 + 1));
+						this.graphics.lineTo(targetX, -(NOTE_RADIUS * .25 + 1));
+					} else {
+						//close off the hold
+						this.graphics.moveTo(NOTE_RADIUS, NOTE_RADIUS * .25 + 1);
+						this.graphics.lineTo(holdEndPoint, NOTE_RADIUS * .25 + 1);
+						this.graphics.lineTo(holdEndPoint, -(NOTE_RADIUS * .25 + 1));
+						this.graphics.lineTo(NOTE_RADIUS, -(NOTE_RADIUS * .25 + 1));
+						
+						holdFinished = true;
+					}
+				} else if (targetX > holdEndPoint) {
+					//Weird hold, as it's smaller than the radius of the note.
+					//For robustness's sake, stop the animation here.
+					trace("Unusually small hold.");
+					
+					holdFinished;
 				}
-			} else if (targetX > holdEndPoint) {
-				//Weird hold, as it's smaller than the radius of the note.
-				//For robustness's sake, stop the animation here.
-				trace("Unusually small hold.");
-				stopHolding();
 			}
 		}
 		
 		/**
 		 * Ceases the animation displaying a successful hold.
 		 */
-		public function stopHolding():void {
-			this.removeEventListener(Event.ENTER_FRAME, continueHold);
+		public function stopHolding(repeater:Repeater):void {
+			repeater.stopRunningConsistentlyEveryFrame(continueHold);
 		}
 		
 		/**
@@ -299,11 +300,11 @@ package  src
 		 * different if the note is a hold.
 		 * Does nothing if this note has already been hit or missed.
 		 */
-		public function miss():void {
+		public function miss(repeater:Repeater):void {
 			if (_isHit == 0) {
 				animation.visible = false;
 				missAnimation.visible = true;
-				missAnimation.go(GameUI.REPEATER);
+				missAnimation.go(repeater);
 				
 				_isHit = -1;
 			}
@@ -311,12 +312,17 @@ package  src
 		
 		/**
 		 * Removes the association with a note, and its association with this sprite.
+		 * Stops any running animations.
 		 */
-		public function dissociate():void {
+		public function stop(repeater:Repeater):void {
 			associatedNote.dissociate();
 			associatedNote = null;
 			
-			stopHolding();
+			stopHolding(repeater);
+			
+			animation.stop(repeater);
+			hitAnimation.stop(repeater);
+			missAnimation.stop(repeater);
 		}
 		
 	}

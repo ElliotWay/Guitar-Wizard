@@ -16,12 +16,14 @@ package src
 		private var everyFrameDispatcher:EventDispatcher;
 		private var everyFrameRun:Dictionary;
 		
-		private static const MILLIS_PER_FRAME:int = 17;
+		private var timeCounter:TimeCounter;
+		
+		public static const MILLIS_PER_FRAME:int = 17;
 		private var consistentEveryFrameRun:Dictionary;
 		
 		private var frameTime:uint;
 		
-		private var millisecondsPerBeat:int = 500;
+		private var millisecondsPerBeat:int = -1;
 		private var timePerQuarter:int;
 		private var timePerThird:int;
 		
@@ -38,8 +40,9 @@ package src
 		 * Create a repeater. Call prepareRegularRuns to start it.
 		 * @param	dispatcher the event dispatcher on which to listen for ENTER_FRAME events
 		 */
-		public function Repeater(dispatcher:EventDispatcher) {
+		public function Repeater(dispatcher:EventDispatcher, timer:TimeCounter) {
 			everyFrameDispatcher = dispatcher;
+			timeCounter = timer;
 		}
 		
 		public function get isRunning():Boolean {
@@ -80,7 +83,7 @@ package src
 			//This shouldn't do anything, but if there was lag we don't want to skip frames.
 			checkBeat();
 				
-			beatTime = getTimer();
+			beatTime = timeCounter.getTime();
 			frameTime = beatTime;
 			
 			millisecondsPerBeat = millisPerBeat;
@@ -212,15 +215,18 @@ package src
 		 * or the consistent frame functions.
 		 */
 		private function checkBeat():void {
-			var rightNow:uint = getTimer();
+			if (millisecondsPerBeat < 0)
+				return;
+			
+			var rightNow:uint = timeCounter.getTime();
 			
 			fpsFrameCounter++;
 			if (fpsFrameCounter >= 10) {
 				fpsFrameCounter = 0;
 				if (GameUI.fps_counter.visible) {
 					var currentFPS:Number = (1 / ((rightNow - fpsLastTime) / 10 ) * 1000);
-					GameUI.fps_counter.text = "FPS: " + currentFPS.toPrecision(4);
-					trace("FPS: " + currentFPS.toPrecision(4));
+					GameUI.fps_counter.text = "FPS: " + currentFPS.toPrecision(8);
+					trace("FPS: " + currentFPS.toPrecision(8));
 				}
 				fpsLastTime = rightNow;
 			}
