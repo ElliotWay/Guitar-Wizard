@@ -25,26 +25,22 @@ package src
 		private var meterLength:int;
 		
 		/**
-		 * Or "Number" tolerance really. Used for equal comparisons between doubles.
+		 * Tolerance for comparisons between Numbers.
 		 */
-		private static const DOUBLE_TOLERANCE:Number = 0.00001;
+		public static const DOUBLE_TOLERANCE:Number = 0.0001;
 		
-		/**
-		 * Starting speed at which the meter advances.
-		 * pxl/s
-		 */
-		public static const BASE_SPEED:Number = 75; //75
+		public static const ANIMATION_TIME:Number = 0.5; //seconds
+		public static const MIN_FILL_RATE:Number = 100; //pxl/second
 		
 		private var ui:GameUI;
 		private var overlay:DisplayObject;
 		private var fill:DisplayObject;
 		
-		private var increaseQueue:Vector.<Timer>;
-		private var decreaseQueue:Vector.<Timer>;
+		private var amountFilled:Number;
+		private var changeRate:Number;
 		
 		private var changer:TweenLite;
 		
-		private var changeRate:Number;
 		
 		/**
 		 * Create the summoning meter. This controls the rate at which the fill object is revealed,
@@ -81,27 +77,30 @@ package src
 			
 			fill.y = minMeter;
 			
+			amountFilled = 0;
+			
 			//And the overlay is on top.
 			this.addChild(overlay);
 			
-			increaseQueue = new Vector.<Timer>();
-			decreaseQueue = new Vector.<Timer>();
-			
 			changeRate = 0;
+			
+			ui.repeater.runEveryQuarterBeat(regularChange);
+		}
+		
+		private var beatCounter:int = 0;
+		
+		private function regularChange():void {
+			beatCounter++;
+			if (beatCounter >= 4) {
+				beatCounter = 0;
+				
+				increase(changeRate);
+			}
 		}
 		
 		public function reset():void {
 			if (changer != null)
 				changer.kill();
-			
-			var timer:Timer;
-			for each (timer in increaseQueue)
-				timer.stop();
-			increaseQueue = new Vector.<Timer>();
-			
-			for each (timer in decreaseQueue)
-				timer.stop();
-			decreaseQueue = new Vector.<Timer>();
 			
 			changeRate = 0;
 			
@@ -109,17 +108,13 @@ package src
 		}
 		
 		public function increase(amount:Number):void {
-			var time:Number = 1000 * ((amount / 100) * meterLength) / BASE_SPEED;
-			
-			appendToIncreaseQueue(time);
+			amountFilled += amount;
 			
 			proceed();
 		}
 		
 		public function decrease(amount:Number):void {
-			var time:Number = 1000 * ((amount / 100) * meterLength) / BASE_SPEED;
-			
-			appendToDecreaseQueue(time);
+			amountFilled -= amount;
 			
 			proceed();
 		}
@@ -127,116 +122,57 @@ package src
 		public function increaseRate(rateChange:Number):void {
 			changeRate += rateChange;
 			
-			proceed();
+			if (Math.abs(changeRate) < DOUBLE_TOLERANCE)
+				changeRate = 0;
 		}
 		
 		public function decreaseRate(rateChange:Number):void {
 			changeRate -= rateChange;
 			
-			proceed();
+			if (Math.abs(changeRate) < DOUBLE_TOLERANCE)
+				changeRate = 0;
 		}
 		
-		private function appendToIncreaseQueue(time:Number):void {
-			
-			var timer:Timer = new Timer(time, 1);
-			timer.addEventListener(TimerEvent.TIMER_COMPLETE, finishIncreaseQueue);
-			
-			if (increaseQueue.length == 0) {
-				changeRate += BASE_SPEED;
-				
-				timer.start();
-				
-			} else {
-			
-				var top:Timer = increaseQueue[increaseQueue.length - 1];
-				
-				top.removeEventListener(TimerEvent.TIMER_COMPLETE, finishIncreaseQueue);
-				top.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-					increaseQueue.shift();
-					timer.start();
-				});
-			}
-			
-			increaseQueue.push(timer);
-		}
-		
-		private function finishIncreaseQueue(event:Event):void {
-			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, finishIncreaseQueue);
-			changeRate -= BASE_SPEED;
-			proceed();
-			
-			increaseQueue.shift();
-		}
-		
-		private function appendToDecreaseQueue(time:Number):void {
-			
-			var timer:Timer = new Timer(time, 1);
-			timer.addEventListener(TimerEvent.TIMER_COMPLETE, finishDecreaseQueue);
-			
-			if (decreaseQueue.length == 0) {
-				changeRate -= BASE_SPEED;
-				
-				timer.start();
-				
-			} else {
-			
-				var top:Timer = decreaseQueue[decreaseQueue.length - 1];
-				
-				top.removeEventListener(TimerEvent.TIMER_COMPLETE, finishDecreaseQueue);
-				top.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-					decreaseQueue.shift();
-					timer.start();
-				});
-			}
-			
-			decreaseQueue.push(timer);
-		}
-		
-		private function finishDecreaseQueue(event:Event):void {
-			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, finishDecreaseQueue);
-			changeRate += BASE_SPEED;
-			proceed();
-			
-			decreaseQueue.shift();
-		}
 		
 		private function proceed():void {
-			if (fill.y == maxMeter) {
-				fill.y = minMeter;
-			}
 			
 			var distance:Number;
 			
-			// 0 is the only point where the exact performance matters,
-			// so reset it to exactly 0 whenever it's close.
-			if (Math.abs(changeRate) < DOUBLE_TOLERANCE) {
+			if (changer != null)
+				changer.kill();
 				
-				changeRate = 0;
+			var targetY:Number = minMeter - (amountFilled / 100) * meterLength;
+			if (amountFilled >= 100)
+				targetY = maxMeter;
+			else if (amountFilled <= 0)
+				targetY = minMeter;
+			
+			var time:Number = Math.min(ANIMATION_TIME, Math.abs(targetY - fill.y) / MIN_FILL_RATE);
+			
+			if (amountFilled >= 100) {
+				changer = new TweenLite(fill, time,
+						{y:maxMeter, ease:Linear.easeInOut, onComplete:finishMeter } );
 				
-				if (changer != null)
-					changer.kill();
+			} else if (amountFilled <= 0) {
+				amountFilled = 0;
+				changer = new TweenLite(fill, time,
+						{y:minMeter, ease:Power1.easeOut } );
 				
-			} else if (changeRate > 0) {
-				distance = fill.y - maxMeter;
-				
-				if (changer != null)
-					changer.kill();
-				
-				changer = new TweenLite(fill, distance / changeRate,
-						{y:maxMeter, ease:Power3.easeOut, onComplete:function():void {
-							ui.preparePlayerSummon();
-							
-							proceed();
-						} } );
-			} else if (changeRate < 0 && fill.y < minMeter) {
-				distance = fill.y - minMeter; //This value will be negative, but so is changeRate.
-				
-				if (changer != null)
-					changer.kill();
-				
-				changer = new TweenLite(fill, distance / changeRate,
-						{y:minMeter, ease:Power3.easeOut} );
+			} else {
+				if (Math.abs(targetY - fill.y) >= DOUBLE_TOLERANCE) {
+					changer = new TweenLite(fill, time,
+							{y:targetY, ease:Power1.easeOut } );
+				}
 			}
+		}
+		
+		private function finishMeter():void {
+			ui.preparePlayerSummon();
+			
+			amountFilled -= 100;
+			fill.y = minMeter;
+			
+			proceed();
 		}
 	}
 
