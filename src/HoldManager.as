@@ -10,7 +10,7 @@ package src
 		 * 0.02 summoning units / millisecond.
 		 * Equivalent to 10 units per beat, at 120BPM.
 		 */
-		public static const HOLD_RATIO:Number = 0.02;
+		public static const HOLD_RATIO:Number = 0.015; //0.02
 		
 		private var repeater:Repeater;
 		private var summoningMeter:SummoningMeter;
@@ -20,26 +20,35 @@ package src
 		
 		private var lastBeatTime:uint;
 		
+		private var quarterBeatCounter:int;
+		
 		public function HoldManager(repeater:Repeater, summoningMeter:SummoningMeter, musicPlayer:MusicPlayer) 
 		{
 			this.repeater = repeater;
 			this.summoningMeter = summoningMeter;
 			this.musicPlayer = musicPlayer;
 			
-			managedHolds = new Vector.<Note>(4);
+			managedHolds = new Vector.<Note>();
 			
+			quarterBeatCounter = 0;
+			lastBeatTime = 0;
 			repeater.runEveryQuarterBeat(advanceHolds);
 		}
 		
 		private function advanceHolds():void {
-			var currentTime:uint = musicPlayer.getTime();
-			var beatDuration:uint = currentTime - lastBeatTime;
+			quarterBeatCounter++;
+			if (quarterBeatCounter < 4)
+				return;
+			quarterBeatCounter = 0;
+			
+			var currentTime:int = musicPlayer.getTime();
+			var beatDuration:int = currentTime - lastBeatTime;
 			
 			var index:int = managedHolds.length - 1;
 			while (index >= 0) {
 				var hold:Note = managedHolds[index];
 				
-				var duration:uint;
+				var duration:int;
 				
 				if (hold.endtime < currentTime) {
 					if (lastBeatTime < hold.time)
@@ -56,10 +65,14 @@ package src
 					duration = beatDuration;
 				}
 				
+				duration = Math.max(0, duration); //Unusual circumstances make it less than 0.
+				
 				summoningMeter.increase(duration * HOLD_RATIO);
 				
 				index--;
 			}
+			
+			lastBeatTime = currentTime;
 		}
 		
 		/**
@@ -69,6 +82,9 @@ package src
 		 * @param	hold a Note that is a hold that should be managed
 		 */
 		public function manageHold(hold:Note):void {
+			if (!hold.isHold)
+				throw new GWError("Can't manage non-hold.");
+			
 			managedHolds.push(hold);
 		}
 		
@@ -81,7 +97,7 @@ package src
 		 * @param   currentTime the current time of the song, in milliseconds
 		 * @param   forceComplete use the duration up the end of the hold, irrespective of the current time
 		 */
-		public function finishHold(hold:Note, currentTime:uint, forceComplete:Boolean):void {
+		public function finishHold(hold:Note, currentTime:uint, forceComplete:Boolean = false):void {
 			var holdIndex:int = managedHolds.indexOf(hold);
 			if (holdIndex < 0)
 				return;

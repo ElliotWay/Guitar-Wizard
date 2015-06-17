@@ -199,7 +199,7 @@ package src
 			this.addChild(noteFSprite);
 			use namespace factory;
 			noteFSprite.restore(repeater);
-			noteFSprite.x = 40;
+			noteFSprite.x = WIDTH - 40;
 			noteFSprite.y = 40;
 		}
 		

@@ -37,7 +37,6 @@ package src
 		private var fill:DisplayObject;
 		
 		private var amountFilled:Number;
-		private var changeRate:Number;
 		
 		private var changer:TweenLite;
 		
@@ -81,56 +80,37 @@ package src
 			
 			//And the overlay is on top.
 			this.addChild(overlay);
-			
-			changeRate = 0;
-			
-			ui.repeater.runEveryQuarterBeat(regularChange);
 		}
 		
-		private var beatCounter:int = 0;
-		
-		private function regularChange():void {
-			beatCounter++;
-			if (beatCounter >= 4) {
-				beatCounter = 0;
-				
-				increase(changeRate);
-			}
-		}
-		
+		/**
+		 * Stop the meter moving and set the amount filled to 0.
+		 */
 		public function reset():void {
 			if (changer != null)
 				changer.kill();
 			
-			changeRate = 0;
-			
 			fill.y = minMeter;
+			amountFilled = 0;
 		}
 		
+		/**
+		 * Add to the amount in the summoning meter.
+		 * @param	amount portion out of 100 to fill the summoning meter
+		 */
 		public function increase(amount:Number):void {
 			amountFilled += amount;
 			
 			proceed();
 		}
 		
+		/**
+		 * Remove from the amount in the summoning meter.
+		 * @param	amount portion out of 100 to remove from the summoning meter
+		 */
 		public function decrease(amount:Number):void {
 			amountFilled -= amount;
 			
 			proceed();
-		}
-		
-		public function increaseRate(rateChange:Number):void {
-			changeRate += rateChange;
-			
-			if (Math.abs(changeRate) < DOUBLE_TOLERANCE)
-				changeRate = 0;
-		}
-		
-		public function decreaseRate(rateChange:Number):void {
-			changeRate -= rateChange;
-			
-			if (Math.abs(changeRate) < DOUBLE_TOLERANCE)
-				changeRate = 0;
 		}
 		
 		

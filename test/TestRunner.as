@@ -58,6 +58,7 @@ public class TestRunner extends Sprite
 		classNames.push(AssassinTest);
 		classNames.push(ClericTest);
 		classNames.push(FrameAnimationTest);
+		classNames.push(HoldManagerTest);
 		classNames.push(MainAreaTest);
 		classNames.push(MusicPlayerTest);
 		classNames.push(NoteBlockTest);

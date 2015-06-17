@@ -8,6 +8,7 @@ package src
 	 */
 	public class Note
 	{
+		//Don't change these constants; a bunch of code uses them as array indices.
 		public static const NOTE_A:int = 0;
 		public static const NOTE_S:int = 1;
 		public static const NOTE_D:int = 2;

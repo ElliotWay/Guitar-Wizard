@@ -53,13 +53,14 @@ package src {
 		private var expectingHold:Vector.<Boolean>;
 		private var currentHolds:Vector.<Note>;
 		
+		private var holdManager:HoldManager;
+		
 		private var combo:int;
 		
 		private var highSummonAmount:Number = 8;
 		private var midSummonAmount:Number = 8;
 		private var lowSummonAmount:Number = 8;
-		
-		private static const HOLD_AMOUNT:Number = 20;
+		public static const MISS_AMOUNT:Number = 4;
 		
 		private var opponent:OpponentStrategy;
 		private var opponentTimer:Timer;
@@ -118,6 +119,8 @@ package src {
 			this.addChild(summoningMeter);
 			summoningMeter.x = MainArea.WIDTH;
 			summoningMeter.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT;
+			
+			holdManager = new HoldManager(repeater, summoningMeter, _musicPlayer);
 			
 			infoArea = new InfoArea();
 			this.addChild(infoArea);
@@ -357,21 +360,19 @@ package src {
 				if (note.isHold) {
 					expectingHold[note.letter] = true;
 					currentHolds[note.letter] = note;
-					summoningMeter.increaseRate(HOLD_AMOUNT);
+					holdManager.manageHold(note);
+				}
+				
+				if (musicArea.currentTrack == Main.HIGH) {
+					summoningMeter.increase(highSummonAmount);
+				} else if (musicArea.currentTrack == Main.MID) {
+					summoningMeter.increase(midSummonAmount);
 				} else {
-					//If it isn't a hold, we can summon now, otherwise
-					//wait until the hold is done.
-					if (musicArea.currentTrack == Main.HIGH) {
-						summoningMeter.increase(highSummonAmount);
-					} else if (musicArea.currentTrack == Main.MID) {
-						summoningMeter.increase(midSummonAmount);
-					} else {
-						summoningMeter.increase(lowSummonAmount);
-					}
+					summoningMeter.increase(lowSummonAmount);
 				}
 				
 			} else {
-				summoningMeter.decrease(3);
+				summoningMeter.decrease(MISS_AMOUNT);
 				
 				_musicPlayer.stopTrack();
 				_musicPlayer.playMissSound();
@@ -430,7 +431,7 @@ package src {
 					combo++;
 				}
 				
-				summoningMeter.decreaseRate(HOLD_AMOUNT);
+				holdManager.finishHold(currentHold, time, goodEnd);
 				
 				expectingHold[noteLetter] = false;
 			}
@@ -539,12 +540,6 @@ package src {
 					break;
 				case Keyboard.B:
 					summoningMeter.decrease(10);
-					break;
-				case Keyboard.N:
-					summoningMeter.increaseRate(20);
-					break;
-				case Keyboard.M:
-					summoningMeter.decreaseRate(20);
 					break;
 			}
 		}
