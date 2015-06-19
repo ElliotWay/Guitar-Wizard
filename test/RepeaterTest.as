@@ -9,6 +9,7 @@ package test
 	import mockolate.stub;
 	import org.hamcrest.assertThat;
 	import src.Repeater;
+	import src.TempoChange;
 	import src.TimeCounter;
 	
 	
@@ -30,6 +31,7 @@ package test
 		public static const BEAT:int = 500;
 		public static const QUARTER_BEAT:int = BEAT / 4;
 		public static const THIRD_BEAT:int = BEAT / 3;
+		private var CONSTANT_BEAT:Vector.<TempoChange>
 		
 		public static const CONSISTENT_FRAME:int = Repeater.MILLIS_PER_FRAME;
 		
@@ -53,6 +55,8 @@ package test
 			func3 = function():void {
 				timesFunc3Called++;
 			}
+			
+			CONSTANT_BEAT = new <TempoChange>[new TempoChange(BEAT, 0)];
 			
 			dispatcher = new EventDispatcher();
 			repeater = new Repeater(dispatcher, timeCounter);
@@ -174,7 +178,7 @@ package test
 		
 		
 		private function prepQuarterRuns():void {
-			repeater.setBeat(BEAT);
+			repeater.startBeats(CONSTANT_BEAT);
 			repeater.runEveryQuarterBeat(func1);
 			repeater.runEveryQuarterBeat(func2);
 			repeater.runEveryQuarterBeat(func3);
@@ -331,7 +335,7 @@ package test
 		
 		
 		private function prepThirdRuns():void {
-			repeater.setBeat(BEAT);
+			repeater.startBeats(CONSTANT_BEAT);
 			repeater.runEveryThirdBeat(func1);
 			repeater.runEveryThirdBeat(func2);
 			repeater.runEveryThirdBeat(func3);
@@ -358,9 +362,9 @@ package test
 			
 			advanceFrame();
 			
-			assertThat(timesFunc1Called, true);
-			assertThat(timesFunc2Called, true);
-			assertThat(timesFunc3Called, true);
+			assertThat(timesFunc1Called, 1);
+			assertThat(timesFunc2Called, 1);
+			assertThat(timesFunc3Called, 1);
 		}
 		
 		[Test(order = 1)]
@@ -488,7 +492,7 @@ package test
 		
 		
 		private function prepConsistentRuns():void {
-			repeater.setBeat(BEAT);
+			repeater.startBeats(CONSTANT_BEAT);
 			repeater.runConsistentlyEveryFrame(func1);
 			repeater.runConsistentlyEveryFrame(func2);
 			repeater.runConsistentlyEveryFrame(func3);
@@ -664,6 +668,40 @@ package test
 			assertThat(repeater.isRunningConsistentlyEveryFrame(func2), false);
 			assertThat(repeater.isRunningConsistentlyEveryFrame(func3), false);
 		}
+		
+		
+		
+		
+		[Test]
+		public function changesTempo():void {
+			var changingTempo:Vector.<TempoChange> =
+					new <TempoChange>[	new TempoChange(500, 0),
+										new TempoChange(750, 5),
+										new TempoChange(500, 10)];
+										
+			repeater.startBeats(changingTempo);
+			
+			repeater.runEveryQuarterBeat(func1);
+			repeater.runEveryThirdBeat(func2);
+			
+			stub(timeCounter).method("getTime").returns(2501, 6250, 8750);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 20);
+			assertThat(timesFunc2Called, 15);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 40);
+			assertThat(timesFunc2Called, 30);
+			
+			advanceFrame();
+			
+			assertThat(timesFunc1Called, 60);
+			assertThat(timesFunc2Called, 45);
+		}
+		
 		
 		[After]
 		public function tearDown():void {

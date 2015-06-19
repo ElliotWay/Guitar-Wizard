@@ -82,7 +82,7 @@
 	*AnimationCollection*, ArcherSprite, AssassinSprite, ClericSprite, DefaultOpponent,
 	DefaultSprite, InfoArea, Lightning, Main, Menu, MenuTextButton, OpponentStrategy,
 	Shield,  SoundPlayer, *SummoningMeter*, Wizard, WizardSprite
-	ActorFactory, NoteSpriteFactory, TimeCounter
+	ActorFactory, NoteSpriteFactory, TimeCounter, TempoChange
 
 - untested stuff:
 	arrows created by shooting<Archer>

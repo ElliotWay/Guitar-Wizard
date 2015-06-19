@@ -25,7 +25,7 @@ package src
 		
 		private var tempoSchedule:Vector.<TempoChange>;
 		private var currentTempoIndex:int;
-		private var millisecondsPerBeat:Number;
+		private var millisecondsPerBeat:Number = -1;
 		private var lastTempoChangeTime:Number;
 		
 		private var timePerQuarter:int;
