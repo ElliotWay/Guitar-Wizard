@@ -19,12 +19,12 @@ package src {
 		
 		public static const NO_RETREAT_DISTANCE:Number = 50;
 		
-		public static const BASE_SKIRMISH_DISTANCE:Number = 300;//200;
+		public static const BASE_SKIRMISH_DISTANCE:Number = 200;//200;
 		private static const SKIRMISH_VARIABILITY:Number = 50;
 		
 		private static const ARROW_DAMAGE:int = 5;
 		
-		public static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT + 100;
+		public static const BASE_RANGE:Number = Projectile.TRAJECTORY_CONSTANT - RANGE_VARIABILITY;
 		private static const RANGE_VARIABILITY:Number = 50;
 		
 		trace("min range/skirmish diff " + ((BASE_RANGE - RANGE_VARIABILITY) - (BASE_SKIRMISH_DISTANCE + SKIRMISH_VARIABILITY)));
@@ -71,9 +71,27 @@ package src {
 			return BASE_MELEE_DAMAGE;
 		}
 		
+		private var shieldTarget:Shield = null;
+		
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			if (this.isPreoccupied)
 				return;
+				
+			if (shieldTarget != null && !shieldTarget.isDead) {
+				_status = Status.SHOOTING;
+				
+				currentShootingTarget = shieldTarget;
+				
+				_sprite.animate(Status.SHOOTING, repeater, resetToStanding);
+				
+				shotFiredTimer = new Timer(ArcherSprite.timeUntilFired(repeater), 1);
+				shotFiredTimer.addEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
+				
+				shotFiredTimer.start();
+				return;
+			} else {
+				shieldTarget = null;
+			}
 			
 			//Find the closest valid target(s).
 			var closestRanged:Actor = this.getClosest(enemies, range, false);
@@ -99,6 +117,9 @@ package src {
 					this.retreat(repeater);
 				}
 			} else {
+				if (shotFiredTimer != null) {
+					trace("???ALREADY SHOOTING???");
+				}
 				
 				var expectedDistance:Number = Math.abs(this.getPosition().x - closestRanged.predictPosition(ArcherSprite.ARROW_TIME).x);
 				
@@ -109,8 +130,13 @@ package src {
 				 } else {*/
 				halt();
 				_status = Status.SHOOTING;
-				
+				if (closestRanged == null) {
+					trace("CLOSEST RANGED = NULL");
+				}
 				currentShootingTarget = closestRanged;
+				
+				if (currentShootingTarget is Shield)
+					shieldTarget = currentShootingTarget as Shield;
 				
 				_sprite.animate(Status.SHOOTING, repeater, resetToStanding);
 				
@@ -125,12 +151,12 @@ package src {
 		private function spawnArrow(event:Event):void {
 			(event.target as Timer).removeEventListener(TimerEvent.TIMER_COMPLETE, spawnArrow);
 			
-			var targetPosition:Point/*
-			if (Math.abs(getPosition().x - currentShootingTarget.getPosition().x) < skirmishDistance) {
+			var targetPosition:Point;
+			if (currentShootingTarget.isDead) {
 				targetPosition = isPlayerPiece ? Projectile.SHOOT_RIGHT : Projectile.SHOOT_LEFT;
 			} else {
-				targetPosition*/ = currentShootingTarget.predictPosition(LEAD_TIME);
-//			}
+				targetPosition = currentShootingTarget.predictPosition(LEAD_TIME);
+			}
 			
 			
 			var arrow:Projectile = new Projectile(ARROW_DAMAGE * (isPlayerActor ? player_buff : 1.0),
@@ -202,6 +228,8 @@ package src {
 				shotFiredTimer = null;
 			}
 			currentShootingTarget = null;
+			
+			shieldTarget = null;
 		}
 	}
 }

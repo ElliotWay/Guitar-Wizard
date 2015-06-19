@@ -1,15 +1,9 @@
 ---Might do soon.----------
-- fix Archer dithering - can't reproduce?
-
-- Archers are still overpowered. Not sure how I'll fix this.
-
 - responsiveness - visual reaction to every hit & miss?
 
-- make Archers lock onto shield
+- hold animation looks weird
 
-- fix summoning meter bugs
-
-- hold animation looks weird?
+- update RepeaterTest
 
 
 ---Should do at some point.----------------
@@ -32,13 +26,17 @@
 
 - find a _better_ way of syncing animations to beat
 
-- sync Repeater to Music Player instead
+- sync Repeater to Music Player instead ?
 
 - possible to cheat by holding down holds infinitely?
 
 - make Wizard strum on chords instead of notes
 
 - split miss checking and actor processing
+
+- finish redoing interface; move minimap and text output
+
+- rewrite archer class in general (and ArcherTest, possibly)
 
 
 ---Bugs.-------------------	
@@ -62,9 +60,11 @@
 
 - background transitions still have some bugs
 
+- fix Archer dithering - can't reproduce?
+
 
 ---Do Later.------------------
-- change arrow sprite to pixelated rotation - this may be difficult to tune
+- change arrow sprite to pixelated rotation - this may be difficult to tune  ?
 
 - proper lag handling
 
@@ -178,3 +178,6 @@
 - animate note sprites
 - make new notes as they get closer so you don't need to step through frames on so many
 - splitting render
+- fix summoning meter bugs - redesigned the summoning meter
+- make Archers lock onto shield - we'll see how this goes
+- allow for beat changes - will need to update the song editor to create tempo switches

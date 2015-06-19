@@ -23,18 +23,28 @@ package src
 		
 		private var frameTime:uint;
 		
-		private var millisecondsPerBeat:int = -1;
+		private var tempoSchedule:Vector.<TempoChange>;
+		private var currentTempoIndex:int;
+		private var millisecondsPerBeat:Number;
+		private var lastTempoChangeTime:Number;
+		
 		private var timePerQuarter:int;
 		private var timePerThird:int;
 		
 		private var quarterBeatRun:Dictionary;
 		private var thirdBeatRun:Dictionary;
 		
+		private var beatCount:int;
 		private var beatTime:uint;
+		
 		private var quarterCount:int;
 		private var thirdCount:int;
 		
 		private var running:Boolean = false;
+		
+		public function get isRunning():Boolean {
+			return running;
+		}
 		
 		/**
 		 * Create a repeater. Call prepareRegularRuns to start it.
@@ -43,10 +53,6 @@ package src
 		public function Repeater(dispatcher:EventDispatcher, timer:TimeCounter) {
 			everyFrameDispatcher = dispatcher;
 			timeCounter = timer;
-		}
-		
-		public function get isRunning():Boolean {
-			return running;
 		}
 		
 		/**
@@ -69,24 +75,27 @@ package src
 			running = true;
 		}
 		
-		/**
-		 * Start running things on the beat, or change the beat while running.
-		 * This function has NO EFFECT while the repeater is not running, that is
-		 * calling setBeat THEN prepareRegularRuns does not work.
-		 * @param	millisPerBeat
-		 */
-		public function setBeat(millisPerBeat:int):void {
-			if (!running)
-				return;
-				
+		public function startBeats(schedule:Vector.<TempoChange>):void {
+			if (tempoSchedule != null) {
+				tempoSchedule.splice(0, tempoSchedule.length);
+			}
+			tempoSchedule = schedule;
+			
 			//Catch up to the beat immediately, as we're about to change it.
 			//This shouldn't do anything, but if there was lag we don't want to skip frames.
 			checkBeat();
-				
+			
+			currentTempoIndex = 0;
+			millisecondsPerBeat = tempoSchedule[0].millisecondsPerBeat;
+			
+			beatCount = 0;
 			beatTime = timeCounter.getTime();
 			frameTime = beatTime;
+			lastTempoChangeTime = beatTime;
 			
-			millisecondsPerBeat = millisPerBeat;
+			thirdCount = 0;
+			quarterCount = 0;
+			
 			timePerQuarter = millisecondsPerBeat / 4;
 			timePerThird = millisecondsPerBeat / 3;
 		}
@@ -97,7 +106,7 @@ package src
 		 * @return the current beat, in milliseconds per beat
 		 */
 		public function getBeat():int {
-			return millisecondsPerBeat;
+			return millisecondsPerBeat > 0 ? millisecondsPerBeat : 500;
 		}
 		
 		/**
@@ -233,15 +242,62 @@ package src
 			
 			//Resync beat time.
 			while (rightNow - beatTime > millisecondsPerBeat) {
-				beatTime += millisecondsPerBeat;
+				beatCount++;
+				//Adjust the tempo if a change is scheduled.
+				if (currentTempoIndex + 1 < tempoSchedule.length &&
+						beatCount == tempoSchedule[currentTempoIndex + 1].beatNumber) {
+							
+					//Make sure the beat functions are caught up, as we're about to change the
+					//beat, which would throw those calculations off.
+					checkBeatFunctions(rightNow);
+					
+					beatTime = lastTempoChangeTime +
+							(beatCount - tempoSchedule[currentTempoIndex].beatNumber) *
+							millisecondsPerBeat;
+							
+					lastTempoChangeTime = beatTime;
+					currentTempoIndex++;
+					
+					millisecondsPerBeat = tempoSchedule[currentTempoIndex].millisecondsPerBeat;
+					timePerQuarter = millisecondsPerBeat / 4;
+					timePerThird = millisecondsPerBeat / 3;
+					trace("Tempo changed to: " + millisecondsPerBeat);
+				
+				//Every 100 beats correct for rounding drift.
+				//By adding the duration of the beat to the beat time instead of multiplying
+				//the duration by the number of beats, a small rounding error in the duration
+				//can add up to a lot over time.
+				} else if (beatCount % 100 == 0) {
+					beatTime = lastTempoChangeTime +
+							(beatCount - tempoSchedule[currentTempoIndex].beatNumber) *
+							millisecondsPerBeat;
+							
+				} else {
+					beatTime += millisecondsPerBeat;
+				}
+				
 				quarterCount -= 4;
 				thirdCount -= 3;
 			}
 			
+			checkBeatFunctions(rightNow);
+			
+			
+			//And the consistent frame functions.
+			var func:Object;
+			while (rightNow - frameTime > MILLIS_PER_FRAME) {
+				for (func in consistentEveryFrameRun) {
+					(func as Function).call();
+				}
+				frameTime += MILLIS_PER_FRAME;
+			}
+		}
+		
+		private function checkBeatFunctions(rightNow:uint):void {
 			//Determine the number of ticks we need to do to catch up.
 			//Ideally this is always either 0 or 1.
 			//Check the difference with beat time as that is guaranteed to not
-			//be off due to rounding.
+			//be too far off due to rounding.
 			var quarterCountLag:int = ((rightNow - beatTime) / timePerQuarter) - quarterCount;
 			var thirdCountLag:int = ((rightNow - beatTime) / timePerThird) - thirdCount;
 			
@@ -258,14 +314,6 @@ package src
 					(func as Function).call();
 				}
 				thirdCount++;
-			}
-			
-			//And the consistent frame functions.
-			while (rightNow - frameTime > MILLIS_PER_FRAME) {
-				for (func in consistentEveryFrameRun) {
-					(func as Function).call();
-				}
-				frameTime += MILLIS_PER_FRAME;
 			}
 		}
 	}

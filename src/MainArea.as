@@ -63,9 +63,6 @@ package src
 		public static const PLAYER_ACTORS:int = 1;
 		public static const OPPONENT_ACTORS:int = 2;
 		
-		// (1 / BPM) * 60 * 1000, 500 is 120BPM
-		public static const MILLISECONDS_PER_BEAT:int = 500; //500
-		
 		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
 		
 		private static const NO_COLOR_CHANGE:ColorTransform = new ColorTransform();
@@ -338,8 +335,6 @@ package src
 			hardCode();
 			
 			autoScrollTimer.start();
-			
-			repeater.setBeat(MILLISECONDS_PER_BEAT);
 			
 			repeater.runEveryFrame(step);
 		}

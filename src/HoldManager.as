@@ -10,7 +10,7 @@ package src
 		 * 0.02 summoning units / millisecond.
 		 * Equivalent to 10 units per beat, at 120BPM.
 		 */
-		public static const HOLD_RATIO:Number = 0.015; //0.02
+		public static const HOLD_RATIO:Number = 0.01; //0.02
 		
 		private var repeater:Repeater;
 		private var summoningMeter:SummoningMeter;

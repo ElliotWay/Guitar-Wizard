@@ -62,8 +62,15 @@ package src {
 		override public function act(allies:Vector.<Actor>, enemies:Vector.<Actor>, repeater:Repeater):void {
 			if (this.isPreoccupied)
 				return;
+			
+			//Plausibly, the assassination was finished before we landed.
+			//I'm having a hard time programming around this case, so just wait for the timer
+			//to finish.
+			//It can happen when the beat changes just as the assassin jumps,
+			//making the expected duration of the jump longer, and then the beat changes back,
+			//speeding the animation back up again.
 			if (landedTimer != null) {
-				trace("ZOMG!!!!");
+				return;
 			}
 			
 			//Find the closest valid target.

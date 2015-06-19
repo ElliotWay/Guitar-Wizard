@@ -213,6 +213,13 @@ package src {
 			
 			_repeater.runEveryQuarterBeat(checkCombo);
 			
+			//TODO load this from Song.
+			var tempoSchedule:Vector.<TempoChange> = new Vector.<TempoChange>();
+			tempoSchedule.push(new TempoChange(500, 0));
+			tempoSchedule.push(new TempoChange(750, 163));
+			tempoSchedule.push(new TempoChange(500, 164));
+			_repeater.startBeats(tempoSchedule);
+			
 			infoArea.displayText("Text Test");
 		}
 		
@@ -416,7 +423,10 @@ package src {
 				}
 				//Stop the hold animation. If the hold animation has already stopped,
 				//it's just wasting cycles.
-				currentHold.sprite.stopHolding(repeater);
+				//Lag and other shenaniganry may mean the sprite was freed;
+				//don't worry, freeing it would have also stopped the hold animation.
+				if (currentHold.sprite != null)
+					currentHold.sprite.stopHolding(repeater);
 				
 				var summonBaseAmount:Number;
 				if (musicArea.currentTrack == Main.HIGH)
