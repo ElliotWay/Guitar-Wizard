@@ -3,7 +3,9 @@
 
 - hold animation looks weird
 
-- update RepeaterTest
+- finish redoing interface; move minimap and text output
+
+- make Wizard strum on chords instead of notes
 
 
 ---Should do at some point.----------------
@@ -30,11 +32,7 @@
 
 - possible to cheat by holding down holds infinitely?
 
-- make Wizard strum on chords instead of notes
-
 - split miss checking and actor processing
-
-- finish redoing interface; move minimap and text output
 
 - rewrite archer class in general (and ArcherTest, possibly)
 

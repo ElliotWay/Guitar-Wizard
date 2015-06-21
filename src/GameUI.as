@@ -55,6 +55,12 @@ package src {
 		
 		private var holdManager:HoldManager;
 		
+		private var currentStrum:Number;
+		/**
+		 * Time after which hitting a note will be considered a new strum.
+		 */
+		public static const STRUM_LENGTH:Number = 100;
+		
 		private var combo:int;
 		
 		private var highSummonAmount:Number = 8;
@@ -192,6 +198,8 @@ package src {
 					_actorFactory.create(ActorFactory.SHIELD, Actor.OPPONENT, Actor.LEFT_FACING) as Shield);
 			
 			combo = 0;
+			
+			currentStrum = 0;
 			
 			songIsFinished = false;
 			opponentIsDefeated = false;
@@ -346,7 +354,6 @@ package src {
 			if (expectingHold[noteLetter])
 				return;
 				
-			mainArea.updateWizard();
 			
 			//If the song is over, the play can mash buttons to buff their units.
 			if (songIsFinished) {
@@ -355,6 +362,12 @@ package src {
 			}
 				
 			var rightNow:Number = _musicPlayer.getTime();
+			
+			//Have the wizard strum on sufficiently separated notes.
+			if (rightNow - currentStrum > STRUM_LENGTH) {
+				mainArea.updateWizard();
+				currentStrum = rightNow;
+			}
 			
 			var note:Note = musicArea.hitNote(noteLetter, rightNow);
 			

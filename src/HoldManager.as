@@ -102,10 +102,14 @@ package src
 			if (holdIndex < 0)
 				return;
 				
-			var remainingDuration:uint = ((forceComplete || hold.endtime < currentTime) ?
+			var remainingDuration:int = ((forceComplete || hold.endtime < currentTime) ?
 					hold.endtime : currentTime) - Math.max(lastBeatTime, hold.time);
-					
-			summoningMeter.increase(remainingDuration * HOLD_RATIO);
+			
+			//Unusual for it to be negative, as a managed hold will already be removed
+			//if the last beat is past its end time.
+			//Can plausibly happen if a hold is managed and then finished before a beat occurs.
+			if (remainingDuration > 0)
+				summoningMeter.increase(remainingDuration * HOLD_RATIO);
 			
 			managedHolds.splice(holdIndex, 1);
 		}

@@ -189,7 +189,9 @@ package test
 			//This case is unusual and would only occur as the result of a bug or crazy
 			//unpredictable lag. I still need to make sure it has predicatable results.
 			
-			holdManager.manageHold(earlyHold);nextBeat();
+			holdManager.manageHold(earlyHold);
+			
+			nextBeat();
 			
 			assertThat(summoningMeter, anyOf(received().method("increase").arg(0),
 					received().method("increase").never()));
@@ -411,6 +413,25 @@ package test
 			nextBeat();
 			
 			assertThat(summoningMeter, received().method("increase").thrice());
+		}
+		
+		[Test]
+		public function finishesLateManagedHold():void {
+			var lateHold:Note = new Note();
+			lateHold.letter = Note.NOTE_A;	lateHold.time = FIRST_BEAT - 300;
+			lateHold.isHold = true;			lateHold.endtime = FIRST_BEAT - 100;
+			
+			nextBeat();
+			
+			holdManager.manageHold(lateHold);
+			
+			holdManager.finishHold(lateHold, FIRST_BEAT + 100);
+			
+			//The hold was managed too late, and it is already completely past, so
+			//it should not increase the summoning meter at all.
+			
+			assertThat(summoningMeter, anyOf(received().method("increase").arg(0),
+					received().method("increase").never()));
 		}
 	}
 
