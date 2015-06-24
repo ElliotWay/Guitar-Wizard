@@ -74,6 +74,9 @@ package  src
 		private var currentTransition:Shape;
 		private var transition:TweenLite;
 		
+		private var hitRegion:Shape;
+		private var flashAnimation:TweenLite;
+		
 		private var notesLayer:Sprite;
 		private var scroll:TweenLite;
 		
@@ -124,15 +127,16 @@ package  src
 				lineLayer.graphics.moveTo(0, HEIGHT * ((i + 1) / 5));
 				lineLayer.graphics.lineTo(WIDTH, HEIGHT * ((i + 1) / 5));
 			}
+			this.addChild(lineLayer);
 			
 			//Draw "hit here" region
-			lineLayer.graphics.lineStyle(0, 0, 0.0);
-			lineLayer.graphics.beginFill(0x0, 0.3);//0xFFA319, 0.7);
-			lineLayer.graphics.drawRect(HIT_LINE - GameUI.HIT_TOLERANCE * POSITION_SCALE, 0,
+			hitRegion = new Shape();
+			hitRegion.graphics.beginFill(0x404040);//0xFFA319, 0.7);
+			hitRegion.graphics.drawRect(HIT_LINE - GameUI.HIT_TOLERANCE * POSITION_SCALE, 0,
 								2 * GameUI.HIT_TOLERANCE * POSITION_SCALE, HEIGHT);
-			lineLayer.graphics.endFill();
-			
-			this.addChild(lineLayer);
+			hitRegion.alpha = .3;
+								
+			this.addChild(hitRegion);
 			
 			NoteSprite.global_hit_line_position = this.localToGlobal(new Point(HIT_LINE, 0));
 			
@@ -173,7 +177,7 @@ package  src
 			//render all blocks coming up, and derender current blocks of other tracks.
 			//The blocks look like this:
 			//        0 0 0 D R 0        (high)
-			//    ... 0 D 1 1 R 0 ...    (mid)
+			//    ... 0 D 1 1 R 0 ...    (mid)		(assuming the current track is mid)
 			//        0 0 0 D R 0        (low)
 			//            | |
 			//            | - currentBlock
@@ -589,6 +593,38 @@ package  src
 			return noteBlocks;
 		}
 		
+		private var quarterBeatCount:int = 0;
+		
+		private function continueFlash():void {
+			quarterBeatCount++;
+			
+			var halfBeatTime:Number;
+			
+			if (quarterBeatCount >= 4) {
+				quarterBeatCount = 0;
+				
+				halfBeatTime = repeater.getBeat() / 2.0;
+				
+				if (flashAnimation != null) {
+					flashAnimation.kill();
+				}
+				
+				flashAnimation = new TweenLite(hitRegion, halfBeatTime / 1000,
+						{tint:0x0 } );
+				
+			} else if (quarterBeatCount == 2) {
+				
+				halfBeatTime = repeater.getBeat() / 2.0;
+				
+				if (flashAnimation != null) {
+					flashAnimation.kill();
+				}
+				
+				flashAnimation = new TweenLite(hitRegion, halfBeatTime / 1000,
+						{tint:0x404040 } );
+			}
+		}
+		
 		/**
 		 * Starts scrolling the notes leftwards.
 		 */
@@ -608,6 +644,8 @@ package  src
 			
 			switchTimer = null;
 			advanceTimer = null;
+			
+			repeater.runEveryQuarterBeat(continueFlash);
 		}
 		
 		/**
@@ -634,6 +672,8 @@ package  src
 			highNotes = null;
 			
 			notesLayer = null;
+			
+			repeater.stopRunningEveryQuarterBeat(continueFlash);
 		}
 		
 		/**

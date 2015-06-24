@@ -38,7 +38,8 @@ package src
 		 * the processing over.
 		 * @param	numIndices the number of indices to process at once.
 		 * @param   startIteration whether to do an iteration right away
-		 * @return 	whether the split action is <em>already</em> done, if startIteration was true
+		 * @return 	whether the split action is <em>already</em> done (ie if it only took 1 iteration),
+		 * 		if startIteration was true
 		 */
 		public function start(numIndices:int, startIteration:Boolean = true):Boolean {
 			this.numIndices = Math.max(1, numIndices);

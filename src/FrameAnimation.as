@@ -10,6 +10,7 @@ package src
 	
 	/**
 	 * An animation consisting of several frames, that are moved through on the beat.
+	 * Animations are always initially visible = false.
 	 */
 	public class FrameAnimation extends Sprite
 	{
