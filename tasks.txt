@@ -1,11 +1,11 @@
 ---Might do soon.----------
-- responsiveness - visual reaction to every hit & miss?
+- responsiveness - visual reaction to every hit & miss? -IP
 
 - hold animation looks weird
 
-- finish redoing interface; move minimap and text output
+- add guitarish boundaries to note section
 
-- make Wizard strum on chords instead of notes
+- create miss note sounds
 
 
 ---Should do at some point.----------------
@@ -79,7 +79,7 @@
 - test-unbacked classes: **GameUI**
 	*AnimationCollection*, ArcherSprite, AssassinSprite, ClericSprite, DefaultOpponent,
 	DefaultSprite, InfoArea, Lightning, Main, Menu, MenuTextButton, OpponentStrategy,
-	Shield,  SoundPlayer, *SummoningMeter*, Wizard, WizardSprite
+	Shield,  SoundPlayer, Wizard, WizardSprite
 	ActorFactory, NoteSpriteFactory, TimeCounter, TempoChange
 
 - untested stuff:
@@ -179,3 +179,5 @@
 - fix summoning meter bugs - redesigned the summoning meter
 - make Archers lock onto shield - we'll see how this goes
 - allow for beat changes - will need to update the song editor to create tempo switches
+- make Wizard strum on chords instead of notes
+- finish redoing interface; move minimap and text output

@@ -116,7 +116,9 @@ package src {
 			expectingHold = new <Boolean>[false, false, false, false];
 			currentHolds = new <Note>[null, null, null, null];
 			
-			mainArea = MainArea.create(this);
+			infoArea = new InfoArea();
+
+			mainArea = MainArea.create(this, infoArea);
 			this.addChild(mainArea);
 			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
 			
@@ -128,13 +130,7 @@ package src {
 			
 			holdManager = new HoldManager(repeater, summoningMeter, _musicPlayer);
 			
-			infoArea = new InfoArea();
-			this.addChild(infoArea);
-			infoArea.visible = false;
-			/*
-			infoArea.x = MainArea.WIDTH;
-			infoArea.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT + SummoningMeter.HEIGHT;
-			*/
+			
 			victoryScreen = new Sprite();
 			this.addChild(victoryScreen);
 			victoryScreen.graphics.beginFill(0x0);

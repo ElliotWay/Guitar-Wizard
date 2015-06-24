@@ -1,19 +1,17 @@
 package src 
 {
-	import flash.display.Sprite;
+	import flash.display.Shape;
 	
 	/**
 	 * ...
 	 * @author Elliot Way
 	 */
-	public class MiniSprite extends Sprite 
+	public class MiniSprite extends Shape 
 	{
 		
 		public function MiniSprite() 
 		{
-			this.graphics.beginFill(0xFFFF00);
-			this.graphics.drawRect(0, 0, 2, 2);
-			this.graphics.endFill();
+			;
 		}
 		
 	}

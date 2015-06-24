@@ -44,6 +44,7 @@ package src
 		
 		public static const WIDTH:int = 673;
 		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
+		public static const BACKGROUND_COLOR:uint = 0xB0D090;
 		
 		public static const ARENA_WIDTH:int = 2000;
 		public static const SHIELD_POSITION:int = 450;
@@ -56,8 +57,10 @@ package src
 		
 		public static const END_POINT:int = 30;
 		
-		public static const MINIMAP_WIDTH:int = Main.WIDTH - WIDTH;
+		public static const MINIMAP_WIDTH:int = 350;
 		public static const MINIMAP_HEIGHT:int = 20;
+		public static const MINIMAP_POSITION:int = (WIDTH / 2) - (MINIMAP_WIDTH / 2);
+		public static const MINIMAP_COLOR:uint = 0xA0C080; //0xFFFFB0
 		
 		
 		public static const PLAYER_ACTORS:int = 1;
@@ -117,11 +120,12 @@ package src
 		private var repeater:Repeater;
 		
 		
-		public static function create(gameUI:GameUI):MainArea {
+		public static function create(gameUI:GameUI, infoArea:InfoArea):MainArea {
 			use namespace factory;
 			
 			var out:MainArea = new MainArea(gameUI);
 			out.setScrollable(new ScrollArea(ARENA_WIDTH - WIDTH));
+			out.placeInfoArea(infoArea);
 			
 			return out;
 		}
@@ -139,6 +143,13 @@ package src
 		factory function setScrollable(scrollable:ScrollArea):void {
 			this.scrollable = scrollable;
 			this.addChild(scrollable);
+		}
+		
+		factory function placeInfoArea(infoArea:InfoArea):void {
+			this.addChild(infoArea);
+			infoArea.x = MINIMAP_POSITION;
+			infoArea.y = MINIMAP_HEIGHT;
+			infoArea.visible = true;
 		}
 		
 		private function init(e:Event):void {
@@ -162,7 +173,7 @@ package src
 			foreground = new Sprite();
 			scrollable.addChild(foreground);
 			
-			background.graphics.beginFill(0xB0D090);
+			background.graphics.beginFill(BACKGROUND_COLOR);
 			background.graphics.drawRect(0, 0, ARENA_WIDTH, HEIGHT);
 			background.graphics.endFill();
 			
@@ -201,11 +212,11 @@ package src
 		}
 		
 		private function prepMinimap(minimap:Sprite):void {
-			minimap.graphics.beginFill(0xFFFFB0);
+			minimap.graphics.beginFill(MINIMAP_COLOR);
 			minimap.graphics.drawRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
 			minimap.graphics.endFill();
 			
-			minimap.x = WIDTH;
+			minimap.x = MINIMAP_POSITION;
 			minimap.y = 0;
 		}
 		

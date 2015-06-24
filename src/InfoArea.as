@@ -43,13 +43,16 @@ package src
 			text.width = MainArea.MINIMAP_WIDTH;
 			text.height = HEIGHT;
 			
-			text.background = true;
-			text.backgroundColor = 0xA0A0A0;
+			//text.background = true;
+			//text.backgroundColor = 0xA0A0A0;
 			
-			var textFormat:TextFormat = new TextFormat("Times New Roman, _sans", 20, 0x0);
+			var textFormat:TextFormat = new TextFormat("Times New Roman, _sans", 15, 0x404040);
 			text.defaultTextFormat = textFormat;
 			
 			text.text = "Starting Text";
+			
+			clearTimer = new Timer(CLEAR_TIME, 1);
+			clearTimer.addEventListener(TimerEvent.TIMER_COMPLETE, clearText);
 		}
 		
 		public function displayText(message:String):void {
@@ -58,12 +61,12 @@ package src
 			if (clearTimer != null)
 				clearTimer.stop();
 				
-			clearTimer = new Timer(CLEAR_TIME, 1);
-			clearTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
-				text.text = "";
-				clearTimer = null;
-			});
+			clearTimer.reset();
 			clearTimer.start();
+		}
+		
+		private function clearText(event:Event):void {
+			text.text = "";
 		}
 		
 	}
