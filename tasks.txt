@@ -1,11 +1,9 @@
 ---Might do soon.----------
 - responsiveness - visual reaction to every hit & miss? -IP
 
-- hold animation looks weird
-
 - add guitarish boundaries to note section
 
-- create miss note sounds
+- rewrite archer class in general (and ArcherTest, possibly)
 
 
 ---Should do at some point.----------------
@@ -28,13 +26,7 @@
 
 - find a _better_ way of syncing animations to beat
 
-- sync Repeater to Music Player instead ?
-
-- possible to cheat by holding down holds infinitely?
-
 - split miss checking and actor processing
-
-- rewrite archer class in general (and ArcherTest, possibly)
 
 
 ---Bugs.-------------------	
@@ -71,6 +63,8 @@
 - create 3 more lightning animations
 
 - remove debug keys
+
+- figure out why hold sprite animation is weird
 
 
 ---Behavior that should be tested, is impossible or difficult to test, or is too simple to test--
@@ -181,3 +175,5 @@
 - allow for beat changes - will need to update the song editor to create tempo switches
 - make Wizard strum on chords instead of notes
 - finish redoing interface; move minimap and text output
+- create miss note sounds - will move this into a different class probably
+- possible to cheat by holding down holds infinitely?

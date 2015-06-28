@@ -50,29 +50,7 @@ public class TestRunner extends Sprite
 		classNames = new Vector.<Class>();
 		
 		//#### Populate classNames here.
-		classNames.push(ActionSplitterTest);
-		classNames.push(ActorFactoryTest);
-		classNames.push(ActorSpriteTest);
-		classNames.push(ActorTest);
-		classNames.push(ArcherTest);
-		classNames.push(AssassinTest);
-		classNames.push(ClericTest);
-		classNames.push(FrameAnimationTest);
 		classNames.push(HoldManagerTest);
-		classNames.push(MainAreaTest);
-		classNames.push(MusicPlayerTest);
-		classNames.push(NoteBlockTest);
-		classNames.push(NoteSpriteTest);
-		classNames.push(NoteTest);
-		classNames.push(ProjectileTest);
-		classNames.push(RepeaterTest);
-		classNames.push(ReuseManagerTest);
-		classNames.push(ScrollAreaTest);
-		classNames.push(SongLoaderTest);
-		classNames.push(SongTest);
-		classNames.push(SummoningMeterTest);
-		classNames.push(TestTest);
-		classNames.push(TrimmedNoteTest);
 //%%%%		
 		var dispatcher:IEventDispatcher = prepare(
 			ActorSprite,

@@ -21,6 +21,27 @@ package  src
 	 */
 	public class MusicPlayer 
 	{
+		[Embed(source="../assets/sfx/miss1.mp3")]
+		private static const MissData1:Class;
+		private static const missSound1:Sound = (new MissData1() as Sound);
+		[Embed(source="../assets/sfx/miss2.mp3")]
+		private static const MissData2:Class;
+		private static const missSound2:Sound = (new MissData2() as Sound);
+		[Embed(source="../assets/sfx/miss3.mp3")]
+		private static const MissData3:Class;
+		private static const missSound3:Sound = (new MissData3() as Sound);
+		[Embed(source="../assets/sfx/miss4.mp3")]
+		private static const MissData4:Class;
+		private static const missSound4:Sound = (new MissData4() as Sound);
+		[Embed(source="../assets/sfx/miss5.mp3")]
+		private static const MissData5:Class;
+		private static const missSound5:Sound = (new MissData5() as Sound);
+		[Embed(source="../assets/sfx/miss6.mp3")]
+		private static const MissData6:Class;
+		private static const missSound6:Sound = (new MissData6() as Sound);
+		
+		
+		
 		private var lowMusic:Sound;
 		private var lowChannel:SoundChannel;
 		private var midMusic:Sound;
@@ -224,8 +245,37 @@ package  src
 			}
 		}
 		
+		private var lastMiss:int = -1;
+		
 		public function playMissSound():void {
-			//TODO add this functionality
+			var missNumber:int;
+			
+			do {
+				missNumber = Math.random() * 6;
+			} while (missNumber == lastMiss);
+
+			lastMiss = missNumber;
+			
+			switch (missNumber) {
+				case 0:
+					missSound1.play();
+					break;
+				case 1:
+					missSound2.play();
+					break;
+				case 2:
+					missSound3.play();
+					break;
+				case 3:
+					missSound4.play();
+					break;
+				case 4:
+					missSound5.play();
+					break;
+				case 5:
+					missSound6.play();
+					break;
+			}
 		}
 		
 		/**

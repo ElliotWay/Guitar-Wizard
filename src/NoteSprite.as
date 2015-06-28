@@ -9,6 +9,7 @@ package  src
 	import flash.geom.Point;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
+	import flash.utils.Dictionary;
 	
 	/**
 	 * ...
@@ -241,7 +242,7 @@ package  src
 				hitAnimation.go(repeater);
 					
 				if (associatedNote.isHold) {
-					repeater.runConsistentlyEveryFrame(continueHold);
+					this.addEventListener(Event.ENTER_FRAME, continueHold);
 				}
 				
 				_isHit = 1;
@@ -251,9 +252,10 @@ package  src
 		/**
 		 * Enter frame event listener for updating the successful hold image.
 		 * Finishes the hold if we're the hold is entirely through the hit line.
-		 * @param	e enter frame event
+		 * @param	event enter frame event
 		 */
-		private function continueHold():void {
+		private function continueHold(event:Event = null):void {
+			
 			if (!holdFinished) {
 				this.graphics.lineStyle(4, HIT_COLOR);
 				
@@ -283,7 +285,7 @@ package  src
 					//For robustness's sake, stop the animation here.
 					trace("Unusually small hold.");
 					
-					holdFinished;
+					holdFinished = true;
 				}
 			}
 		}
@@ -292,7 +294,7 @@ package  src
 		 * Ceases the animation displaying a successful hold.
 		 */
 		public function stopHolding(repeater:Repeater):void {
-			repeater.stopRunningConsistentlyEveryFrame(continueHold);
+			this.removeEventListener(Event.ENTER_FRAME, continueHold);
 		}
 		
 		/**

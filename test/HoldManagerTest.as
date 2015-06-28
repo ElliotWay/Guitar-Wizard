@@ -95,9 +95,6 @@ package test
 			assertThat(summoningMeter, received().method("increase")
 					.arg(200 * HoldManager.HOLD_RATIO).once());
 					
-			//Make sure it's finished and doesn't call it again.
-			
-			runningFunction.call();
 			assertThat(summoningMeter, received().method("increase").once());
 		}
 		
@@ -118,8 +115,6 @@ package test
 			
 			assertThat(summoningMeter, received().method("increase")
 					.arg(100 * HoldManager.HOLD_RATIO).once());
-					
-			nextBeat();
 			
 			assertThat(summoningMeter, received().method("increase").twice());
 		}
@@ -146,13 +141,11 @@ package test
 			
 			assertThat(summoningMeter, received().method("increase")
 					.arg(100 * HoldManager.HOLD_RATIO).once());
-					
-			nextBeat();
 			
 			assertThat(summoningMeter, received().method("increase").thrice());
 		}
 		
-		[Test] //also early?
+		[Test]
 		public function managesLateHold():void {
 			var lateHold:Note = new Note();
 			lateHold.letter = Note.NOTE_A;	lateHold.time = FIRST_BEAT + 100;
@@ -171,9 +164,6 @@ package test
 			
 			assertThat(summoningMeter, received().method("increase")
 					.arg(200 * HoldManager.HOLD_RATIO).once());
-			
-			nextBeat();
-			nextBeat();
 			
 			assertThat(summoningMeter, received().method("increase").atMost(2));
 		}
@@ -195,10 +185,6 @@ package test
 			
 			assertThat(summoningMeter, anyOf(received().method("increase").arg(0),
 					received().method("increase").never()));
-			
-			nextBeat();
-			nextBeat();
-			nextBeat();
 			
 			assertThat(summoningMeter, received().method("increase").atMost(1));
 		}
@@ -241,8 +227,9 @@ package test
 			
 			nextBeat();
 			
+			//0 + 250 + 0 + 0 + 0 = 250
 			assertThat(summoningMeter, received().method("increase")
-					.arg(250 * HoldManager.HOLD_RATIO).once());		//For 2.
+					.arg(250 * HoldManager.HOLD_RATIO).once());
 			assertThat(summoningMeter, received().method("increase").once());
 			
 			holdManager.manageHold(hold1);
@@ -252,47 +239,62 @@ package test
 			
 			nextBeat();
 			
+			//100 + 500 + 200 + 350 + 150 = 1300
 			assertThat(summoningMeter, received().method("increase")
-					.arg(100 * HoldManager.HOLD_RATIO).once());		//For 1.
-			assertThat(summoningMeter, received().method("increase")
-					.arg(500 * HoldManager.HOLD_RATIO).once());		//For 2.
-			assertThat(summoningMeter, received().method("increase")
-					.arg(200 * HoldManager.HOLD_RATIO).once());		//For 3.
-			assertThat(summoningMeter, received().method("increase")
-					.arg(350 * HoldManager.HOLD_RATIO).once());		//For 4.
-			assertThat(summoningMeter, received().method("increase")
-					.arg(150 * HoldManager.HOLD_RATIO).once());		//For 5.
-			assertThat(summoningMeter, received().method("increase").times(6));
+					.arg(1300 * HoldManager.HOLD_RATIO).once());
+			assertThat(summoningMeter, received().method("increase").twice());
 			
+			holdManager.finishHold(hold1, 0, true);
 			nextBeat();
 			
+			//0 + 500 + 500 + 500 + 450 = 1950
 			assertThat(summoningMeter, received().method("increase")
-					.arg(500 * HoldManager.HOLD_RATIO).times(4));	//For 2, 3, and 4 (and one for last time).
-			assertThat(summoningMeter, received().method("increase")
-					.arg(450 * HoldManager.HOLD_RATIO).once());		//For 5.
-			assertThat(summoningMeter, received().method("increase").times(10));
+					.arg(1950 * HoldManager.HOLD_RATIO).once());
+			assertThat(summoningMeter, received().method("increase").thrice());
 			
+			holdManager.finishHold(hold5, 0, true);
 			nextBeat();
 			
+			//0 + 300 + 500 + 150 + 0 = 950
 			assertThat(summoningMeter, received().method("increase")
-					.arg(300 * HoldManager.HOLD_RATIO).once());		//For 2.
+					.arg(950 * HoldManager.HOLD_RATIO).once());
+			assertThat(summoningMeter, received().method("increase").times(4));
+			
+			holdManager.finishHold(hold2, 0, true);
+			holdManager.finishHold(hold4, 0, true);
+			nextBeat();
+			
+			//0 + 0 + 50 + 0 + 0 = 50
 			assertThat(summoningMeter, received().method("increase")
-					.arg(500 * HoldManager.HOLD_RATIO).times(5));	//For 3.
+					.arg(50 * HoldManager.HOLD_RATIO).once());
+			assertThat(summoningMeter, received().method("increase").times(5));
+		}
+		
+		[Test]
+		public function decreasesAfterFinishing():void {
+			var hold:Note = new Note();
+			hold.letter = Note.NOTE_A;	hold.time = FIRST_BEAT - 100;
+			hold.isHold = true;			hold.endtime = FIRST_BEAT + 100;
+			
+			holdManager.manageHold(hold);
+			
+			//Finish the hold first.
+			nextBeat();
+			nextBeat();
+			assertThat(summoningMeter, received().method("increase").twice());
+			
+			//After finishing, it should decrease the summoning meter.
+			
+			nextBeat();
 			assertThat(summoningMeter, received().method("increase")
-					.arg(150 * HoldManager.HOLD_RATIO).twice());	//For 4.
-			assertThat(summoningMeter, received().method("increase").times(13));
+					.arg(-500 * HoldManager.BAD_HOLD_RATIO).once());
 					
 			nextBeat();
-			
 			assertThat(summoningMeter, received().method("increase")
-					.arg(50 * HoldManager.HOLD_RATIO).once());		//For 3.
-			assertThat(summoningMeter, received().method("increase").times(14));
+					.arg(-500 * HoldManager.BAD_HOLD_RATIO).twice());
+					
+			assertThat(summoningMeter, received().method("increase").times(4));
 			
-			nextBeat();
-			nextBeat();
-			nextBeat();
-			
-			assertThat(summoningMeter, received().method("increase").times(14));
 		}
 		
 		[Test]

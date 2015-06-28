@@ -12,11 +12,14 @@ package src
 		 */
 		public static const HOLD_RATIO:Number = 0.01; //0.02
 		
+		public static const BAD_HOLD_RATIO:Number = 0.005;
+		
 		private var repeater:Repeater;
 		private var summoningMeter:SummoningMeter;
 		private var musicPlayer:MusicPlayer;
 		
 		private var managedHolds:Vector.<Note>;
+		private var lateHolds:Vector.<Note>;
 		
 		private var lastBeatTime:uint;
 		
@@ -29,6 +32,7 @@ package src
 			this.musicPlayer = musicPlayer;
 			
 			managedHolds = new Vector.<Note>();
+			lateHolds = new Vector.<Note>();
 			
 			quarterBeatCounter = 0;
 			lastBeatTime = 0;
@@ -44,9 +48,26 @@ package src
 			var currentTime:int = musicPlayer.getTime();
 			var beatDuration:int = currentTime - lastBeatTime;
 			
-			var index:int = managedHolds.length - 1;
+			var changeAmount:Number = 0;
+			
+			//First deal with holds that are past their ends.
+			var index:int = lateHolds.length - 1;
+			var hold:Note;
 			while (index >= 0) {
-				var hold:Note = managedHolds[index];
+				hold = lateHolds[index];
+				
+				//But don't decrease anything if the user might still finish the end in time.
+				if (currentTime - hold.endtime > GameUI.HIT_TOLERANCE) {
+					changeAmount -= beatDuration * BAD_HOLD_RATIO;
+				}
+				
+				index--;
+			}
+			
+			//Then update the holds that are still ongoing.
+			index = managedHolds.length - 1;
+			while (index >= 0) {
+				hold = managedHolds[index];
 				
 				var duration:int;
 				
@@ -58,6 +79,7 @@ package src
 					
 					//Remove holds that have reached their end.
 					managedHolds.splice(index, 1);
+					lateHolds.push(hold);
 					
 				} else if (lastBeatTime < hold.time) {
 					duration = currentTime - hold.time;
@@ -67,18 +89,21 @@ package src
 				
 				duration = Math.max(0, duration); //Unusual circumstances make it less than 0.
 				
-				summoningMeter.increase(duration * HOLD_RATIO);
+				changeAmount += duration * HOLD_RATIO;
 				
 				index--;
 			}
+			
+			if (changeAmount != 0)
+				summoningMeter.increase(changeAmount);
 			
 			lastBeatTime = currentTime;
 		}
 		
 		/**
 		 * Add a hold that will regularly portion out its duration to the summoning meter.
-		 * The Note object must be a hold. If the end of the hold is reached, it will stop
-		 * increasing the summoning meter. You need not call finishHold if this happens.
+		 * The Note object must be a hold. If the end of the hold is reached, it will switch
+		 * to decreasing the summoning meter.
 		 * @param	hold a Note that is a hold that should be managed
 		 */
 		public function manageHold(hold:Note):void {
@@ -89,8 +114,10 @@ package src
 		}
 		
 		/**
-		 * Immediately increase the summoning meter by the duration up to the current time or to
-		 * the end of the hold, whichever is less.
+		 * Stop managing the hold.
+		 * If the hold is still ongoing, immediately increase the summoning meter by the
+		 * duration up to the current time or to the end of the hold, whichever is less.
+		 * If the hold is past the end, stop decreasing the summoning meter.
 		 * The hold should already be managed. If it is not, this function does nothing.
 		 * The hold is no longer managed after calling this function.
 		 * @param	hold the hold to finish
@@ -99,8 +126,14 @@ package src
 		 */
 		public function finishHold(hold:Note, currentTime:uint, forceComplete:Boolean = false):void {
 			var holdIndex:int = managedHolds.indexOf(hold);
-			if (holdIndex < 0)
+			if (holdIndex < 0) {
+				holdIndex = lateHolds.indexOf(hold);
+				
+				if (holdIndex >= 0)
+					lateHolds.splice(holdIndex, 1);
+				
 				return;
+			}
 				
 			var remainingDuration:int = ((forceComplete || hold.endtime < currentTime) ?
 					hold.endtime : currentTime) - Math.max(lastBeatTime, hold.time);
