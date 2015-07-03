@@ -22,7 +22,7 @@ package  src
 	 */
 	public class MusicArea extends Sprite 
 	{
-		public static const HEIGHT:int = 250;
+		public static const HEIGHT:int = 230;//250
 		public static const WIDTH:int = 800;
 		
 		public static const HIT_LINE:int = 200;

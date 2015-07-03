@@ -43,7 +43,7 @@ package src
 		public static var mainArea:MainArea;
 		
 		public static const WIDTH:int = 673;
-		public static const HEIGHT:int = Main.HEIGHT - MusicArea.HEIGHT;
+		public static const HEIGHT:int = 350;
 		public static const BACKGROUND_COLOR:uint = 0xB0D090;
 		
 		public static const ARENA_WIDTH:int = 2000;

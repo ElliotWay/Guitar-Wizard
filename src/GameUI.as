@@ -120,13 +120,15 @@ package src {
 
 			mainArea = MainArea.create(this, infoArea);
 			this.addChild(mainArea);
-			mainArea.x = 0; mainArea.y = MusicArea.HEIGHT;
+			mainArea.x = 0; mainArea.y = Main.HEIGHT - MainArea.HEIGHT;
 			
 			summoningMeter = new SummoningMeter(this, new SummoningBarImage(), summoningMeterFill,
 				SUMMONING_BAR_MIN, SUMMONING_BAR_MAX);
 			this.addChild(summoningMeter);
 			summoningMeter.x = MainArea.WIDTH;
-			summoningMeter.y = MusicArea.HEIGHT + MainArea.MINIMAP_HEIGHT;
+			summoningMeter.y = Main.HEIGHT - MainArea.HEIGHT;
+			
+			this.addChild(new Border());
 			
 			holdManager = new HoldManager(repeater, summoningMeter, _musicPlayer);
 			
