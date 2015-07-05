@@ -49,6 +49,8 @@ package src
 		public static const ARENA_WIDTH:int = 2000;
 		public static const SHIELD_POSITION:int = 450;
 		
+		public static const ACTOR_PROCESSING_FRAMES:int = 4;
+		
 		public static const WIZARD_Y:int = 100;
 		
 		public static const WIZARD_KILL_DELAY:int = 1000;
@@ -66,10 +68,7 @@ package src
 		public static const PLAYER_ACTORS:int = 1;
 		public static const OPPONENT_ACTORS:int = 2;
 		
-		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);
-		
-		private static const NO_COLOR_CHANGE:ColorTransform = new ColorTransform();
-		
+		private static const EMPTY_ACTOR_LIST:Vector.<Actor> = new Vector.<Actor>(0, true);		
 		
 		public static const AUTO_SCROLL_DELAY:int = 3000;
 		public static const REPEATED_SCROLL_DELAY:int = 3000;
@@ -80,6 +79,9 @@ package src
 		public static const LIGHTNING_DAMAGE:Number = 5;
 		
 		private var actorFactory:ActorFactory;
+		
+		private var processAction:ActionSplitter;
+		private var currentActors:Vector.<Actor>;
 		
 		private var playerActors:Vector.<Actor>;
 		private var opponentActors:Vector.<Actor>;
@@ -157,6 +159,9 @@ package src
 			this.graphics.beginFill(0xD0D0FF);
 			this.graphics.drawRect(0, 0, WIDTH, HEIGHT);
 			this.graphics.endFill();
+			
+			processAction = new ActionSplitter(processActors);
+			currentActors = new Vector.<Actor>();
 			
 			playerActors = new Vector.<Actor>();
 			opponentActors = new Vector.<Actor>();
@@ -623,34 +628,28 @@ package src
 		 * @param	e an enter frame event
 		 */
 		public function step():void {
-			var actor:Actor;
+			var ongoing:Boolean = processAction.doAction();
 			
-			//Tell actors to act.
-			for each (actor in playerActors) {
-				actor.act(playerActors, opponentActors, repeater);
+			if (!ongoing) {
+				//Collect dead actors and actors over the edge.
+				playerActors = playerActors.filter(removeFinished);
+				opponentActors = opponentActors.filter(removeFinished);
+				
+				//Then update the current actor list and restart processing.
+				currentActors = playerActors.concat(opponentActors);
+				
+				processAction.start(
+						(currentActors.length + ACTOR_PROCESSING_FRAMES) / ACTOR_PROCESSING_FRAMES,
+						false); //(We've already processed on this frame, so don't do it again.)
 			}
-			for each (actor in opponentActors) {
-				actor.act(opponentActors, playerActors, repeater);
-			}
 			
-			
+			//These are very positionally sensitive, so do them every frame.
 			checkProjectiles();
 			updateMinimap();
 			
-			//Tell actors to check if they've died.
-			for each (actor in playerActors) {
-				actor.checkIfDead(repeater, removeActor);
-			}
-			for each (actor in opponentActors) {
-				actor.checkIfDead(repeater, removeActor);
-			}
-			
-			//Collect dead actors and actors over the edge.
-			playerActors = playerActors.filter(removeFinished);
-			
-			opponentActors = opponentActors.filter(removeFinished);
-			
-			//Tell the wizard killers to act.
+			//And tell the wizard killers to act.
+			//These are more complicated than the other actors, and there's only one each so
+			//we don't have to worry about slowdown too much.
 			var wizardList:Vector.<Actor>;
 			if (playerWizardKiller != null && !playerWizardKillerTimer.running && !opponentWizard.isDead) {
 				wizardList = new Vector.<Actor>(1, true);
@@ -683,6 +682,26 @@ package src
 			}
 		}
 		
+		private function processActors(startIndex:int, endIndex:int):Boolean {
+			var index:int;
+			var actor:Actor;
+			
+			for (index = startIndex; index < endIndex && index < currentActors.length; index++) {
+				actor = currentActors[index];
+				
+				//Tell the actor to act on the correct set of allies and opponents.
+				if (actor.isPlayerActor)
+					actor.act(playerActors, opponentActors, repeater);
+				else
+					actor.act(opponentActors, playerActors, repeater);
+					
+				//Then check if the actor is dead.
+				actor.checkIfDead(repeater, removeActor);
+			}
+			
+			return (index < currentActors.length);
+		}
+		
 		/**
 		 * For use with the filter function of each actor list.
 		 * @param	actor
@@ -693,7 +712,7 @@ package src
 		private function removeFinished(actor:Actor, index:int, vector:Vector.<Actor>):Boolean {
 			if (actor.isDead) {
 				minimap.removeChild(actor.miniSprite);
-				
+				//It will be removed from the arena when it finished dying.
 				return false;
 			} else {
 				if (actor.isPlayerActor && actor.getPosition().x > ARENA_WIDTH - END_POINT) {
@@ -775,8 +794,7 @@ package src
 		}
 		
 		private function removeActor(actor:Actor):void {
-			//Restore the sprite to unfaded.
-			actor.sprite.transform.colorTransform = NO_COLOR_CHANGE;
+			actor.unfade();
 			
 			arena.removeChild(actor.sprite);
 			

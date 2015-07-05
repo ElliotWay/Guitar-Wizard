@@ -6,6 +6,7 @@ package src {
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
+	import flash.geom.ColorTransform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
@@ -40,6 +41,9 @@ package src {
 		
 		public static const BLESS_FRAMES:int = 300;
 		public static const BLESS_FACTOR:Number = .30;
+		
+		private static const NO_COLOR_CHANGE:ColorTransform = new ColorTransform();
+
 		
 		/**
 		 * If an actor is this close, they are already past.
@@ -510,6 +514,14 @@ package src {
 			fading = null;
 			
 			deathCallback.call(null, this);
+		}
+		
+		/**
+		 * Restore the actor to unfaded. Use to restore the actor after it dies.
+		 * Using this with an actor that has not faded will not have any visible effect.
+		 */
+		public function unfade():void {
+			_sprite.transform.colorTransform = NO_COLOR_CHANGE;
 		}
 		
 		/**

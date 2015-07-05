@@ -223,7 +223,7 @@ package src
 		public function missUntil(time:Number, repeater:Repeater):Boolean {
 			var noteMissed:Boolean = false;
 			
-			var cutOffTime:Number = time - GameUI.HIT_TOLERANCE - 50; //Extra, just to be sure.
+			var cutOffTime:Number = time - GameUI.HIT_TOLERANCE - 15; //Extra, just to be sure.
 			
 			while (index < _notes.length && _notes[index].time < cutOffTime) {
 				var note:Note = _notes[index];

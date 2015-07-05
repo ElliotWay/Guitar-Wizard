@@ -39,6 +39,15 @@ package  src
 		[Embed(source="../assets/sfx/miss6.mp3")]
 		private static const MissData6:Class;
 		private static const missSound6:Sound = (new MissData6() as Sound);
+		[Embed(source="../assets/sfx/miss7.mp3")]
+		private static const MissData7:Class;
+		private static const missSound7:Sound = (new MissData7() as Sound);
+		[Embed(source="../assets/sfx/miss8.mp3")]
+		private static const MissData8:Class;
+		private static const missSound8:Sound = (new MissData8() as Sound);
+		[Embed(source="../assets/sfx/miss9.mp3")]
+		private static const MissData9:Class;
+		private static const missSound9:Sound = (new MissData9() as Sound);
 		
 		
 		
@@ -251,7 +260,7 @@ package  src
 			var missNumber:int;
 			
 			do {
-				missNumber = Math.random() * 6;
+				missNumber = Math.random() * 9;
 			} while (missNumber == lastMiss);
 
 			lastMiss = missNumber;
@@ -275,6 +284,15 @@ package  src
 				case 5:
 					missSound6.play();
 					break;
+				case 6:
+					missSound7.play();
+					break;
+				case 7:
+					missSound8.play();
+					break;
+				case 8:
+					missSound9.play();
+					
 			}
 		}
 		

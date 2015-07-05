@@ -3,7 +3,9 @@
 
 - rewrite archer class in general (and ArcherTest, possibly)
 
-- split actor processing
+- update MainAreaTest
+
+- resize summoning meter to fit border
 
 
 ---Should do at some point.----------------
@@ -12,8 +14,6 @@
 - score counter?
 
 - indicate buffedness somehow - could be part of the responsiveness changes
-
-- fix MainAreaTest, needless withArgs
 
 - create better shield sprite
 
@@ -25,8 +25,6 @@
 - get ActorFactoryTest to work
 
 - find a _better_ way of syncing animations to beat
-
-- resize summoning meter to fit border
 
 
 ---Bugs.-------------------	
@@ -49,8 +47,6 @@
 - timing on restart was slightly off? possibly due to memory leaks? no, I don't think so
 
 - background transitions still have some bugs
-
-- fix Archer dithering - can't reproduce?
 
 
 ---Do Later. (Or possibly not at all.)------------------
@@ -182,3 +178,4 @@
 - create miss note sounds - will move this into a different class probably
 - possible to cheat by holding down holds infinitely?
 - add border between areas
+- split actor processing
