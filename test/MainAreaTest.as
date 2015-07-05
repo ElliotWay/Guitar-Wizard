@@ -189,7 +189,9 @@ package test
 			mainArea.opponentSummon(opponentActor1);
 			mainArea.opponentSummon(opponentActor2);
 			
-			mainArea.step();
+			//Processing the actors is now separated into multiple frames.
+			for (var i:int = 0; i < MainArea.ACTOR_PROCESSING_FRAMES; i++)
+				mainArea.step();
 			
 			assertThat(playerActor1, received().method("act").once());
 			assertThat(playerActor2, received().method("act").once());

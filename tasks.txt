@@ -3,9 +3,9 @@
 
 - rewrite archer class in general (and ArcherTest, possibly)
 
-- update MainAreaTest
-
 - resize summoning meter to fit border
+
+- create better shield sprite
 
 
 ---Should do at some point.----------------
@@ -15,8 +15,6 @@
 
 - indicate buffedness somehow - could be part of the responsiveness changes
 
-- create better shield sprite
-
 - object reuse: Projectiles?
 - object reuse: other? that's most of them really, maybe cut down on the number of vectors or something
 
@@ -25,6 +23,8 @@
 - get ActorFactoryTest to work
 
 - find a _better_ way of syncing animations to beat
+
+- figure out why hold sprite animation is weird
 
 
 ---Bugs.-------------------	
@@ -59,8 +59,6 @@
 - create 3 more lightning animations
 
 - remove debug keys
-
-- figure out why hold sprite animation is weird
 
 - pulse in border
 

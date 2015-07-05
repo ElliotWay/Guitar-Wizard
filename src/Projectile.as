@@ -41,6 +41,14 @@ package src {
 		
 		private var arrowHead:Sprite;
 		
+		public function get targets():int {
+			return _targets;
+		}
+		
+		public function get finished():Boolean {
+			return _finished;
+		}
+		
 		/**
 		 * Create a new projectile.
 		 * @param	targets bit mask of possible targets
@@ -213,14 +221,6 @@ package src {
 				timeline.kill();
 			
 			_finished = true;
-		}
-		
-		public function get targets():int {
-			return _targets;
-		}
-		
-		public function get finished():Boolean {
-			return _finished;
 		}
 	
 	}
