@@ -17,6 +17,7 @@ package src
 	 */
 	public class SummoningMeter extends Sprite 
 	{
+		public static const WIDTH:int = 110;
 		
 		private static const BACKGROUND_COLOR:int = 0xFFFFB0; //Faded Yellow.
 		

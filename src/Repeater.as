@@ -240,7 +240,7 @@ package src
 				fpsLastTime = rightNow;
 			}
 			
-			//Resync beat time.
+			//Resync beat time. (The time of the last beat.)
 			while (rightNow - beatTime > millisecondsPerBeat) {
 				beatCount++;
 				//Adjust the tempo if a change is scheduled.

@@ -42,7 +42,7 @@ package src
 		//TODO replace this; am I even still using this? Yes, in Archer's request to addProjectile.
 		public static var mainArea:MainArea;
 		
-		public static const WIDTH:int = 673;
+		public static const WIDTH:int = 676;
 		public static const HEIGHT:int = 350;
 		public static const BACKGROUND_COLOR:uint = 0xB0D090;
 		

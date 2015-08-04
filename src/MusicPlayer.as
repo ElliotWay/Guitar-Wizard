@@ -67,10 +67,14 @@ package  src
 		private var fadingIn:TweenLite;
 		private var fadingOut:TweenLite;
 		
+		private var missSoundReady:Boolean;
+		
 		private var gameUI:GameUI;
 		
 		private static const MUTE:SoundTransform = new SoundTransform(0);
 		private static const UNMUTE:SoundTransform = new SoundTransform(1);
+		
+		private static const MISS_LEVEL:SoundTransform = new SoundTransform(0.5);
 		
 		/**
 		 * Approximate time between calling play and the music actually starting.
@@ -137,6 +141,8 @@ package  src
 				lowChannel = lowMusic.play(0, 0, MUTE);
 				
 			trackStopped = false;
+			
+			gameUI.repeater.runEveryQuarterBeat(allowMissSound);
 		}
 		
 		private function finishSong(event:Event):void {
@@ -252,11 +258,16 @@ package  src
 				lowChannel.stop();
 				lowChannel = null;
 			}
+			
+			gameUI.repeater.stopRunningEveryQuarterBeat(allowMissSound);
 		}
 		
 		private var lastMiss:int = -1;
 		
 		public function playMissSound():void {
+			if (!missSoundReady)
+				return;
+			
 			var missNumber:int;
 			
 			do {
@@ -265,34 +276,50 @@ package  src
 
 			lastMiss = missNumber;
 			
+			var missSound:Sound = null;
+			
 			switch (missNumber) {
 				case 0:
-					missSound1.play();
+					missSound = missSound = missSound = missSound1;
 					break;
 				case 1:
-					missSound2.play();
+					missSound = missSound2;
 					break;
 				case 2:
-					missSound3.play();
+					missSound = missSound3;
 					break;
 				case 3:
-					missSound4.play();
+					missSound = missSound4;
 					break;
 				case 4:
-					missSound5.play();
+					missSound = missSound5;
 					break;
 				case 5:
-					missSound6.play();
+					missSound = missSound6;
 					break;
 				case 6:
-					missSound7.play();
+					missSound = missSound7;
 					break;
 				case 7:
-					missSound8.play();
+					missSound = missSound8;
 					break;
 				case 8:
-					missSound9.play();
+					missSound = missSound9;
 					
+			}
+			
+			(missSound.play()).soundTransform = MISS_LEVEL;
+			
+			missSoundReady = false;
+		}
+		
+		
+		private var step:int = 0;
+		private function allowMissSound():void {
+			step++;
+			if (step == 4) {
+				step = 0;
+				missSoundReady = true;
 			}
 		}
 		

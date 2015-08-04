@@ -3,9 +3,11 @@
 
 - rewrite archer class in general (and ArcherTest, possibly)
 
-- resize summoning meter to fit border
-
 - create better shield sprite
+
+- create every beat function
+
+- create buildup period with songs that start right away
 
 
 ---Should do at some point.----------------
@@ -177,3 +179,5 @@
 - possible to cheat by holding down holds infinitely?
 - add border between areas
 - split actor processing
+- resize summoning meter to fit border
+- load tempo changes from song

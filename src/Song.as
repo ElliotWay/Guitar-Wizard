@@ -18,6 +18,8 @@ package  src
 		private var _highPart:Vector.<Vector.<Note>>;
 		
 		private var _blocks:Vector.<Number>;
+		
+		private var _tempoSchedule:Vector.<TempoChange>;
 
 		private var _lowMusic:Sound;
 		private var _midMusic:Sound;
@@ -65,7 +67,7 @@ package  src
 		private function interpretFile(e:Event):void {
 			var lines:Array = String(loader.data).split("\n");
 			
-			if (lines.length < 8)
+			if (lines.length < 9)
 				Main.showError("Error: Corrupt GSW file: missing lines");
 			
 			var baseName:String = lines[0];
@@ -95,8 +97,14 @@ package  src
 			
 			_blocks = new Vector.<Number>();
 			
+			var tempoChangeString:String = lines[8];
+			
+			_tempoSchedule = new Vector.<TempoChange>();
+			
 			try {
 				parseBlocks(_blocks, blockString);
+				
+				parseTempoChanges(_tempoSchedule, tempoChangeString);
 				
 				parseNotes(_highPart, _blocks, highNoteString);
 				parseNotes(_midPart, _blocks, midNoteString);
@@ -287,6 +295,71 @@ package  src
 			}
 		}
 		
+		/**
+		 * Parse the tempo changes out of a string into a vector.
+		 * 
+		 * These alternate between beat numbers and tempos in milliseconds per beat:
+		 * 
+		 * 0 ddd.dddd ddddd ddd.dddd ddddd ddd.dddd
+		 * 
+		 * The initial beat number must always be 0. The remaining beat numbers must be positive
+		 * integers; however, the tempos may be positive floating point numbers.
+		 * 
+		 * @param	tempoSchedule the vector to parse the tempo changes into
+		 * @param	str the string out of which the tempo changes are parsed
+		 */
+		public function parseTempoChanges(tempoSchedule:Vector.<TempoChange>, str:String):void {
+			var tokens:Array = str.split(/\s+/);
+			
+			var index:int = 0;
+			var lastBeatNumber:int = -1;
+			
+			while (index < tokens.length) {
+				//Ignore empty tokens.
+				if (String(tokens[index]).length == 0) {
+					index++;
+					continue;
+				}
+				
+				var beatExpression:Number = parseFloat(String(tokens[index]));
+				
+				var actualBeatNumber:int;
+				if (beatExpression % 1 != 0 || beatExpression < 0) {
+					throw new GWError("Error: Corrupt GWS File: invalid beat number " +
+							"Token # " + index + ", Bad beat number: " + String(tokens[index]));
+				} else if (beatExpression < lastBeatNumber) {
+					throw new GWError("Error: Corrupt GWS File: beat numbers out of order " +
+							"Token # " + index + ", " + String(tokens[index]) + " < " + lastBeatNumber);
+				} else {
+					actualBeatNumber = int(beatExpression);
+				}
+				
+				if (index == 0 && actualBeatNumber != 0) {
+					throw new GWError("Error: Corrupt GWS File: first beat number must be 0");
+				}
+				
+				index++;
+				if (index >= tokens.length) {
+					throw new GWError("Error: Corrupt GWS File: missing token " +
+							"Token # " + index + ", " + actualBeatNumber + " ???");
+					return;
+				}
+				
+				var tempo:Number = parseFloat(String(tokens[index]));
+				
+				if (tempo <= 0) {
+					throw new GWError("Error: Corrupt GWS File: invalid tempo " +
+							"Token # " + index + ", Bad tempo: " + String(tokens[index]));
+				}
+				
+				tempoSchedule.push(new TempoChange(tempo, actualBeatNumber));
+				
+				lastBeatNumber = actualBeatNumber;
+				
+				index++;
+			}
+		}
+		
 		public function get lowPart():Vector.<Vector.<Note>> 
 		{
 			return _lowPart;
@@ -313,6 +386,11 @@ package  src
 		public function get blocks():Vector.<Number>
 		{
 			return _blocks;
+		}
+		
+		public function get tempoSchedule():Vector.<TempoChange>
+		{
+			return _tempoSchedule;
 		}
 		
 		public function get lowMusic():Sound 

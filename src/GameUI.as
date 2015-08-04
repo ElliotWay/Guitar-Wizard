@@ -16,8 +16,8 @@ package src {
 	{	
 		[Embed(source="../assets/guitar_summoning_bar.png")]
 		private static const SummoningBarImage:Class;
-		private static const SUMMONING_BAR_MIN:int = 321;
-		private static const SUMMONING_BAR_MAX:int = 9;
+		private static const SUMMONING_BAR_MIN:int = 305;
+		private static const SUMMONING_BAR_MAX:int = 26;
 		
 		/**
 		 * The Repeater. DON'T USE THIS except in experimental code.
@@ -105,7 +105,7 @@ package src {
 			//The fill of the summoning meter changes color whenever the music area changes color,
 			//so it's useful to give the music area access to it.
 			var summoningMeterFill:SummoningMeterFill =
-				new SummoningMeterFill(Main.WIDTH - MainArea.WIDTH, SUMMONING_BAR_MIN - SUMMONING_BAR_MAX, repeater);
+				new SummoningMeterFill(SummoningMeter.WIDTH, SUMMONING_BAR_MIN - SUMMONING_BAR_MAX, repeater);
 			
 			musicArea = new MusicArea(this, summoningMeterFill);
 			this.addChild(musicArea);
@@ -125,7 +125,7 @@ package src {
 			summoningMeter = new SummoningMeter(this, new SummoningBarImage(), summoningMeterFill,
 				SUMMONING_BAR_MIN, SUMMONING_BAR_MAX);
 			this.addChild(summoningMeter);
-			summoningMeter.x = MainArea.WIDTH;
+			summoningMeter.x = Main.WIDTH - SummoningMeter.WIDTH;
 			summoningMeter.y = Main.HEIGHT - MainArea.HEIGHT;
 			
 			this.addChild(new Border());
@@ -219,12 +219,7 @@ package src {
 			
 			_repeater.runEveryQuarterBeat(checkCombo);
 			
-			//TODO load this from Song.
-			var tempoSchedule:Vector.<TempoChange> = new Vector.<TempoChange>();
-			tempoSchedule.push(new TempoChange(500, 0));
-			tempoSchedule.push(new TempoChange(750, 163));
-			tempoSchedule.push(new TempoChange(500, 164));
-			_repeater.startBeats(tempoSchedule);
+			_repeater.startBeats(song.tempoSchedule);
 			
 			infoArea.displayText("Text Test");
 		}
