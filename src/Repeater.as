@@ -76,9 +76,7 @@ package src
 		}
 		
 		public function startBeats(schedule:Vector.<TempoChange>):void {
-			if (tempoSchedule != null) {
-				tempoSchedule.splice(0, tempoSchedule.length);
-			}
+			
 			tempoSchedule = schedule;
 			
 			//Catch up to the beat immediately, as we're about to change it.

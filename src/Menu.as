@@ -23,12 +23,17 @@ package src
 			this.graphics.drawRect(0, 0, Main.WIDTH, Main.HEIGHT);
 			this.graphics.endFill();
 			
-			var goButton:MenuTextButton = new MenuTextButton("GO!!!!1",
-					function():void { Main.switchToGame(); } );
+			var song1Button:MenuTextButton = new MenuTextButton("Fur Elise",
+					function():void { Main.switchToGame(1); } );
+			var song2Button:MenuTextButton = new MenuTextButton("Moonlight Sonata",
+					function():void { Main.switchToGame(2); } );
 			
-			this.addChild(goButton);
-			goButton.x = 100;
-			goButton.y = 100;
+			this.addChild(song1Button);
+			song1Button.x = 100;
+			song1Button.y = 100;
+			this.addChild(song2Button);
+			song2Button.x = 100;
+			song2Button.y = 300;
 		}
 		
 	}

@@ -1,4 +1,6 @@
 ---Might do soon.----------
+- update your test suite, damn you
+
 - responsiveness - visual reaction to every hit & miss? -IP
 
 - rewrite archer class in general (and ArcherTest, possibly)
@@ -9,9 +11,11 @@
 
 - create buildup period with songs that start right away
 
+- create song selection screen, figure out why menu didn't alway work
+
 
 ---Should do at some point.----------------
-- GameUITest - I missed this somehow. It's kind of still in development?
+- GameUITest - I missed this somehow. - It's kind of still in development?
 
 - score counter?
 
@@ -62,7 +66,7 @@
 
 - remove debug keys
 
-- pulse in border
+- pulse in border - only if you _really_ want to polish
 
 - color code actors (ie make Clerics orange and Assassins purple)
 

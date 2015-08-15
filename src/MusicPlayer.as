@@ -264,6 +264,7 @@ package  src
 		
 		private var lastMiss:int = -1;
 		
+		//TODO put this function in another class
 		public function playMissSound():void {
 			if (!missSoundReady)
 				return;

@@ -46,6 +46,14 @@ package  src
 		}
 		
 		/**
+		 * Calculate the amount of silence 
+		 * @return
+		 */
+		public function getRequiredDelay():int {
+			return 0;
+		}
+		
+		/**
 		 * Load the GWS file and call Main.fileLoaded when its finished.
 		 * If the file is already loaded, this will call fileLoaded immediately.
 		 */

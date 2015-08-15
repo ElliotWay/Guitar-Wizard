@@ -376,6 +376,9 @@ package src
 			playerActors.splice(0, playerActors.length);
 			opponentActors.splice(0, opponentActors.length);
 			
+			//Stop processing actors.
+			processAction.stop();
+			
 			/*scrollable.removeChild(arena);
 			arena = new Sprite();
 			scrollable.addChildAt(arena, 1);

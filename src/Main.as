@@ -32,7 +32,8 @@ package src
 		private static var menu:Menu;
 		private static var gameUI:GameUI;
 		
-		private static var song:Song;
+		private static var song1:Song, song2:Song;
+		private static var currentSong:int = 1;
 		
 		private static var songLoader:SongLoader;
 		
@@ -61,13 +62,18 @@ package src
 			this.addChild(gameUI);
 			gameUI.visible = false;
 			
-			song = new Song("../assets/FurElise.gws");
+			song1 = new Song("../assets/FurElise.gws");
+			song2 = new Song("../assets/MoonlightSonata.gws");
 			
-			switchToGame();
+			switchToGame(1);
 		}
 		
-		public static function switchToGame():void {
-			song.loadFile();
+		public static function switchToGame(songNumber:int):void {
+			currentSong = songNumber;
+			if (currentSong == 1)
+				song1.loadFile();
+			else
+				song2.loadFile();
 			
 			menu.visible = false;
 			gameUI.visible = true;
@@ -77,7 +83,10 @@ package src
 		 * Callback function for song.loadFile
 		 */
 		public static function songFileReady():void {
-			gameUI.loadSong(song);
+			if (currentSong == 1)
+				gameUI.loadSong(song1);
+			else
+				gameUI.loadSong(song2);
 			
 			if (songLoader.isPending) {
 				songLoader.load();
