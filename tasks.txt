@@ -7,9 +7,7 @@
 
 - create better shield sprite
 
-- create every beat function
-
-- create buildup period with songs that start right away
+- create buildup period with songs that start right away - no, too complicate better to add buildup to every song
 
 - create song selection screen, figure out why menu didn't alway work
 
@@ -185,3 +183,4 @@
 - split actor processing
 - resize summoning meter to fit border
 - load tempo changes from song
+- create every beat function

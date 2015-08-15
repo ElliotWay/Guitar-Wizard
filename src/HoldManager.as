@@ -23,7 +23,6 @@ package src
 		
 		private var lastBeatTime:uint;
 		
-		private var quarterBeatCounter:int;
 		
 		public function HoldManager(repeater:Repeater, summoningMeter:SummoningMeter, musicPlayer:MusicPlayer) 
 		{
@@ -34,16 +33,11 @@ package src
 			managedHolds = new Vector.<Note>();
 			lateHolds = new Vector.<Note>();
 			
-			quarterBeatCounter = 0;
 			lastBeatTime = 0;
-			repeater.runEveryQuarterBeat(advanceHolds);
+			repeater.runEveryBeat(advanceHolds);
 		}
 		
 		private function advanceHolds():void {
-			quarterBeatCounter++;
-			if (quarterBeatCounter < 4)
-				return;
-			quarterBeatCounter = 0;
 			
 			var currentTime:int = musicPlayer.getTime();
 			var beatDuration:int = currentTime - lastBeatTime;

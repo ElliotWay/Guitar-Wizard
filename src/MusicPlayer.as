@@ -142,7 +142,7 @@ package  src
 				
 			trackStopped = false;
 			
-			gameUI.repeater.runEveryQuarterBeat(allowMissSound);
+			gameUI.repeater.runEveryBeat(allowMissSound);
 		}
 		
 		private function finishSong(event:Event):void {
@@ -259,7 +259,7 @@ package  src
 				lowChannel = null;
 			}
 			
-			gameUI.repeater.stopRunningEveryQuarterBeat(allowMissSound);
+			gameUI.repeater.stopRunningEveryBeat(allowMissSound);
 		}
 		
 		private var lastMiss:int = -1;
@@ -315,13 +315,8 @@ package  src
 		}
 		
 		
-		private var step:int = 0;
 		private function allowMissSound():void {
-			step++;
-			if (step == 4) {
-				step = 0;
-				missSoundReady = true;
-			}
+			missSoundReady = true;
 		}
 		
 		/**

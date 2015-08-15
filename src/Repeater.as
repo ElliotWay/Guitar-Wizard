@@ -31,6 +31,7 @@ package src
 		private var timePerQuarter:int;
 		private var timePerThird:int;
 		
+		private var beatRun:Dictionary;
 		private var quarterBeatRun:Dictionary;
 		private var thirdBeatRun:Dictionary;
 		
@@ -67,6 +68,7 @@ package src
 			everyFrameRun = new Dictionary(true);
 			consistentEveryFrameRun = new Dictionary(true);
 			
+			beatRun = new Dictionary(true);
 			quarterBeatRun = new Dictionary(true);
 			thirdBeatRun = new Dictionary(true);
 			
@@ -116,6 +118,7 @@ package src
 				
 			everyFrameDispatcher.removeEventListener(Event.ENTER_FRAME, frameRunner);
 			
+			beatRun = null;
 			quarterBeatRun = null;
 			thirdBeatRun = null;
 			everyFrameRun = null;
@@ -162,6 +165,22 @@ package src
 		
 		public function isRunningConsistentlyEveryFrame(func:Function):Boolean {
 			return (consistentEveryFrameRun[func] != undefined);
+		}
+		
+		/**
+		 * Run a given function every beat. The function should take no arguments.
+		 * @param	func the function to run every beat.
+		 */
+		public function runEveryBeat(func:Function):void {
+			beatRun[func] = func;
+		}
+		
+		/**
+		 * Stop running the function every beat.
+		 * @param	func the function to stop running.
+		 */
+		public function stopRunningEveryBeat(func:Function):void {
+			delete beatRun[func];
 		}
 		
 		/**
@@ -272,6 +291,11 @@ package src
 							
 				} else {
 					beatTime += millisecondsPerBeat;
+				}
+				
+				//Run every beat functions.
+				for (func in beatRun) {
+					(func as Function).call();
 				}
 				
 				quarterCount -= 4;
