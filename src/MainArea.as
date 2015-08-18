@@ -39,6 +39,9 @@ package src
 		[Embed(source="../assets/arch_fore.png")]
 		private static const ArchForeImage:Class;
 		
+		[Embed(source = "../assets/big_wizard_pixelated.png")]
+		private static const BigWizardImage:Class;
+		
 		//TODO replace this; am I even still using this? Yes, in Archer's request to addProjectile.
 		public static var mainArea:MainArea;
 		
@@ -116,6 +119,8 @@ package src
 		private var autoScrollTimer:Timer;
 		private var repeatedScrollTimer:Timer;
 		
+		private var bigWizard:Bitmap;
+		
 		private var minimap:Sprite;
 		
 		private var gameUI:GameUI;
@@ -126,7 +131,7 @@ package src
 			use namespace factory;
 			
 			var out:MainArea = new MainArea(gameUI);
-			out.setScrollable(new ScrollArea(ARENA_WIDTH - WIDTH));
+			out.setScrollable(new ScrollArea(ARENA_WIDTH - WIDTH, out.moveBigWizard));
 			out.placeInfoArea(infoArea);
 			
 			return out;
@@ -185,6 +190,12 @@ package src
 			background.graphics.beginFill(0x909000);
 			background.graphics.drawRect(0, Actor.Y_POSITION, ARENA_WIDTH, 3);
 			
+			bigWizard = new BigWizardImage() as Bitmap;
+			this.addChild(bigWizard);
+			bigWizard.x = -bigWizard.width;
+			bigWizard.y = 0;
+			scrollable
+			
 			//minimap
 			minimap = new Sprite();
 			this.addChild(minimap);
@@ -223,6 +234,20 @@ package src
 			
 			minimap.x = MINIMAP_POSITION;
 			minimap.y = 0;
+		}
+		
+		private function moveBigWizard(targetX:Number):void {
+			const SHIFT_BIG_WIZARD:Number = 200;
+			const SHIFT_SPEED:Number = 1.0;
+			
+			if (-targetX < SHIFT_BIG_WIZARD) {
+				bigWizard.x = -bigWizard.width;
+			} else if (-targetX >= SHIFT_BIG_WIZARD &&
+					(-targetX - SHIFT_BIG_WIZARD) * SHIFT_SPEED < bigWizard.width) {
+				bigWizard.x = -bigWizard.width + (-targetX - SHIFT_BIG_WIZARD) * SHIFT_SPEED;
+			} else {
+				bigWizard.x = 0;
+			}
 		}
 		
 		private function startRepeatedScrollTimer(event:Event):void {

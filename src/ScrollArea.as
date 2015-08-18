@@ -21,6 +21,7 @@ package src
 		private var scroller:TweenLite;
 		
 		private var maxScroll:Number;
+		private var onScroll:Function;
 		
 		/**
 		 * Whether the ScrollArea is currently scrolling.
@@ -32,10 +33,13 @@ package src
 		/**
 		 * Create a new scrollable area.
 		 * @param	maxScroll the rightmost point of the scroll.
+		 * @param   onScroll function to call every time the x position changes.
+		 * 		The function should be func(x) where x is the current x position.
 		 */
-		public function ScrollArea(maxScroll:Number) 
+		public function ScrollArea(maxScroll:Number, onScroll:Function) 
 		{
 			this.maxScroll = maxScroll;
+			this.onScroll = onScroll;
 		}
 		
 		/**
@@ -116,6 +120,11 @@ package src
 				
 			scroller = new TweenLite(this, JUMP_DURATION,
 				{ x : 0, ease:Linear.easeInOut, onComplete:stopScrolling } );
+		}
+		
+		override public function set x(num:Number):void {
+			super.x = num;
+			onScroll.call(null, num);
 		}
 	}
 	
