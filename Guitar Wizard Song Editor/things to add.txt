@@ -1,0 +1,63 @@
+note distribution statistics
+
+request save instead of autosave - easy/medium
+
+allow delete key to delete selected notes - medium/easy
+
+undo - very hard - partially done
+- if an undo causes a change on a different track, switch to that track
+-new song
+-open other song
+- clear queue on save of new song
+
+create minimap area - medium/hard
+
+highlight problems after check - very hard
+
+add synchronization tools for block separators? - medium/hard
+
+fix bug where sometimes songs are lost when errors occur - unknown
+
+auto-add separators - medium
+
+zoom in - very hard
+
+change paste to paste notes onto current track - easy/medium
+
+remove all local references to editor - tedious
+
+highlight note when right-clicked - medium/hard/uncertain
+
+allow changing default location - easy/medium
+
+disallow placing midi notes on same spot (or any note?) - hard
+
+handle multiple midi notes on same spot - hard
+
+fix bug where spacebar doesn't toggle pause/play on start - unknown
+
+create beat schedule
+
+--------------------------------
+
+allow line movement on holdmarks - easy
+look in current directory or save directory - easy
+fix bug with wrong song loaded - unknown - small typo
+allow easier synchronization - medium
+creating midi note then toggling hold should be as if a midi hold was created (thought this was already true?) - easy/medium
+spacebar for play/pause - medium
+make song file names names with a default location instead of relative paths -easy/medium
+constant (changeable? - maybe later) offset for creating holds from midi - medium/hard
+block demarcations - hard
+easier removal of block separators - medium - could look better
+play should play from the position of the cursor - easy - change mind: unintuitive
+more copy/paste functionality - medium
+undo - very hard
+-cut done, -paste done
+-delete all done - lots of problems with cut and paste fixed as well
+-create note done, -delete note done, -move note done, -move hold done, -toggle hold done, -add block line done,
+-remove block line done, -clear block lines done
+allow paste mode to highlight notes, holds and midi notes to paste onto - medium/hard
+refactor synchronization with synchronizable interface - medium/tedious
+paste on other note - easy
+check validity before save - medium/hard
